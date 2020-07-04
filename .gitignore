@@ -1,0 +1,26 @@
+# Exclude individual setting file
+settings.ini
+
+# Exclude crypto keys
+*.pem
+
+# Add any directories, files, or patterns you don't want to be tracked by version control
+.idea/
+
+# Python files.
+*.pyc
+*.pyo
+*.egg-info
+
+# Exclude Sphinx build and template files
+docs/build/
+docs/build_userguide/
+
+# Exclude Python wheel build directory
+build
+
+# Exclude Python wheel directory
+dist
+
+# Exclude IPython checkpoints
+.ipynb_checkpoints/
