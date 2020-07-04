@@ -39,6 +39,12 @@ class SoloConfig(Config):
     tout_gespielt_gewonnen: bool
     tout_gespielt_verloren: bool
 
+    def get_spieler_ids(self) -> List[int]:
+        return [t for t in self.teilnehmer_ids if t in [self.ansager_id]]
+
+    def get_nicht_spieler_ids(self) -> List[int]:
+        return [t for t in self.teilnehmer_ids if t not in [self.ansager_id]]
+
 
 @dataclass
 class RawConfig:

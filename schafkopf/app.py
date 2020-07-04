@@ -13,7 +13,7 @@ from schafkopf.backend.configs import RufspielRawConfig, SoloRawConfig
 from schafkopf.backend.validator import RufspielValidator, SoloValidator
 from schafkopf.database.queries import get_runden, get_teilnehmer, get_latest_einzelspiel_id, \
     get_runde_id_by_einzelspiel_id, get_einzelspiele_by_einzelspiel_id
-from schafkopf.database.writer import RufspielWriter
+from schafkopf.database.writer import RufspielWriter, SoloWriter
 from schafkopf.frontend.generic_objects import wrap_alert, wrap_stats, wrap_rufspiel_card, \
     wrap_next_game_button, wrap_select_div, wrap_dbc_col, wrap_empty_dbc_row, wrap_solo_card
 from schafkopf.frontend.presenter import RufspielPresenter, SoloPresenter
@@ -323,13 +323,12 @@ def calculate_solo(
         return wrap_alert(messages), dict(display='none'), html.Div(), html.Div(), False
     solo_calculator = SoloCalculator(solo_validator.validated_config)
     result = SoloPresenter(solo_calculator).get_result()
-    return result, dict(), html.Div(), html.Div(), False
-    # if rufspiel_spielstand_eintragen_button_n_clicks is not None and rufspiel_spielstand_eintragen_button_n_clicks >= 1:
-    #     RufspielWriter(rufspiel_calculator).write()
-    #     header, body = wrap_stats([runde_id])
-    #     return result, dict(), header, body, True
-    # else:
-    #     return result, dict(), html.Div(), html.Div(), False
+    if solo_spielstand_eintragen_button_n_clicks is not None and solo_spielstand_eintragen_button_n_clicks >= 1:
+        SoloWriter(solo_calculator).write()
+        header, body = wrap_stats([runde_id])
+        return result, dict(), header, body, True
+    else:
+        return result, dict(), html.Div(), html.Div(), False
 
 
 @app.callback(

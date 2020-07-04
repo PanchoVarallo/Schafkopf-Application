@@ -56,7 +56,8 @@ def get_stats_dataframe_by_runde_ids(
     ansager_resultate_df = resultate_df.loc[resultate_df['teilnehmer_id'] == resultate_df['ansager_id']]
     partner_resultate_df = resultate_df.loc[resultate_df['teilnehmer_id'] == resultate_df['partner_id']]
     gegenspieler_resultate_df = resultate_df.loc[(resultate_df['teilnehmer_id'] != resultate_df['ansager_id'])
-                                                 & (resultate_df['teilnehmer_id'] != resultate_df['partner_id'])]
+                                                 & ((resultate_df['teilnehmer_id'] != resultate_df['partner_id']) |
+                                                    (resultate_df['teilnehmer_id'] is None))]
 
     einzelspiele = resultate_df.groupby('teilnehmer_id')['einzelspiel_id'].count().to_frame()
     einzelspiele.rename(columns={'einzelspiel_id': 'Einzelspiele'}, inplace=True)
@@ -67,12 +68,16 @@ def get_stats_dataframe_by_runde_ids(
     ansagen = ansager_resultate_df.groupby(['teilnehmer_id', 'spielart'])['ansager_id'].count().to_frame()
     ansagen = ansagen.unstack()
     ansagen.columns = ansagen.columns.droplevel()
-    ansagen.rename(columns={Spielart.RUFSPIEL.name: 'Rufspiel Ansage'}, inplace=True)
+    rename = {Spielart.WENZ.name: 'Wenz Ansage', Spielart.GEYER.name: 'Geyer Ansage',
+              Spielart.FARBSOLO.name: 'Farbsolo Ansage', Spielart.RUFSPIEL.name: 'Rufspiel Ansage'}
+    ansagen.rename(columns=rename, inplace=True)
 
     ansagen_gewonnen = ansager_resultate_df.groupby(['teilnehmer_id', 'spielart'])['gewonnen'].sum().to_frame()
     ansagen_gewonnen = ansagen_gewonnen.unstack()
     ansagen_gewonnen.columns = ansagen_gewonnen.columns.droplevel()
-    ansagen_gewonnen.rename(columns={Spielart.RUFSPIEL.name: 'Rufspiel Ansage gewonnen'}, inplace=True)
+    rename = {Spielart.WENZ.name: 'Wenz Ansage gewonnen', Spielart.GEYER.name: 'Geyer Ansage gewonnen',
+              Spielart.FARBSOLO.name: 'Farbsolo Ansage gewonnen', Spielart.RUFSPIEL.name: 'Rufspiel Ansage gewonnen'}
+    ansagen_gewonnen.rename(columns=rename, inplace=True)
 
     partner = partner_resultate_df.groupby('teilnehmer_id')['partner_id'].count().to_frame()
     partner.rename(columns={'partner_id': 'Partner'}, inplace=True)
@@ -80,8 +85,8 @@ def get_stats_dataframe_by_runde_ids(
     partner_gewonnen = partner_resultate_df.groupby(['teilnehmer_id'])['gewonnen'].sum().to_frame()
     partner_gewonnen.rename(columns={'gewonnen': 'Partner gewonnen'}, inplace=True)
 
-    gegenspieler = gegenspieler_resultate_df.groupby('teilnehmer_id')['partner_id'].count().to_frame()
-    gegenspieler.rename(columns={'partner_id': 'Gegenspieler'}, inplace=True)
+    gegenspieler = gegenspieler_resultate_df.groupby('teilnehmer_id').size().to_frame()
+    gegenspieler.rename(columns={0: 'Gegenspieler'}, inplace=True)
 
     gegenspieler_gewonnen = gegenspieler_resultate_df.groupby(['teilnehmer_id'])['gewonnen'].sum().to_frame()
     gegenspieler_gewonnen.rename(columns={'gewonnen': 'Gegenspieler gewonnen'}, inplace=True)
@@ -114,7 +119,9 @@ def get_stats_dataframe_by_runde_ids(
 
     # Add columns if they are missing
     columns_to_add = ['Spieler', 'Rufspiel Ansage', 'Spieler', 'Rufspiel Ansage gewonnen', 'Einzelspiele', 'Partner',
-                      'Partner gewonnen', 'Gegenspieler', 'Gegenspieler gewonnen', 'GELEGT', 'KONTRIERT', 'RE']
+                      'Partner gewonnen', 'Gegenspieler', 'Gegenspieler gewonnen', 'GELEGT', 'KONTRIERT', 'RE',
+                      'Farbsolo Ansage', 'Farbsolo Ansage gewonnen', 'Wenz Ansage', 'Wenz Ansage gewonnen',
+                      'Geyer Ansage', 'Geyer Ansage gewonnen']
     for col in columns_to_add:
         if col not in res.columns:
             res[col] = np.NaN
@@ -122,6 +129,10 @@ def get_stats_dataframe_by_runde_ids(
     res['% Spieler (von Einzelspiele)'] = (res['Spieler'] / res['Einzelspiele']) * 100.0
     res['% Rufspiel (von Spieler)'] = (res['Rufspiel Ansage'] / res['Spieler']) * 100.0
     res['% Rufspiel gewonnen (von Rufspiel)'] = (res['Rufspiel Ansage gewonnen'] / res['Rufspiel Ansage']) * 100.0
+    res['% Solo (von Spieler)'] = ((res['Wenz Ansage'])
+                                   / res['Spieler']) * 100.0
+    res['% Solo gewonnen (von Solo)'] = ((res['Wenz Ansage gewonnen'])
+                                         / (res['Wenz Ansage'])) * 100.0
     res['% Partner (von Einzelspiele)'] = (res['Partner'] / res['Einzelspiele']) * 100.0
     res['% Partner gewonnen (von Partner)'] = (res['Partner gewonnen'] / res['Partner']) * 100.0
     res['% Gegenspieler (von Einzelspiele)'] = (res['Gegenspieler'] / res['Einzelspiele']) * 100.0
@@ -137,6 +148,8 @@ def get_stats_dataframe_by_runde_ids(
                '% Spieler (von Einzelspiele)',
                '% Rufspiel (von Spieler)',
                '% Rufspiel gewonnen (von Rufspiel)',
+               '% Solo (von Spieler)',
+               '% Solo gewonnen (von Solo)',
                '% Partner (von Einzelspiele)',
                '% Partner gewonnen (von Partner)',
                '% Gegenspieler (von Einzelspiele)',
@@ -151,6 +164,8 @@ def get_stats_dataframe_by_runde_ids(
                    '% Spieler (von Einzelspiele)',
                    '% Rufspiel (von Spieler)',
                    '% Rufspiel gewonnen (von Rufspiel)',
+                   '% Solo (von Spieler)',
+                   '% Solo gewonnen (von Solo)',
                    ]].copy()
     partner = res[['Teilnehmer',
                    '% Partner (von Einzelspiele)',
