@@ -1,5 +1,5 @@
 from schafkopf.backend.calculator import RufspielCalculator
-from schafkopf.database.data_model import Spielart, Verdopplung, Doppler
+from schafkopf.database.data_model import Spielart, Doppler
 from schafkopf.database.queries import insert_einzelspiel, insert_resultat, insert_verdopplung
 from schafkopf.database.session import Sessions
 
@@ -15,10 +15,11 @@ class RufspielWriter:
         einzelspiel = insert_einzelspiel(runde_id=config.runde_id,
                                          ansager_id=config.ansager_id,
                                          partner_id=config.partner_id,
-                                         geber_id=config.teilnehmer_ids[0],
-                                         ausspieler_id=config.teilnehmer_ids[1],
-                                         mittelhand_id=config.teilnehmer_ids[2],
-                                         hinterhand_id=config.teilnehmer_ids[3],
+                                         geber_id=config.geber_id,
+                                         ausspieler_id=config.teilnehmer_ids[0],
+                                         mittelhand_id=config.teilnehmer_ids[1],
+                                         hinterhand_id=config.teilnehmer_ids[2],
+                                         geberhand_id=config.teilnehmer_ids[3],
                                          farbe=config.rufsau.name,
                                          laufende=config.laufende,
                                          spielart=Spielart.RUFSPIEL.name,
@@ -32,7 +33,7 @@ class RufspielWriter:
                             einzelspiel_id=einzelspiel.id,
                             augen=config.spieler_augen,
                             punkte=teilnehmer_id_to_punkte.get(spieler),
-                            gewonnen= True if spieler in rufspiel_calculator.get_gewinner_ids() else False,
+                            gewonnen=True if spieler in rufspiel_calculator.get_gewinner_ids() else False,
                             session=session)
         for nicht_spieler in config.get_nicht_spieler_ids():
             insert_resultat(teilnehmer_id=nicht_spieler,

@@ -24,3 +24,4 @@ dist
 
 # Exclude IPython checkpoints
 .ipynb_checkpoints/
+/schafkopf/databases/schafkopf_*

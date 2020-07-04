@@ -181,8 +181,8 @@ def wrap_stats(runde_ids: Union[None, List[str]]) -> Tuple[html.Div, html.Div]:
     return header, body
 
 
-def wrap_rufspiel_card(geber_id: str, ausspieler_id: str, mittelhand_id: str, hinterhand_id: str) -> dbc.Card:
-    teilnehmer_ids = [int(geber_id), int(ausspieler_id), int(mittelhand_id), int(hinterhand_id)]
+def wrap_rufspiel_card(ausspieler_id: str, mittelhand_id: str, hinterhand_id: str, geberhand_id: str) -> dbc.Card:
+    teilnehmer_ids = [int(ausspieler_id), int(mittelhand_id), int(hinterhand_id), int(geberhand_id)]
     teilnehmers = [get_teilnehmers_by_ids([teilnehmer_id])[0] for teilnehmer_id in teilnehmer_ids]
     teilnehmers_options = [{'label': f'{t.name}', 'value': t.id} for t in teilnehmers]
     farb_options = []
@@ -244,8 +244,8 @@ def wrap_rufspiel_card(geber_id: str, ausspieler_id: str, mittelhand_id: str, hi
     return card
 
 
-def wrap_solo_card(geber_id: str, ausspieler_id: str, mittelhand_id: str, hinterhand_id: str) -> dbc.Card:
-    teilnehmer_ids = [int(geber_id), int(ausspieler_id), int(mittelhand_id), int(hinterhand_id)]
+def wrap_solo_card(ausspieler_id: str, mittelhand_id: str, hinterhand_id: str, geberhand_id: str) -> dbc.Card:
+    teilnehmer_ids = [int(ausspieler_id), int(mittelhand_id), int(hinterhand_id), int(geberhand_id)]
     teilnehmers = [get_teilnehmers_by_ids([teilnehmer_id])[0] for teilnehmer_id in teilnehmer_ids]
     teilnehmers_options = [{'label': f'{t.name}', 'value': t.id} for t in teilnehmers]
     farb_options = [{'label': f'{f.name.lower().capitalize()}', 'value': f'{f.name}'} for f in Farbgebung]

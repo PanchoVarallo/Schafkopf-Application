@@ -8,6 +8,7 @@ from schafkopf.database.data_model import Farbgebung, Punkteconfig, Spielart
 class Config:
     runde_id: int
     punkteconfig: Punkteconfig
+    geber_id: int
     teilnehmer_ids: List[int]
     gelegt_ids: List[int]
     ansager_id: int
@@ -42,6 +43,7 @@ class SoloConfig(Config):
 @dataclass
 class RawConfig:
     runde_id: Union[None, int]
+    geber_id: Union[None, int]
     teilnehmer_ids: Union[None, List[int]]
     gelegt_ids: List[int]
     ansager_id: Union[None, int]

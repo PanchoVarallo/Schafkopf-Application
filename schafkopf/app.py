@@ -27,7 +27,13 @@ def wrap_initial_layout():
     geber_id = einzelspiel[0].ausspieler_id if len(einzelspiel) == 1 else None
     ausspieler_id = einzelspiel[0].mittelhand_id if len(einzelspiel) == 1 else None
     mittelhand_id = einzelspiel[0].hinterhand_id if len(einzelspiel) == 1 else None
-    hinterhand_id = einzelspiel[0].geber_id if len(einzelspiel) == 1 else None
+    hinterhand_id = einzelspiel[0].geberhand_id if len(einzelspiel) == 1 else None
+    if len(einzelspiel) == 1 and einzelspiel[0].geber_id != einzelspiel[0].geberhand_id:
+        geberhand_id = einzelspiel[0].geber_id
+    elif len(einzelspiel) == 1 and einzelspiel[0].geber_id == einzelspiel[0].geberhand_id:
+        geberhand_id = einzelspiel[0].ausspieler_id
+    else:
+        geberhand_id = None
     return html.Div([
         html.Div([
             dcc.Store(id='stats_modal_open_n_clicks', data={'n_clicks': 0}),
@@ -87,7 +93,7 @@ def wrap_initial_layout():
                                                   color='primary', block=True)),
                               ]),
                 wrap_dbc_col([
-                    wrap_select_div(form_text='Geber', id='austeiler_id',
+                    wrap_select_div(form_text='Geber', id='geber_id',
                                     options=teilnehmers_options,
                                     value=geber_id
                                     ),
@@ -104,9 +110,9 @@ def wrap_initial_layout():
                                     options=teilnehmers_options,
                                     value=hinterhand_id
                                     ),
-                    wrap_select_div(form_text='Geberhand', id='geber_id',
+                    wrap_select_div(form_text='Geberhand', id='geberhand_id',
                                     options=teilnehmers_options,
-                                    value=geber_id
+                                    value=geberhand_id
                                     ),
                 ])
             ]),
@@ -148,21 +154,24 @@ app.layout = wrap_initial_layout
                Input('geber_id', 'value'),
                Input('ausspieler_id', 'value'),
                Input('mittelhand_id', 'value'),
-               Input('hinterhand_id', 'value')])
+               Input('hinterhand_id', 'value'),
+               Input('geberhand_id', 'value')])
 def switch_tab(active_tab: str,
                runde_id: Union[None, str],
                geber_id: Union[None, str],
                ausspieler_id: Union[None, str],
                mittelhand_id: Union[None, str],
-               hinterhand_id: Union[None, str]) -> Tuple[dbc.Card, html.Div, html.Div, html.Div, html.Div]:
-    validation_result = _validate_teilnehmer(runde_id, [geber_id, ausspieler_id, mittelhand_id, hinterhand_id])
+               hinterhand_id: Union[None, str],
+               geberhand_id: Union[None, str]) -> Tuple[dbc.Card, html.Div, html.Div, html.Div, html.Div]:
+    validation_result = _validate_teilnehmer(runde_id, geber_id,
+                                             [ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id])
     if validation_result is not None:
         return validation_result, html.Div(), html.Div(), html.Div(), html.Div()
     if active_tab == 'rufspiel_tab':
-        return wrap_rufspiel_card(geber_id, ausspieler_id, mittelhand_id, hinterhand_id), \
+        return wrap_rufspiel_card(ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id), \
                wrap_next_game_button(), wrap_next_game_button(), wrap_next_game_button(), wrap_next_game_button()
     elif active_tab == 'solo_tab':
-        return wrap_solo_card(geber_id, ausspieler_id, mittelhand_id, hinterhand_id), \
+        return wrap_solo_card(ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id), \
                wrap_next_game_button(), wrap_next_game_button(), wrap_next_game_button(), wrap_next_game_button()
     elif active_tab == 'hochzeit_tab':
         return dbc.Card(dbc.CardBody([
@@ -198,7 +207,8 @@ def switch_tab(active_tab: str,
      State('geber_id', 'value'),
      State('ausspieler_id', 'value'),
      State('mittelhand_id', 'value'),
-     State('hinterhand_id', 'value')])
+     State('hinterhand_id', 'value'),
+     State('geberhand_id', 'value')])
 def calculate_rufspiel(
         rufspiel_spielstand_eintragen_button_n_clicks: int,
         rufspiel_gelegt_ids: List[int],
@@ -215,11 +225,13 @@ def calculate_rufspiel(
         geber_id: Union[None, str],
         ausspieler_id: Union[None, str],
         mittelhand_id: Union[None, str],
-        hinterhand_id: Union[None, str]) -> Tuple[Union[None, List[html.Div]], Dict, html.Div, html.Div, bool]:
-    teilnehmer_ids = [geber_id, ausspieler_id, mittelhand_id, hinterhand_id]
-    if _validate_teilnehmer(runde_id, teilnehmer_ids) is not None:
+        hinterhand_id: Union[None, str],
+        geberhand_id: Union[None, str]) -> Tuple[Union[None, List[html.Div]], Dict, html.Div, html.Div, bool]:
+    teilnehmer_ids = [ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id]
+    if _validate_teilnehmer(runde_id, geber_id, teilnehmer_ids) is not None:
         return None, dict(), html.Div(), html.Div(), False
     raw_config = RufspielRawConfig(runde_id=int(runde_id),
+                                   geber_id=geber_id,
                                    teilnehmer_ids=[int(t) for t in teilnehmer_ids],
                                    gelegt_ids=rufspiel_gelegt_ids,
                                    ansager_id=rufspiel_ansager_id,
@@ -267,7 +279,8 @@ def calculate_rufspiel(
      State('geber_id', 'value'),
      State('ausspieler_id', 'value'),
      State('mittelhand_id', 'value'),
-     State('hinterhand_id', 'value')])
+     State('hinterhand_id', 'value'),
+     State('geberhand_id', 'value')])
 def calculate_solo(
         solo_spielstand_eintragen_button_n_clicks: int,
         solo_gelegt_ids: List[int],
@@ -285,11 +298,13 @@ def calculate_solo(
         geber_id: Union[None, str],
         ausspieler_id: Union[None, str],
         mittelhand_id: Union[None, str],
-        hinterhand_id: Union[None, str]) -> Tuple[Union[None, List[html.Div]], Dict, html.Div, html.Div, bool]:
-    teilnehmer_ids = [geber_id, ausspieler_id, mittelhand_id, hinterhand_id]
-    if _validate_teilnehmer(runde_id, teilnehmer_ids) is not None:
+        hinterhand_id: Union[None, str],
+        geberhand_id: Union[None, str]) -> Tuple[Union[None, List[html.Div]], Dict, html.Div, html.Div, bool]:
+    teilnehmer_ids = [ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id]
+    if _validate_teilnehmer(runde_id, geber_id, teilnehmer_ids) is not None:
         return None, dict(), html.Div(), html.Div(), False
     raw_config = SoloRawConfig(runde_id=int(runde_id),
+                               geber_id=geber_id,
                                teilnehmer_ids=[int(t) for t in teilnehmer_ids],
                                gelegt_ids=solo_gelegt_ids,
                                ansager_id=solo_ansager_id,
@@ -380,15 +395,18 @@ def show_stats_all(stats_all_modal_open: Union[None, int],
     return header, body, not stats_all_modal, {'clicks': stats_all_modal_open}, {'clicks': stats_all_modal_close}
 
 
-def _validate_teilnehmer(runde_id: str, teilnehmer_ids: List[str]) -> Union[html.Div, None]:
+def _validate_teilnehmer(runde_id: str, geber_id: str, teilnehmer_ids: List[str]) -> Union[html.Div, None]:
     m = []
     if runde_id is None:
         m.append(f'Bitte wählen Sie eine Runde.')
     if None in teilnehmer_ids:
-        m.append(f'Bitte wählen Sie vier Teilnehmer.')
+        m.append(f'Bitte wählen einen Geber und vier Teilnehmer.')
     teilnehmer_ids_without_none = [int(t) for t in teilnehmer_ids if t is not None]
     if len(teilnehmer_ids_without_none) != len(set(teilnehmer_ids_without_none)):
-        m.append(f'Bitte wählen Sie eindeutige Teilnehmer')
+        m.append(f'Bitte wählen Sie eindeutige Teilnehmer.')
+    teilnehmer_ids_without_none_and_geberhand = [int(t) for t in teilnehmer_ids[:-1] if t is not None]
+    if geber_id is not None and int(geber_id) in teilnehmer_ids_without_none_and_geberhand:
+        m.append(f'Bitte positionieren Sie den Geber auf die Geberhand.')
     if len(m) == 0:
         return None
     return wrap_alert(m)

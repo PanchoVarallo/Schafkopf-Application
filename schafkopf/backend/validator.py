@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import List, Union
 
-from schafkopf.backend.configs import RufspielRawConfig, RufspielConfig, SoloRawConfig, SoloConfig, Config
+from schafkopf.backend.configs import RufspielRawConfig, RufspielConfig, SoloRawConfig, SoloConfig
 from schafkopf.database.data_model import Farbgebung, Spielart
 from schafkopf.database.queries import get_teilnehmer_name_by_id, get_punkteconfig_by_runde_id
 
@@ -16,13 +16,6 @@ class Validator:
     @property
     def validation_messages(self) -> List[str]:
         return self._validation_messages
-
-    @property
-    def validated_config(self) -> Config:
-        if self._validated:
-            return self._validated_config
-        else:
-            raise Exception(f'Validation not successful. Cannot return config.')
 
     @abstractmethod
     def _validate(self):
@@ -57,8 +50,16 @@ class RufspielValidator(Validator):
         self._raw_config = raw_config
         super().__init__()
 
+    @property
+    def validated_config(self) -> RufspielConfig:
+        if self._validated:
+            return self._validated_config
+        else:
+            raise Exception(f'Validation of Rufspiel not successful. Cannot return config.')
+
     def _validate(self):
         runde_id = self._raw_config.runde_id
+        geber_id = self._raw_config.geber_id
         teilnehmer_ids = self._list(self._raw_config.teilnehmer_ids)
         gelegt_ids = self._list(self._raw_config.gelegt_ids)
         ansager_id = self._raw_config.ansager_id
@@ -87,11 +88,11 @@ class RufspielValidator(Validator):
                 if len(re_id) == 1 and ansager_id is not None and partner_id is not None:
                     nicht_spieler = [t for t in teilnehmer_ids if t not in [ansager_id, partner_id]]
                     if re_id[0] == nicht_spieler[0]:
-                        m.append(
-                            f'Nicht-Spieler darf nicht Re geben. Momentan: {get_teilnehmer_name_by_id(nicht_spieler[0])}.')
+                        m.append(f'Nicht-Spieler darf nicht Re geben. '
+                                 f'Momentan: {get_teilnehmer_name_by_id(nicht_spieler[0])}.')
                     if re_id[0] == nicht_spieler[1]:
-                        m.append(
-                            f'Nicht-Spieler darf nicht Re geben. Momentan: {get_teilnehmer_name_by_id(nicht_spieler[1])}.')
+                        m.append(f'Nicht-Spieler darf nicht Re geben. '
+                                 f'Momentan: {get_teilnehmer_name_by_id(nicht_spieler[1])}.')
             else:
                 m.append(f'Ansager und Partner identisch: {get_teilnehmer_name_by_id(ansager_id)}.')
         if laufende not in [0, 3, 4, 5, 6, 7, 8] or laufende is None:
@@ -110,6 +111,7 @@ class RufspielValidator(Validator):
             self._validated = True
             self._validated_config = RufspielConfig(runde_id=runde_id,
                                                     punkteconfig=get_punkteconfig_by_runde_id(runde_id),
+                                                    geber_id=geber_id,
                                                     teilnehmer_ids=teilnehmer_ids,
                                                     gelegt_ids=gelegt_ids,
                                                     ansager_id=ansager_id,
@@ -130,8 +132,16 @@ class SoloValidator(Validator):
         self._raw_config = raw_config
         super().__init__()
 
+    @property
+    def validated_config(self) -> SoloConfig:
+        if self._validated:
+            return self._validated_config
+        else:
+            raise Exception(f'Validation of Solo not successful. Cannot return config.')
+
     def _validate(self):
         runde_id = self._raw_config.runde_id
+        geber_id = self._raw_config.geber_id
         teilnehmer_ids = self._list(self._raw_config.teilnehmer_ids)
         gelegt_ids = self._list(self._raw_config.gelegt_ids)
         ansager_id = self._raw_config.ansager_id
@@ -195,6 +205,7 @@ class SoloValidator(Validator):
             self._validated = True
             self._validated_config = SoloConfig(runde_id=runde_id,
                                                 punkteconfig=get_punkteconfig_by_runde_id(runde_id),
+                                                geber_id=geber_id,
                                                 teilnehmer_ids=teilnehmer_ids,
                                                 gelegt_ids=gelegt_ids,
                                                 ansager_id=ansager_id,

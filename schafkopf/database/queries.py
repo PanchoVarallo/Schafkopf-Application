@@ -184,8 +184,9 @@ def get_einzelspiel_ids_by_runde_id(runde_ids: List[int],
                                     active: bool = True,
                                     session: sessionmaker() = None) -> List[int]:
     actual_session = _build_session(session)
-    einzelspiel_ids = [e[0] for e in actual_session.query(Einzelspiel.id).filter(Einzelspiel.runde_id.in_(runde_ids)) \
-        .filter(Einzelspiel.is_active == active).all()]
+    einzelspiel_ids = [e[0] for e in
+                       actual_session.query(Einzelspiel.id).filter(Einzelspiel.runde_id.in_(runde_ids)).filter(
+                           Einzelspiel.is_active == active).all()]
     _close_session(actual_session, session)
     return einzelspiel_ids
 
@@ -213,16 +214,16 @@ def get_latest_einzelspiel_id(active_einzelspiel: bool = True,
     return einzelspiel_id
 
 
-def insert_einzelspiel(runde_id: int, ansager_id: int, partner_id: int, geber_id: int,
-                       ausspieler_id: int, mittelhand_id: int, hinterhand_id: int, farbe: str, laufende: int,
+def insert_einzelspiel(runde_id: int, ansager_id: int, partner_id: int, geber_id: int, ausspieler_id: int,
+                       mittelhand_id: int, hinterhand_id: int, geberhand_id: int, farbe: str, laufende: int,
                        spielart: str, schneider: bool, schwarz: bool, spielpunkte: float,
                        session: sessionmaker() = None) -> Einzelspiel:
     actual_session = _build_session(session)
     einzelspiel = Einzelspiel(runde_id=runde_id, ansager_id=ansager_id,
-                              partner_id=partner_id, geber_id=geber_id,
-                              ausspieler_id=ausspieler_id, mittelhand_id=mittelhand_id, hinterhand_id=hinterhand_id,
-                              farbe=farbe, laufende=laufende,
-                              spielart=spielart, schneider=schneider, schwarz=schwarz, spielpunkte=spielpunkte)
+                              partner_id=partner_id, geber_id=geber_id, ausspieler_id=ausspieler_id,
+                              mittelhand_id=mittelhand_id, hinterhand_id=hinterhand_id, geberhand_id=geberhand_id,
+                              farbe=farbe, laufende=laufende, spielart=spielart, schneider=schneider, schwarz=schwarz,
+                              spielpunkte=spielpunkte)
     actual_session.add(einzelspiel)
     actual_session.flush()
     if session is None:

@@ -90,6 +90,8 @@ class Einzelspiel(Base):
     mittelhand = relationship('Teilnehmer', foreign_keys=[mittelhand_id], backref='mittelhand')
     hinterhand_id = Column(Integer, ForeignKey('teilnehmer.id'), nullable=False)
     hinterhand = relationship('Teilnehmer', foreign_keys=[hinterhand_id], backref='hinterhand')
+    geberhand_id = Column(Integer, ForeignKey('teilnehmer.id'), nullable=False)
+    geberhand = relationship('Teilnehmer', foreign_keys=[geberhand_id], backref='geberhand')
     farbe = Column(String(20), nullable=True)
     laufende = Column(Integer, nullable=False, default=0)
     spielart = Column(String(20), default=Spielart.RUFSPIEL, nullable=False)
