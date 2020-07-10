@@ -1,12 +1,11 @@
-1. Writer abstrahieren/SoloConfig bzw. RufspielConfig abstrahieren -> v.a. get_spieler_ids
-2. Active bei allen Abfragen checken 
-3. Hochzeit
-4. Ramsch (Durchmarsch ab 91) -> 
+1. Active bei allen Abfragen checken 
+2. Hochzeit
+3. Ramsch (Durchmarsch ab 91) -> 
    Möglichst abstrakt! (V.a. Spielstand Modal kann man abstrakt machen -> hmmm?)
-5. Report erstellen
+4. Report erstellen
 
 Falls ich noch Lust habe
-- Code besser refaktoren
+- Code besser refaktorieren
 - Teilnehmer einrichten/bearbeiten, Runde einrichten/bearbeiten, Einzelspiele bearbeiten -> Dashboard
 - Spielegenerator um Datenbank zu befüllen (Testdatenbank)
 - Rundungen bei Statistik verbessern

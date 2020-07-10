@@ -4,7 +4,47 @@ from schafkopf.database.queries import insert_einzelspiel, insert_resultat, inse
 from schafkopf.database.session import Sessions
 
 
-class RufspielWriter:
+class Writer:
+    pass
+
+
+# Rufspiel, Solo, Hochzeit
+class NormalspielWriter(Writer):
+    @staticmethod
+    def _eintrag(session, einzelspiel, config, calculator):
+        teilnehmer_id_to_punkte = calculator.get_teilnehmer_id_to_punkte()
+        for spieler in config.get_spieler_ids():
+            insert_resultat(teilnehmer_id=spieler,
+                            einzelspiel_id=einzelspiel.id,
+                            augen=config.spieler_augen,
+                            punkte=teilnehmer_id_to_punkte.get(spieler),
+                            gewonnen=True if spieler in calculator.get_gewinner_ids() else False,
+                            session=session)
+        for nicht_spieler in config.get_nicht_spieler_ids():
+            insert_resultat(teilnehmer_id=nicht_spieler,
+                            einzelspiel_id=einzelspiel.id,
+                            augen=config.nicht_spieler_augen,
+                            punkte=teilnehmer_id_to_punkte.get(nicht_spieler),
+                            gewonnen=True if nicht_spieler in calculator.get_gewinner_ids() else False,
+                            session=session)
+        for teilnehmer_gelegt in config.gelegt_ids:
+            insert_verdopplung(teilnehmer_id=teilnehmer_gelegt,
+                               einzelspiel_id=einzelspiel.id,
+                               doppler=Doppler.GELEGT.name,
+                               session=session)
+        if config.kontriert_id is not None:
+            insert_verdopplung(teilnehmer_id=config.kontriert_id,
+                               einzelspiel_id=einzelspiel.id,
+                               doppler=Doppler.KONTRIERT.name,
+                               session=session)
+        if config.re_id is not None:
+            insert_verdopplung(teilnehmer_id=config.re_id,
+                               einzelspiel_id=einzelspiel.id,
+                               doppler=Doppler.RE.name,
+                               session=session)
+
+
+class RufspielWriter(NormalspielWriter):
     def __init__(self, calculator: RufspielCalculator):
         self._calculator = calculator
 
@@ -27,42 +67,12 @@ class RufspielWriter:
                                          schwarz=calculator.is_schwarz(),
                                          spielpunkte=calculator.get_spielpunkte(),
                                          session=session)
-        teilnehmer_id_to_punkte = calculator.get_teilnehmer_id_to_punkte()
-        for spieler in config.get_spieler_ids():
-            insert_resultat(teilnehmer_id=spieler,
-                            einzelspiel_id=einzelspiel.id,
-                            augen=config.spieler_augen,
-                            punkte=teilnehmer_id_to_punkte.get(spieler),
-                            gewonnen=True if spieler in calculator.get_gewinner_ids() else False,
-                            session=session)
-        for nicht_spieler in config.get_nicht_spieler_ids():
-            insert_resultat(teilnehmer_id=nicht_spieler,
-                            einzelspiel_id=einzelspiel.id,
-                            augen=config.nicht_spieler_augen,
-                            punkte=teilnehmer_id_to_punkte.get(nicht_spieler),
-                            gewonnen=True if nicht_spieler in calculator.get_gewinner_ids() else False,
-                            session=session)
-        for teilnehmer_gelegt in config.gelegt_ids:
-            insert_verdopplung(teilnehmer_id=teilnehmer_gelegt,
-                               einzelspiel_id=einzelspiel.id,
-                               doppler=Doppler.GELEGT.name,
-                               session=session)
-        if config.kontriert_id is not None:
-            insert_verdopplung(teilnehmer_id=config.kontriert_id,
-                               einzelspiel_id=einzelspiel.id,
-                               doppler=Doppler.KONTRIERT.name,
-                               session=session)
-        if config.re_id is not None:
-            insert_verdopplung(teilnehmer_id=config.re_id,
-                               einzelspiel_id=einzelspiel.id,
-                               doppler=Doppler.RE.name,
-                               session=session)
-
+        self._eintrag(session, einzelspiel, config, calculator)
         session.commit()
         session.close()
 
 
-class SoloWriter:
+class SoloWriter(NormalspielWriter):
     def __init__(self, calculator: SoloCalculator):
         self._calculator = calculator
 
@@ -85,36 +95,6 @@ class SoloWriter:
                                          tout=config.tout_gespielt_verloren or config.tout_gespielt_gewonnen,
                                          spielpunkte=calculator.get_spielpunkte(),
                                          session=session)
-        teilnehmer_id_to_punkte = calculator.get_teilnehmer_id_to_punkte()
-        for spieler in config.get_spieler_ids():
-            insert_resultat(teilnehmer_id=spieler,
-                            einzelspiel_id=einzelspiel.id,
-                            augen=config.spieler_augen,
-                            punkte=teilnehmer_id_to_punkte.get(spieler),
-                            gewonnen=True if spieler in calculator.get_gewinner_ids() else False,
-                            session=session)
-        for nicht_spieler in config.get_nicht_spieler_ids():
-            insert_resultat(teilnehmer_id=nicht_spieler,
-                            einzelspiel_id=einzelspiel.id,
-                            augen=config.nicht_spieler_augen,
-                            punkte=teilnehmer_id_to_punkte.get(nicht_spieler),
-                            gewonnen=True if nicht_spieler in calculator.get_gewinner_ids() else False,
-                            session=session)
-        for teilnehmer_gelegt in config.gelegt_ids:
-            insert_verdopplung(teilnehmer_id=teilnehmer_gelegt,
-                               einzelspiel_id=einzelspiel.id,
-                               doppler=Doppler.GELEGT.name,
-                               session=session)
-        if config.kontriert_id is not None:
-            insert_verdopplung(teilnehmer_id=config.kontriert_id,
-                               einzelspiel_id=einzelspiel.id,
-                               doppler=Doppler.KONTRIERT.name,
-                               session=session)
-        if config.re_id is not None:
-            insert_verdopplung(teilnehmer_id=config.re_id,
-                               einzelspiel_id=einzelspiel.id,
-                               doppler=Doppler.RE.name,
-                               session=session)
-
+        self._eintrag(session, einzelspiel, config, calculator)
         session.commit()
         session.close()
