@@ -1,8 +1,7 @@
-1. Active bei allen Abfragen checken 
-2. Hochzeit
-3. Ramsch (Durchmarsch ab 91) -> 
+1. Hochzeit
+2. Ramsch (Durchmarsch ab 91) -> 
    Möglichst abstrakt! (V.a. Spielstand Modal kann man abstrakt machen -> hmmm?)
-4. Report erstellen
+3. Report erstellen
 
 Falls ich noch Lust habe
 - Code besser refaktorieren

@@ -18,10 +18,10 @@ def write_database_to_excel():
     backup_database()
     engine = create_engine("sqlite:///../schafkopf.db")
     session = sessionmaker(bind=engine)()
-    runden_df = get_runden(dataframe=True, session=session)
+    runden_df = get_runden(active=False, dataframe=True, session=session)
     teilnehmers_df = get_teilnehmer(dataframe=True, session=session)
     punkteconfigs_df = get_punkteconfigs(dataframe=True, session=session)
-    einzelspiele_df = get_einzelspiele(dataframe=True, session=session)
+    einzelspiele_df = get_einzelspiele(active=False, dataframe=True, session=session)
     resultate_df = get_resultate(dataframe=True, session=session)
     verdopplungen_df = get_verdopplungen(dataframe=True, session=session)
     xlsx = f'schafkopf_{datetime.datetime.now()}.xlsx'
