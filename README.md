@@ -1,9 +1,10 @@
-1. Hochzeit
-2. Ramsch (Durchmarsch ab 91) -> 
-   Möglichst abstrakt! (V.a. Spielstand Modal kann man abstrakt machen -> hmmm?)
-3. Report erstellen
+1. Analysis für Hochzeit bei Spieler integrieren -> Titel anpassen
+2. Hochzeitstests
+3. Überhaupt alles nochmal testen nach massiver Refaktorierung
+2. Ramsch (Durchmarsch ab 91)
 
 Falls ich noch Lust habe
+- Übersichtsreport erstellen
 - Code besser refaktorieren
 - Teilnehmer einrichten/bearbeiten, Runde einrichten/bearbeiten, Einzelspiele bearbeiten -> Dashboard
 - Spielegenerator um Datenbank zu befüllen (Testdatenbank)

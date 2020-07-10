@@ -1,13 +1,15 @@
 from abc import abstractmethod
 from typing import List, Union
 
-from schafkopf.backend.configs import RufspielRawConfig, RufspielConfig, SoloRawConfig, SoloConfig
+from schafkopf.backend.configs import RufspielRawConfig, RufspielConfig, SoloRawConfig, SoloConfig, HochzeitRawConfig, \
+    HochzeitConfig, RufspielHochzeitRawConfig, NormalspielRawConfig, RawConfig
 from schafkopf.database.data_model import Farbgebung, Spielart
 from schafkopf.database.queries import get_teilnehmer_name_by_id, get_punkteconfig_by_runde_id
 
 
 class Validator:
-    def __init__(self):
+    def __init__(self, raw_config: RawConfig):
+        self._raw_config = raw_config
         self._validated = False
         self._validation_messages = []
         self._validated_config = None
@@ -34,7 +36,7 @@ class Validator:
         return [] if var in [None, []] else var
 
     @staticmethod
-    def _validate_kontra_and_re(m: List[str], kontriert_id: Union[None, List[int]], re_id: Union[None, List[int]]):
+    def _validate_kontra_and_re(m: List[str], kontriert_id: List[int], re_id: List[int]):
         if len(kontriert_id) >= 2:
             m.append(f'Maximal ein Teilnehmer kann Kontra geben. Momentan: {len(kontriert_id)}.')
         if len(re_id) >= 2:
@@ -45,37 +47,28 @@ class Validator:
                 f'Re darf nicht ohne Kontra geben werden. Momentan Re: {get_teilnehmer_name_by_id(teilnehmer_re)}')
 
 
-class RufspielValidator(Validator):
-    def __init__(self, raw_config: RufspielRawConfig):
+class NormalspielValidator(Validator):
+    def __init__(self, raw_config: NormalspielRawConfig):
+        super().__init__(raw_config)
         self._raw_config = raw_config
-        super().__init__()
-
-    @property
-    def validated_config(self) -> RufspielConfig:
-        if self._validated:
-            return self._validated_config
-        else:
-            raise Exception(f'Validation of Rufspiel not successful. Cannot return config.')
 
     def _validate(self):
-        runde_id = self._raw_config.runde_id
-        geber_id = self._raw_config.geber_id
-        teilnehmer_ids = self._list(self._raw_config.teilnehmer_ids)
-        gelegt_ids = self._list(self._raw_config.gelegt_ids)
-        ansager_id = self._raw_config.ansager_id
-        rufsau = None if self._raw_config.rufsau is None else Farbgebung[self._raw_config.rufsau]
-        kontriert_id = self._raw_config.kontriert_id
-        re_id = self._raw_config.re_id
-        partner_id = self._raw_config.partner_id
-        laufende = self._integer(self._raw_config.laufende)
-        spieler_nichtspieler_augen = self._boolean(self._raw_config.spieler_nichtspieler_augen)
-        augen = self._raw_config.augen
-        schwarz = self._boolean(self._raw_config.schwarz)
+        pass
 
-        m = []
-        pflichtfeld = [(runde_id, 'Runde'), (ansager_id, 'Ansager'), (rufsau, 'Rufsau'), (partner_id, 'Partner')]
-        [m.append(f'Kein/e {pflicht[1]} gewählt.') for pflicht in pflichtfeld if pflicht[0] is None]
-        self._validate_kontra_and_re(m, kontriert_id, re_id)
+
+class RufspielHochzeitValidator(NormalspielValidator):
+    def __init__(self, raw_config: RufspielHochzeitRawConfig):
+        super().__init__(raw_config)
+        self._raw_config = raw_config
+
+    def _validate(self):
+        pass
+
+    @staticmethod
+    def _rufspiel_hochzeit_validation(m: List[str], teilnehmer_ids: List[int], ansager_id: Union[None, int],
+                                      partner_id: Union[None, int], kontriert_id: List[int], re_id: List[int],
+                                      augen: Union[None, int], laufende: int, schwarz: Union[None, bool],
+                                      spieler_nichtspieler_augen: Union[None, bool]):
         if ansager_id is not None and partner_id is not None:
             if partner_id != ansager_id:
                 if len(kontriert_id) == 1 and ansager_id is not None and partner_id is not None:
@@ -104,6 +97,41 @@ class RufspielValidator(Validator):
             if schwarz and spieler_augen not in [0, 120]:
                 m.append(f'Ein Spiel kann nur Schwarz sein, wenn 0 oder 120 Augen erreicht werden.')
 
+
+class RufspielValidator(RufspielHochzeitValidator):
+    def __init__(self, raw_config: RufspielRawConfig):
+        super().__init__(raw_config)
+        self._raw_config = raw_config
+
+    @property
+    def validated_config(self) -> RufspielConfig:
+        if self._validated:
+            return self._validated_config
+        else:
+            raise Exception(f'Validation of Rufspiel not successful. Cannot return config.')
+
+    def _validate(self):
+        runde_id = self._raw_config.runde_id
+        geber_id = self._raw_config.geber_id
+        teilnehmer_ids = self._list(self._raw_config.teilnehmer_ids)
+        gelegt_ids = self._list(self._raw_config.gelegt_ids)
+        ansager_id = self._raw_config.ansager_id
+        rufsau = None if self._raw_config.rufsau is None else Farbgebung[self._raw_config.rufsau]
+        kontriert_id = self._raw_config.kontriert_id
+        re_id = self._raw_config.re_id
+        partner_id = self._raw_config.partner_id
+        laufende = self._integer(self._raw_config.laufende)
+        spieler_nichtspieler_augen = self._boolean(self._raw_config.spieler_nichtspieler_augen)
+        augen = self._raw_config.augen
+        schwarz = self._boolean(self._raw_config.schwarz)
+
+        m = []
+        pflichtfeld = [(runde_id, 'Runde'), (ansager_id, 'Ansager'), (rufsau, 'Rufsau'), (partner_id, 'Partner')]
+        [m.append(f'Kein/e {pflicht[1]} gewählt.') for pflicht in pflichtfeld if pflicht[0] is None]
+        self._validate_kontra_and_re(m, kontriert_id, re_id)
+        self._rufspiel_hochzeit_validation(m, teilnehmer_ids, ansager_id, partner_id, kontriert_id, re_id, augen,
+                                           laufende, schwarz, spieler_nichtspieler_augen)
+
         if len(m) == 0:
             spieler_augen = augen if spieler_nichtspieler_augen == 1 else 120 - augen
             kontriert_id = None if len(kontriert_id) == 0 else kontriert_id[0]
@@ -127,10 +155,10 @@ class RufspielValidator(Validator):
             self._validation_messages = m
 
 
-class SoloValidator(Validator):
+class SoloValidator(NormalspielValidator):
     def __init__(self, raw_config: SoloRawConfig):
+        super().__init__(raw_config)
         self._raw_config = raw_config
-        super().__init__()
 
     @property
     def validated_config(self) -> SoloConfig:
@@ -219,5 +247,60 @@ class SoloValidator(Validator):
                                                 spieler_augen=spieler_augen,
                                                 nicht_spieler_augen=120 - spieler_augen,
                                                 schwarz=schwarz)
+        else:
+            self._validation_messages = m
+
+
+class HochzeitValidator(RufspielHochzeitValidator):
+    def __init__(self, raw_config: HochzeitRawConfig):
+        super().__init__(raw_config)
+        self._raw_config = raw_config
+
+    @property
+    def validated_config(self) -> HochzeitConfig:
+        if self._validated:
+            return self._validated_config
+        else:
+            raise Exception(f'Validation of Hochzeit not successful. Cannot return config.')
+
+    def _validate(self):
+        runde_id = self._raw_config.runde_id
+        geber_id = self._raw_config.geber_id
+        teilnehmer_ids = self._list(self._raw_config.teilnehmer_ids)
+        gelegt_ids = self._list(self._raw_config.gelegt_ids)
+        ansager_id = self._raw_config.ansager_id
+        kontriert_id = self._raw_config.kontriert_id
+        re_id = self._raw_config.re_id
+        partner_id = self._raw_config.partner_id
+        laufende = self._integer(self._raw_config.laufende)
+        spieler_nichtspieler_augen = self._boolean(self._raw_config.spieler_nichtspieler_augen)
+        augen = self._raw_config.augen
+        schwarz = self._boolean(self._raw_config.schwarz)
+
+        m = []
+        pflichtfeld = [(runde_id, 'Runde'), (partner_id, 'Hochzeitsanbieter'), (ansager_id, 'Hochzeitsannehmer')]
+        [m.append(f'Kein/e {pflicht[1]} gewählt.') for pflicht in pflichtfeld if pflicht[0] is None]
+        self._validate_kontra_and_re(m, kontriert_id, re_id)
+        self._rufspiel_hochzeit_validation(m, teilnehmer_ids, ansager_id, partner_id, kontriert_id, re_id, augen,
+                                           laufende, schwarz, spieler_nichtspieler_augen)
+
+        if len(m) == 0:
+            spieler_augen = augen if spieler_nichtspieler_augen == 1 else 120 - augen
+            kontriert_id = None if len(kontriert_id) == 0 else kontriert_id[0]
+            re_id = None if len(re_id) == 0 else re_id[0]
+            self._validated = True
+            self._validated_config = HochzeitConfig(runde_id=runde_id,
+                                                    punkteconfig=get_punkteconfig_by_runde_id(runde_id),
+                                                    geber_id=geber_id,
+                                                    teilnehmer_ids=teilnehmer_ids,
+                                                    gelegt_ids=gelegt_ids,
+                                                    ansager_id=ansager_id,
+                                                    kontriert_id=kontriert_id,
+                                                    re_id=re_id,
+                                                    partner_id=partner_id,
+                                                    laufende=laufende,
+                                                    spieler_augen=spieler_augen,
+                                                    nicht_spieler_augen=120 - spieler_augen,
+                                                    schwarz=schwarz)
         else:
             self._validation_messages = m

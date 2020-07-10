@@ -309,6 +309,69 @@ def wrap_solo_card(ausspieler_id: str, mittelhand_id: str, hinterhand_id: str, g
     return card
 
 
+def wrap_hochzeit_card(ausspieler_id: str, mittelhand_id: str, hinterhand_id: str, geberhand_id: str) -> dbc.Card:
+    teilnehmer_ids = [int(ausspieler_id), int(mittelhand_id), int(hinterhand_id), int(geberhand_id)]
+    teilnehmers = [get_teilnehmers_by_ids([teilnehmer_id])[0] for teilnehmer_id in teilnehmer_ids]
+    teilnehmers_options = [{'label': f'{t.name}', 'value': t.id} for t in teilnehmers]
+    farb_options = []
+    for f in Farbgebung:
+        if f == Farbgebung.HERZ:
+            farb_options.append({'label': f'{f.name.lower().capitalize()}', 'value': f'{f.name}', 'disabled': True})
+        else:
+            farb_options.append({'label': f'{f.name.lower().capitalize()}', 'value': f'{f.name}'})
+    card = dbc.Card(dbc.CardBody([
+        dbc.Row([
+            wrap_dbc_col([
+                wrap_checklist_div(form_text='Gelegt', id='hochzeit_gelegt_ids', options=teilnehmers_options)
+            ]),
+            wrap_dbc_col([
+                wrap_checklist_div(form_text='Kontriert', id='hochzeit_kontriert_id', options=teilnehmers_options)
+            ]),
+            wrap_dbc_col([
+                wrap_checklist_div(form_text='Re', id='hochzeit_re_id', options=teilnehmers_options)
+            ]),
+        ]),
+        wrap_empty_dbc_row(),
+        dbc.Row([
+            wrap_dbc_col([
+                wrap_radioitem_div(form_text='Hochzeitsanbieter', id='hochzeit_partner_id',
+                                   options=teilnehmers_options)
+            ]),
+            wrap_dbc_col([
+                wrap_radioitem_div(form_text='Hochzeitsannehmer', id='hochzeit_ansager_id',
+                                   options=teilnehmers_options)
+            ]),
+            wrap_dbc_col([]),
+        ]),
+        wrap_empty_dbc_row(),
+        dbc.Row([
+            dbc.Col([
+                wrap_laufende_div(form_text='Laufende', laufende_id='hochzeit_laufende')],
+                width={'size': 6, 'offset': 3})
+        ]),
+        wrap_empty_dbc_row(),
+        dbc.Row([
+            dbc.Col([
+                wrap_punkte_div(spieler_nichtspieler_id='hochzeit_spieler_nichtspieler_augen',
+                                augen_id='hochzeit_augen', schwarz_id='hochzeit_schwarz')],
+                width={'size': 6, 'offset': 3}),
+        ]),
+        wrap_empty_dbc_row(),
+        dbc.Row([
+            dbc.Col([
+                html.Div(id='hochzeit_validierung_content'), ], width={'size': 6, 'offset': 3}),
+        ]),
+        dbc.Row([
+            dbc.Col([
+                html.Div(
+                    dbc.Button('Spiel eintragen', id='hochzeit_spielstand_eintragen_button',
+                               color='primary', block=True)),
+            ], width={'size': 6, 'offset': 3}),
+        ])
+    ]), className='mt-3')
+    return card
+
+
 def wrap_next_game_button() -> html.Div:
     txt = 'Zum nächsten Spiel'
     return html.Div(html.A(dbc.Button(txt, color='primary', id='close', className='ml-auto'), href='/'))
@@ -326,6 +389,7 @@ def _build_body(runde_ids: List[int], details: bool):
         spieler_div = html.Div([html.H5('Statistiken als Spieler'), wrap_dataframe_table_div(spieler)])
         partner_div = html.Div([html.H5('Statistiken als Partner'), wrap_dataframe_table_div(partner)])
         gegenspieler_div = html.Div([html.H5('Statistiken als Gegenspieler'), wrap_dataframe_table_div(gegenspieler)])
-        verdopplungen_div = html.Div([html.H5('Statistiken der Aggressivität'), wrap_dataframe_table_div(verdopplungen)])
+        verdopplungen_div = html.Div(
+            [html.H5('Statistiken der Aggressivität'), wrap_dataframe_table_div(verdopplungen)])
         return html.Div([ranking_div, graph_div, spieler_div, partner_div, gegenspieler_div, verdopplungen_div])
     return html.Div([ranking_div, graph_div])

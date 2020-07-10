@@ -8,15 +8,15 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
 
-from schafkopf.backend.calculator import RufspielCalculator, SoloCalculator
-from schafkopf.backend.configs import RufspielRawConfig, SoloRawConfig
-from schafkopf.backend.validator import RufspielValidator, SoloValidator
+from schafkopf.backend.calculator import RufspielCalculator, SoloCalculator, HochzeitCalculator
+from schafkopf.backend.configs import RufspielRawConfig, SoloRawConfig, HochzeitRawConfig
+from schafkopf.backend.validator import RufspielValidator, SoloValidator, HochzeitValidator
 from schafkopf.database.queries import get_runden, get_teilnehmer, get_latest_einzelspiel_id, \
     get_runde_id_by_einzelspiel_id, get_einzelspiele_by_einzelspiel_id
-from schafkopf.database.writer import RufspielWriter, SoloWriter
+from schafkopf.database.writer import RufspielWriter, SoloWriter, HochzeitWriter
 from schafkopf.frontend.generic_objects import wrap_alert, wrap_stats, wrap_rufspiel_card, \
-    wrap_next_game_button, wrap_select_div, wrap_dbc_col, wrap_empty_dbc_row, wrap_solo_card
-from schafkopf.frontend.presenter import RufspielPresenter, SoloPresenter
+    wrap_next_game_button, wrap_select_div, wrap_dbc_col, wrap_empty_dbc_row, wrap_solo_card, wrap_hochzeit_card
+from schafkopf.frontend.presenter import RufspielPresenter, SoloPresenter, HochzeitPresenter
 
 
 def wrap_initial_layout():
@@ -174,10 +174,8 @@ def switch_tab(active_tab: str,
         return wrap_solo_card(ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id), \
                wrap_next_game_button(), wrap_next_game_button(), wrap_next_game_button(), wrap_next_game_button()
     elif active_tab == 'hochzeit_tab':
-        return dbc.Card(dbc.CardBody([
-            html.P('This is Hochzeit!', className='card-text'),
-            dbc.Button('Click here', color='success'),
-        ]), className='mt-3'), html.Div(), html.Div(), html.Div(), html.Div()
+        return wrap_hochzeit_card(ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id), \
+               wrap_next_game_button(), wrap_next_game_button(), wrap_next_game_button(), wrap_next_game_button()
     elif active_tab == 'ramsch_tab':
         return dbc.Card(dbc.CardBody([
             html.P('This is Ramsch!', className='card-text'),
@@ -325,6 +323,74 @@ def calculate_solo(
     result = SoloPresenter(solo_calculator).get_result()
     if solo_spielstand_eintragen_button_n_clicks is not None and solo_spielstand_eintragen_button_n_clicks >= 1:
         SoloWriter(solo_calculator).write()
+        header, body = wrap_stats([runde_id])
+        return result, dict(), header, body, True
+    else:
+        return result, dict(), html.Div(), html.Div(), False
+
+
+@app.callback(
+    [Output('hochzeit_validierung_content', 'children'),
+     Output('hochzeit_spielstand_eintragen_button', 'style'),
+     Output('hochzeit_stats_modal_header', 'children'),
+     Output('hochzeit_stats_modal_body', 'children'),
+     Output('hochzeit_spielstand_modal', 'is_open')],
+    [Input('hochzeit_spielstand_eintragen_button', 'n_clicks'),
+     Input('hochzeit_gelegt_ids', 'value'),
+     Input('hochzeit_ansager_id', 'value'),
+     Input('hochzeit_kontriert_id', 'value'),
+     Input('hochzeit_re_id', 'value'),
+     Input('hochzeit_partner_id', 'value'),
+     Input('hochzeit_laufende', 'value'),
+     Input('hochzeit_spieler_nichtspieler_augen', 'value'),
+     Input('hochzeit_augen', 'value'),
+     Input('hochzeit_schwarz', 'value')],
+    [State('runde_id', 'value'),
+     State('geber_id', 'value'),
+     State('ausspieler_id', 'value'),
+     State('mittelhand_id', 'value'),
+     State('hinterhand_id', 'value'),
+     State('geberhand_id', 'value')])
+def calculate_rufspiel(
+        hochzeit_spielstand_eintragen_button_n_clicks: int,
+        hochzeit_gelegt_ids: List[int],
+        hochzeit_ansager_id: Union[None, int],
+        hochzeit_kontriert_id: List[int],
+        hochzeit_re_id: List[int],
+        hochzeit_partner_id: Union[None, int],
+        hochzeit_laufende: Union[None, int],
+        hochzeit_spieler_nichtspieler_augen: Union[None, int],
+        hochzeit_augen: Union[None, int],
+        hochzeit_schwarz: Union[None, int],
+        runde_id: Union[None, str],
+        geber_id: Union[None, str],
+        ausspieler_id: Union[None, str],
+        mittelhand_id: Union[None, str],
+        hinterhand_id: Union[None, str],
+        geberhand_id: Union[None, str]) -> Tuple[Union[None, List[html.Div]], Dict, html.Div, html.Div, bool]:
+    teilnehmer_ids = [ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id]
+    if _validate_teilnehmer(runde_id, geber_id, teilnehmer_ids) is not None:
+        return None, dict(), html.Div(), html.Div(), False
+    raw_config = HochzeitRawConfig(runde_id=int(runde_id),
+                                   geber_id=geber_id,
+                                   teilnehmer_ids=[int(t) for t in teilnehmer_ids],
+                                   gelegt_ids=hochzeit_gelegt_ids,
+                                   ansager_id=hochzeit_ansager_id,
+                                   kontriert_id=hochzeit_kontriert_id,
+                                   re_id=hochzeit_re_id,
+                                   partner_id=hochzeit_partner_id,
+                                   laufende=hochzeit_laufende,
+                                   spieler_nichtspieler_augen=hochzeit_spieler_nichtspieler_augen,
+                                   augen=hochzeit_augen,
+                                   schwarz=hochzeit_schwarz)
+    hochzeit_validator = HochzeitValidator(raw_config)
+    messages = hochzeit_validator.validation_messages
+    if len(messages) > 0:
+        return wrap_alert(messages), dict(display='none'), html.Div(), html.Div(), False
+    hochzeit_calculator = HochzeitCalculator(hochzeit_validator.validated_config)
+    result = HochzeitPresenter(hochzeit_calculator).get_result()
+    if hochzeit_spielstand_eintragen_button_n_clicks is not None and hochzeit_spielstand_eintragen_button_n_clicks >= 1:
+        HochzeitWriter(hochzeit_calculator).write()
         header, body = wrap_stats([runde_id])
         return result, dict(), header, body, True
     else:

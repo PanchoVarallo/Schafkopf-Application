@@ -4,8 +4,9 @@ from typing import List, Dict
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 
-from schafkopf.backend.calculator import RufspielCalculator, SoloCalculator, Calculator
-from schafkopf.backend.configs import Config
+from schafkopf.backend.calculator import RufspielCalculator, SoloCalculator, Calculator, RufspielHochzeitCalculator, \
+    NormalspielCalculator, HochzeitCalculator
+from schafkopf.backend.configs import Config, NormalspielConfig
 from schafkopf.database.queries import get_teilnehmer_name_by_id
 from schafkopf.frontend.generic_objects import wrap_html_tr, wrap_html_tbody
 
@@ -34,7 +35,22 @@ class Presenter:
         return result_div
 
     @staticmethod
+    @abstractmethod
     def _add_result_points_details(calculator: Calculator, config: Config, r: List[html.Tr]):
+        pass
+
+    @abstractmethod
+    def _get_result_body(self) -> html.Tbody:
+        pass
+
+
+class NormalspielPresenter(Presenter):
+    def __init__(self, calculator: NormalspielCalculator):
+        super().__init__(calculator)
+        self._calculator = calculator
+
+    @staticmethod
+    def _add_result_points_details(calculator: NormalspielCalculator, config: NormalspielConfig, r: List[html.Tr]):
         if calculator.is_schneider():
             r.append(wrap_html_tr(['Schneider', 'ja', f'+{config.punkteconfig.schneider}']))
         if calculator.is_schwarz():
@@ -55,20 +71,34 @@ class Presenter:
         pass
 
 
-class RufspielPresenter(Presenter):
-    def __init__(self, calculator: RufspielCalculator):
+class RufspielHochzeitPresenter(NormalspielPresenter):
+    def __init__(self, calculator: RufspielHochzeitCalculator):
         super().__init__(calculator)
         self._calculator = calculator
 
     def _get_result_body(self) -> html.Tbody:
         calculator = self._calculator
         config = calculator.config
-        result_points = [wrap_html_tr(["Grundpunkte", "", f'{config.punkteconfig.rufspiel}'])]
+        result_points = [wrap_html_tr(["Grundpunkte", "", f'{self._get_punkte_from_punkteconfig()}'])]
         self._add_result_points_details(calculator, config, result_points)
         return wrap_html_tbody(result_points)
 
+    @abstractmethod
+    def _get_punkte_from_punkteconfig(self) -> int:
+        pass
 
-class SoloPresenter(Presenter):
+
+class RufspielPresenter(RufspielHochzeitPresenter):
+
+    def __init__(self, calculator: RufspielCalculator):
+        super().__init__(calculator)
+        self._calculator = calculator
+
+    def _get_punkte_from_punkteconfig(self) -> int:
+        return self._calculator.config.punkteconfig.rufspiel
+
+
+class SoloPresenter(NormalspielPresenter):
     def __init__(self, calculator: SoloCalculator):
         super().__init__(calculator)
         self._calculator = calculator
@@ -82,3 +112,13 @@ class SoloPresenter(Presenter):
         if config.tout_gespielt_gewonnen or config.tout_gespielt_verloren:
             result_points.insert(-1, wrap_html_tr(['Tout', '', f'x2']))
         return wrap_html_tbody(result_points)
+
+
+class HochzeitPresenter(RufspielHochzeitPresenter):
+
+    def __init__(self, calculator: HochzeitCalculator):
+        super().__init__(calculator)
+        self._calculator = calculator
+
+    def _get_punkte_from_punkteconfig(self) -> int:
+        return self._calculator.config.punkteconfig.hochzeit

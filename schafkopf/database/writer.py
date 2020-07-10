@@ -1,4 +1,8 @@
-from schafkopf.backend.calculator import RufspielCalculator, SoloCalculator
+from abc import abstractmethod
+from typing import Union
+
+from schafkopf.backend.calculator import RufspielCalculator, SoloCalculator, NormalspielCalculator, \
+    RufspielHochzeitCalculator, HochzeitCalculator
 from schafkopf.database.data_model import Spielart, Doppler
 from schafkopf.database.queries import insert_einzelspiel, insert_resultat, insert_verdopplung
 from schafkopf.database.session import Sessions
@@ -8,8 +12,11 @@ class Writer:
     pass
 
 
-# Rufspiel, Solo, Hochzeit
 class NormalspielWriter(Writer):
+    def __init__(self, calculator: NormalspielCalculator):
+        super().__init__()
+        self._calculator = calculator
+
     @staticmethod
     def _eintrag(session, einzelspiel, config, calculator):
         teilnehmer_id_to_punkte = calculator.get_teilnehmer_id_to_punkte()
@@ -44,8 +51,9 @@ class NormalspielWriter(Writer):
                                session=session)
 
 
-class RufspielWriter(NormalspielWriter):
-    def __init__(self, calculator: RufspielCalculator):
+class RufspielHochzeitWriter(NormalspielWriter):
+    def __init__(self, calculator: RufspielHochzeitCalculator):
+        super().__init__(calculator)
         self._calculator = calculator
 
     def write(self):
@@ -60,9 +68,9 @@ class RufspielWriter(NormalspielWriter):
                                          mittelhand_id=config.teilnehmer_ids[1],
                                          hinterhand_id=config.teilnehmer_ids[2],
                                          geberhand_id=config.teilnehmer_ids[3],
-                                         farbe=config.rufsau.name,
+                                         farbe=self._get_farbe(),
                                          laufende=config.laufende,
-                                         spielart=Spielart.RUFSPIEL.name,
+                                         spielart=self._get_spielart(),
                                          schneider=calculator.is_schneider(),
                                          schwarz=calculator.is_schwarz(),
                                          spielpunkte=calculator.get_spielpunkte(),
@@ -71,9 +79,30 @@ class RufspielWriter(NormalspielWriter):
         session.commit()
         session.close()
 
+    @abstractmethod
+    def _get_farbe(self) -> Union[None, str]:
+        pass
+
+    @abstractmethod
+    def _get_spielart(self) -> str:
+        pass
+
+
+class RufspielWriter(RufspielHochzeitWriter):
+    def __init__(self, calculator: RufspielCalculator):
+        super().__init__(calculator)
+        self._calculator = calculator
+
+    def _get_farbe(self) -> Union[None, str]:
+        return self._calculator.config.rufsau.name
+
+    def _get_spielart(self) -> str:
+        return Spielart.RUFSPIEL.name
+
 
 class SoloWriter(NormalspielWriter):
     def __init__(self, calculator: SoloCalculator):
+        super().__init__(calculator)
         self._calculator = calculator
 
     def write(self):
@@ -98,3 +127,15 @@ class SoloWriter(NormalspielWriter):
         self._eintrag(session, einzelspiel, config, calculator)
         session.commit()
         session.close()
+
+
+class HochzeitWriter(RufspielHochzeitWriter):
+    def __init__(self, calculator: HochzeitCalculator):
+        super().__init__(calculator)
+        self._calculator = calculator
+
+    def _get_farbe(self) -> Union[None, str]:
+        return None
+
+    def _get_spielart(self) -> str:
+        return Spielart.HOCHZEIT.name
