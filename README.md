@@ -1,16 +1,9 @@
-1. Unbedingt Analyzer anpassen, d.h.
-   1. Abstrahieren. Better Code.
-   2. Momentan nur Wenz (Geyer könnte auch Crashen denke ich). Geyer/Solo hinzufügen. Außerdem: Gesamtstatistik der 
-      Runde (Rufspiele/Farbsoli/...)
-   3. Überschriften verbessern/Buttons hoch oder runter?
-   4. Pop-Up bei Spieleintragung: Nur Spielstand ohne Ergebnisse.
-2. Writer abstrahieren/SoloConfib bzw. RufspielConfig abstrahieren -> v.a. get_spieler_ids
-3. Active bei allen Abfragen checken 
-4. Kann man noch mehr Abstrahieren?
-5. Hochzeit
-6. Ramsch (Durchmarsch ab 91) -> 
+1. Writer abstrahieren/SoloConfig bzw. RufspielConfig abstrahieren -> v.a. get_spieler_ids
+2. Active bei allen Abfragen checken 
+3. Hochzeit
+4. Ramsch (Durchmarsch ab 91) -> 
    Möglichst abstrakt! (V.a. Spielstand Modal kann man abstrakt machen -> hmmm?)
-7. Report erstellen
+5. Report erstellen
 
 Falls ich noch Lust habe
 - Code besser refaktoren

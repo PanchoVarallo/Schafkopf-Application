@@ -165,7 +165,7 @@ def wrap_alert(messages: List[str]) -> html.Div:
     ])
 
 
-def wrap_stats(runde_ids: Union[None, List[str]]) -> Tuple[html.Div, html.Div]:
+def wrap_stats(runde_ids: Union[None, List[str]], details: bool = False) -> Tuple[html.Div, html.Div]:
     runde_ids = [int(r) for r in runde_ids if r is not None]
     if len(runde_ids) == 0:
         header = html.Div()
@@ -176,7 +176,7 @@ def wrap_stats(runde_ids: Union[None, List[str]]) -> Tuple[html.Div, html.Div]:
             header = html.Div()
             body = wrap_alert(['Keine Spiele gespielt'])
         else:
-            body = _build_body(runde_ids)
+            body = _build_body(runde_ids, details)
             header = html.Div([f'Statistiken'])
     return header, body
 
@@ -314,16 +314,18 @@ def wrap_next_game_button() -> html.Div:
     return html.Div(html.A(dbc.Button(txt, color='primary', id='close', className='ml-auto'), href='/'))
 
 
-def _build_body(runde_ids: List[int]):
+def _build_body(runde_ids: List[int], details: bool):
     ranking_dataframe = get_ranking_dataframe_by_runde_ids(runde_ids)
     list_dataframe = get_list_dataframe_by_runde_ids(runde_ids)
     ranking_div = wrap_dataframe_table_div(ranking_dataframe)
     ranking_div = html.Div([html.H5('Punktestand'), ranking_div])
-    spieler, partner, gegenspieler, verdopplungen = get_stats_dataframe_by_runde_ids(runde_ids)
-    spieler_div = html.Div([html.H5('Statistiken als Spieler'), wrap_dataframe_table_div(spieler)])
-    partner_div = html.Div([html.H5('Statistiken als Partner'), wrap_dataframe_table_div(partner)])
-    gegenspieler_div = html.Div([html.H5('Statistiken als Gegenspieler'), wrap_dataframe_table_div(gegenspieler)])
-    verdopplungen_div = html.Div([html.H5('Statistiken der Aggressivität'), wrap_dataframe_table_div(verdopplungen)])
     fig = px.line(list_dataframe, x='Einzelspiele', y='Punkte', color='Teilnehmer')
     graph_div = html.Div([html.H5('Verlauf des Punktestands'), html.Div(dbc.Row(dbc.Col(dcc.Graph(figure=fig))))])
-    return html.Div([ranking_div, graph_div, spieler_div, partner_div, gegenspieler_div, verdopplungen_div])
+    if details:
+        spieler, partner, gegenspieler, verdopplungen = get_stats_dataframe_by_runde_ids(runde_ids)
+        spieler_div = html.Div([html.H5('Statistiken als Spieler'), wrap_dataframe_table_div(spieler)])
+        partner_div = html.Div([html.H5('Statistiken als Partner'), wrap_dataframe_table_div(partner)])
+        gegenspieler_div = html.Div([html.H5('Statistiken als Gegenspieler'), wrap_dataframe_table_div(gegenspieler)])
+        verdopplungen_div = html.Div([html.H5('Statistiken der Aggressivität'), wrap_dataframe_table_div(verdopplungen)])
+        return html.Div([ranking_div, graph_div, spieler_div, partner_div, gegenspieler_div, verdopplungen_div])
+    return html.Div([ranking_div, graph_div])

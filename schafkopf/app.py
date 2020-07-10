@@ -355,7 +355,7 @@ def show_stats(stats_modal_open: Union[None, int],
     if stats_modal_open == 0 and stats_modal_close == 0:
         return html.Div(), html.Div(), stats_modal, {'clicks': stats_modal_open}, {'clicks': stats_modal_close}
     if stats_modal_open > stats_modal_open_n_clicks['clicks']:
-        header, body = wrap_stats([runde_id])
+        header, body = wrap_stats([runde_id], True)
     elif stats_modal_close > stats_modal_close_n_clicks['clicks']:
         header, body = html.Div(), html.Div()
     else:
@@ -386,7 +386,7 @@ def show_stats_all(stats_all_modal_open: Union[None, int],
         return html.Div(), html.Div(), stats_all_modal, {'clicks': stats_all_modal_open}, {
             'clicks': stats_all_modal_close}
     if stats_all_modal_open > stats_all_modal_open_n_clicks['clicks']:
-        header, body = wrap_stats([str(r.id) for r in get_runden()])
+        header, body = wrap_stats([str(r.id) for r in get_runden()], True)
     elif stats_all_modal_close > stats_all_modal_close_n_clicks['clicks']:
         header, body = html.Div(), html.Div()
     else:

@@ -125,14 +125,15 @@ def get_stats_dataframe_by_runde_ids(
     for col in columns_to_add:
         if col not in res.columns:
             res[col] = np.NaN
-
+    res.fillna(0.0, inplace=True)
     res['% Spieler (von Einzelspiele)'] = (res['Spieler'] / res['Einzelspiele']) * 100.0
     res['% Rufspiel (von Spieler)'] = (res['Rufspiel Ansage'] / res['Spieler']) * 100.0
     res['% Rufspiel gewonnen (von Rufspiel)'] = (res['Rufspiel Ansage gewonnen'] / res['Rufspiel Ansage']) * 100.0
-    res['% Solo (von Spieler)'] = ((res['Wenz Ansage'])
-                                   / res['Spieler']) * 100.0
-    res['% Solo gewonnen (von Solo)'] = ((res['Wenz Ansage gewonnen'])
-                                         / (res['Wenz Ansage'])) * 100.0
+    res['Solo Ansage'] = res['Wenz Ansage'] + res['Geyer Ansage'] + res['Farbsolo Ansage']
+    res['Solo Ansage gewonnen'] = res['Wenz Ansage gewonnen'] + res['Geyer Ansage gewonnen'] + res[
+        'Farbsolo Ansage gewonnen']
+    res['% Solo (von Spieler)'] = (res['Solo Ansage'] / res['Spieler']) * 100.0
+    res['% Solo gewonnen (von Solo)'] = (res['Solo Ansage gewonnen'] / res['Solo Ansage']) * 100.0
     res['% Partner (von Einzelspiele)'] = (res['Partner'] / res['Einzelspiele']) * 100.0
     res['% Partner gewonnen (von Partner)'] = (res['Partner gewonnen'] / res['Partner']) * 100.0
     res['% Gegenspieler (von Einzelspiele)'] = (res['Gegenspieler'] / res['Einzelspiele']) * 100.0
