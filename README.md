@@ -28,10 +28,12 @@ Falls ich noch Lust habe
 - Wenz/Geyer: Ab zwei Laufenden
 - Tout/Sie: Kein Schneider und kein Schwarz (nochmal überprüfen)
 - Ramsch: 
-  - Punktgleichheit: Bei Punktgleichheit zählen die Anzahl der Stiche. Ist die Anzahl der Stiche ebenfalls gleich, 
-    entscheidet die Anzahl der Trümpfe in den Stichen. Und wenn auch diese noch identisch sind, verliert derjenige, der 
-    den höchsten Trumpf in seiner Karte hat (muss manuell angegeben werden)
-  - Durchmarsch ab 91
+  - Hat ein Spieler am Ende des Spiels mindestens 91 Augen, ist ihm ein Durchmarsch gelungen und er bekommt von den 
+    anderen drei Spielern jeweils 50 Cent (im Tarif 10-20-50) (Was ist mit Legern?)
+  - Punktgleichheit: Bei Punktgleichheit zählt die Anzahl der Stiche. Ist die Anzahl der Stiche ebenfalls gleich, 
+    entscheidet die Anzahl der Trümpfe in den eigenen Stichen. Und wenn auch diese noch identisch sind, verliert 
+    derjenige, der den höchsten Trumpf in seinen Stichen hat. Danach entscheidet, wer das höchste Ass hat (in der 
+    Reihenfolge Eichel, Gras, Herz, Schell).
  
  
  
