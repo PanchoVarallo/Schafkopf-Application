@@ -62,34 +62,45 @@ def get_stats_dataframe_by_runde_ids(
     einzelspiele = resultate_df.groupby('teilnehmer_id')['einzelspiel_id'].count().to_frame()
     einzelspiele.rename(columns={'einzelspiel_id': 'Einzelspiele'}, inplace=True)
 
-    spieler = ansager_resultate_df.groupby('teilnehmer_id')['ansager_id'].count().to_frame()
-    spieler.rename(columns={'ansager_id': 'Spieler'}, inplace=True)
-
-    ansagen = ansager_resultate_df.groupby(['teilnehmer_id', 'spielart'])['ansager_id'].count().to_frame()
-    ansagen = ansagen.unstack()
-    ansagen.columns = ansagen.columns.droplevel()
-    rename = {Spielart.WENZ.name: 'Wenz Ansage', Spielart.GEYER.name: 'Geyer Ansage',
-              Spielart.FARBSOLO.name: 'Farbsolo Ansage', Spielart.RUFSPIEL.name: 'Rufspiel Ansage'}
-    ansagen.rename(columns=rename, inplace=True)
-
-    ansagen_gewonnen = ansager_resultate_df.groupby(['teilnehmer_id', 'spielart'])['gewonnen'].sum().to_frame()
-    ansagen_gewonnen = ansagen_gewonnen.unstack()
-    ansagen_gewonnen.columns = ansagen_gewonnen.columns.droplevel()
-    rename = {Spielart.WENZ.name: 'Wenz Ansage gewonnen', Spielart.GEYER.name: 'Geyer Ansage gewonnen',
-              Spielart.FARBSOLO.name: 'Farbsolo Ansage gewonnen', Spielart.RUFSPIEL.name: 'Rufspiel Ansage gewonnen'}
-    ansagen_gewonnen.rename(columns=rename, inplace=True)
+    ansager = ansager_resultate_df.groupby('teilnehmer_id')['ansager_id'].count().to_frame()
+    ansager.rename(columns={'ansager_id': 'Ansager'}, inplace=True)
 
     partner = partner_resultate_df.groupby('teilnehmer_id')['partner_id'].count().to_frame()
     partner.rename(columns={'partner_id': 'Partner'}, inplace=True)
 
-    partner_gewonnen = partner_resultate_df.groupby(['teilnehmer_id'])['gewonnen'].sum().to_frame()
-    partner_gewonnen.rename(columns={'gewonnen': 'Partner gewonnen'}, inplace=True)
+    ansagespieler = ansager_resultate_df.groupby(['teilnehmer_id', 'spielart'])['ansager_id'].count().to_frame()
+    ansagespieler = ansagespieler.unstack()
+    ansagespieler.columns = ansagespieler.columns.droplevel()
+    rename = {Spielart.WENZ.name: 'Wenz Ansage', Spielart.GEYER.name: 'Geyer Ansage',
+              Spielart.FARBSOLO.name: 'Farbsolo Ansage', Spielart.RUFSPIEL.name: 'Rufspiel Ansage',
+              Spielart.HOCHZEIT.name: 'Hochzeit Ansage'}
+    ansagespieler.rename(columns=rename, inplace=True)
+
+    ansagespieler_gewonnen = ansager_resultate_df.groupby(['teilnehmer_id', 'spielart'])['gewonnen'].sum().to_frame()
+    ansagespieler_gewonnen = ansagespieler_gewonnen.unstack()
+    ansagespieler_gewonnen.columns = ansagespieler_gewonnen.columns.droplevel()
+    rename = {Spielart.WENZ.name: 'Wenz Ansage gew.', Spielart.GEYER.name: 'Geyer Ansage gew.',
+              Spielart.FARBSOLO.name: 'Farbsolo Ansage gew.', Spielart.HOCHZEIT.name: 'Hochzeit Ansage gew.',
+              Spielart.RUFSPIEL.name: 'Rufspiel Ansage gew.'}
+    ansagespieler_gewonnen.rename(columns=rename, inplace=True)
+
+    partnerspieler = partner_resultate_df.groupby(['teilnehmer_id', 'spielart'])['partner_id'].count().to_frame()
+    partnerspieler = partnerspieler.unstack()
+    partnerspieler.columns = partnerspieler.columns.droplevel()
+    rename = {Spielart.RUFSPIEL.name: 'Rufspiel Partner', Spielart.HOCHZEIT.name: 'Hochzeit Partner'}
+    partnerspieler.rename(columns=rename, inplace=True)
+
+    partnerspieler_gewonnen = partner_resultate_df.groupby(['teilnehmer_id', 'spielart'])['gewonnen'].sum().to_frame()
+    partnerspieler_gewonnen = partnerspieler_gewonnen.unstack()
+    partnerspieler_gewonnen.columns = partnerspieler_gewonnen.columns.droplevel()
+    rename = {Spielart.HOCHZEIT.name: 'Hochzeit Partner gew.', Spielart.RUFSPIEL.name: 'Rufspiel Partner gew.'}
+    partnerspieler_gewonnen.rename(columns=rename, inplace=True)
 
     gegenspieler = gegenspieler_resultate_df.groupby('teilnehmer_id').size().to_frame()
     gegenspieler.rename(columns={0: 'Gegenspieler'}, inplace=True)
 
     gegenspieler_gewonnen = gegenspieler_resultate_df.groupby(['teilnehmer_id'])['gewonnen'].sum().to_frame()
-    gegenspieler_gewonnen.rename(columns={'gewonnen': 'Gegenspieler gewonnen'}, inplace=True)
+    gegenspieler_gewonnen.rename(columns={'gewonnen': 'Gegenspieler gew.'}, inplace=True)
 
     einzelspiel_ids = get_einzelspiel_ids_by_runde_id(runde_ids=runde_ids)
     verdopplungen = get_verdopplungen_by_einzelspiel_ids(einzelspiel_ids=einzelspiel_ids, dataframe=True)
@@ -98,91 +109,111 @@ def get_stats_dataframe_by_runde_ids(
     verdopplungen.columns = verdopplungen.columns.droplevel()
 
     einzelspiele.reset_index(inplace=True)
-    spieler.reset_index(inplace=True)
+    ansager.reset_index(inplace=True)
     partner.reset_index(inplace=True)
     gegenspieler.reset_index(inplace=True)
-    partner_gewonnen.reset_index(inplace=True)
+    ansagespieler.reset_index(inplace=True)
+    ansagespieler_gewonnen.reset_index(inplace=True)
+    partnerspieler.reset_index(inplace=True)
+    partnerspieler_gewonnen.reset_index(inplace=True)
     gegenspieler_gewonnen.reset_index(inplace=True)
-    ansagen.reset_index(inplace=True)
-    ansagen_gewonnen.reset_index(inplace=True)
     verdopplungen.reset_index(inplace=True)
 
-    res = einzelspiele.merge(right=spieler, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
-    res = res.merge(right=ansagen, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
+    res = einzelspiele.merge(right=ansager, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
     res = res.merge(right=partner, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
+    res = res.merge(right=ansagespieler, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
+    res = res.merge(right=partnerspieler, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
     res = res.merge(right=gegenspieler, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
-    res = res.merge(right=ansagen_gewonnen, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
-    res = res.merge(right=partner_gewonnen, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
+    res = res.merge(right=ansagespieler_gewonnen, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
+    res = res.merge(right=partnerspieler_gewonnen, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
     res = res.merge(right=gegenspieler_gewonnen, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
     res = res.merge(right=verdopplungen, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
     res = res.merge(right=get_teilnehmer(dataframe=True), how='left', left_on='teilnehmer_id', right_on='id')
 
     # Add columns if they are missing
-    columns_to_add = ['Spieler', 'Rufspiel Ansage', 'Spieler', 'Rufspiel Ansage gewonnen', 'Einzelspiele', 'Partner',
-                      'Partner gewonnen', 'Gegenspieler', 'Gegenspieler gewonnen', 'GELEGT', 'KONTRIERT', 'RE',
-                      'Farbsolo Ansage', 'Farbsolo Ansage gewonnen', 'Wenz Ansage', 'Wenz Ansage gewonnen',
-                      'Geyer Ansage', 'Geyer Ansage gewonnen']
+    columns_to_add = ['Ansager', 'Partner', 'Rufspiel Ansage', 'Rufspiel Ansage gew.', 'Hochzeit Ansage',
+                      'Hochzeit Ansage gew.', 'Rufspiel Partner', 'Rufspiel Partner gew.', 'Hochzeit Partner',
+                      'Hochzeit Partner gew.', 'Einzelspiele', 'Gegenspieler', 'Gegenspieler gew.', 'GELEGT',
+                      'KONTRIERT', 'RE', 'Farbsolo Ansage', 'Farbsolo Ansage gew.', 'Wenz Ansage',
+                      'Wenz Ansage gew.', 'Geyer Ansage', 'Geyer Ansage gew.']
     for col in columns_to_add:
         if col not in res.columns:
             res[col] = np.NaN
     res.fillna(0.0, inplace=True)
-    res['% Spieler (von Einzelspiele)'] = (res['Spieler'] / res['Einzelspiele']) * 100.0
-    res['% Rufspiel (von Spieler)'] = (res['Rufspiel Ansage'] / res['Spieler']) * 100.0
-    res['% Rufspiel gewonnen (von Rufspiel)'] = (res['Rufspiel Ansage gewonnen'] / res['Rufspiel Ansage']) * 100.0
+    res['% Ansager (von Einzelspiele)'] = (res['Ansager'] / res['Einzelspiele']) * 100.0
+    res['% Rufspiel (von Ansager)'] = (res['Rufspiel Ansage'] / res['Ansager']) * 100.0
+    res['% Rufspiel gew. (von Rufspiel)'] = (res['Rufspiel Ansage gew.'] / res['Rufspiel Ansage']) * 100.0
+    res['% Hochzeit (von Ansager)'] = (res['Hochzeit Ansage'] / res['Ansager']) * 100.0
+    res['% Hochzeit gew. (von Hochzeit)'] = (res['Hochzeit Ansage gew.'] / res['Hochzeit Ansage']) * 100.0
     res['Solo Ansage'] = res['Wenz Ansage'] + res['Geyer Ansage'] + res['Farbsolo Ansage']
-    res['Solo Ansage gewonnen'] = res['Wenz Ansage gewonnen'] + res['Geyer Ansage gewonnen'] + res[
-        'Farbsolo Ansage gewonnen']
-    res['% Solo (von Spieler)'] = (res['Solo Ansage'] / res['Spieler']) * 100.0
-    res['% Solo gewonnen (von Solo)'] = (res['Solo Ansage gewonnen'] / res['Solo Ansage']) * 100.0
+    res['Solo Ansage gew.'] = res['Wenz Ansage gew.'] + res['Geyer Ansage gew.'] + res[
+        'Farbsolo Ansage gew.']
+    res['% Solo (von Ansager)'] = (res['Solo Ansage'] / res['Ansager']) * 100.0
+    res['% Solo gew. (von Solo)'] = (res['Solo Ansage gew.'] / res['Solo Ansage']) * 100.0
     res['% Partner (von Einzelspiele)'] = (res['Partner'] / res['Einzelspiele']) * 100.0
-    res['% Partner gewonnen (von Partner)'] = (res['Partner gewonnen'] / res['Partner']) * 100.0
+    res['% Rufspiel Partner (von Partner)'] = (res['Rufspiel Partner'] / res['Partner']) * 100.0
+    res['% Rufspiel Partner gew. (von Rufspiel Partner)'] = (res['Rufspiel Partner gew.'] / res[
+        'Rufspiel Partner']) * 100.0
+    res['% Hochzeit Partner (von Partner)'] = (res['Hochzeit Partner'] / res['Partner']) * 100.0
+    res['% Hochzeit Partner gew. (von Hochzeit Partner)'] = (res['Hochzeit Partner gew.'] / res[
+        'Hochzeit Partner']) * 100.0
     res['% Gegenspieler (von Einzelspiele)'] = (res['Gegenspieler'] / res['Einzelspiele']) * 100.0
-    res['% Gegenspieler gewonnen (von Gegenspieler)'] = (res['Gegenspieler gewonnen'] / res['Gegenspieler']) * 100.0
+    res['% Gegenspieler gew. (von Gegenspieler)'] = (res['Gegenspieler gew.'] / res['Gegenspieler']) * 100.0
     res['% Gelegt (von Einzelspiele)'] = (res['GELEGT'] / res['Einzelspiele']) * 100.0
     res['% Kontriert (von Einzelspiele)'] = (res['KONTRIERT'] / res['Einzelspiele']) * 100.0
     res['% Re (von Einzelspiele)'] = (res['RE'] / res['Einzelspiele']) * 100.0
 
-    temp = ['% Spieler (von Einzelspiele)', '% Partner (von Einzelspiele)', '% Gegenspieler (von Einzelspiele)',
+    temp = ['% Ansager (von Einzelspiele)', '% Partner (von Einzelspiele)', '% Gegenspieler (von Einzelspiele)',
             '% Gelegt (von Einzelspiele)', '% Kontriert (von Einzelspiele)', '% Re (von Einzelspiele)']
     res[temp] = res[temp].fillna(value=0.0)
     res = res[['name',
-               '% Spieler (von Einzelspiele)',
-               '% Rufspiel (von Spieler)',
-               '% Rufspiel gewonnen (von Rufspiel)',
-               '% Solo (von Spieler)',
-               '% Solo gewonnen (von Solo)',
+               '% Ansager (von Einzelspiele)',
                '% Partner (von Einzelspiele)',
-               '% Partner gewonnen (von Partner)',
+               '% Rufspiel (von Ansager)',
+               '% Rufspiel gew. (von Rufspiel)',
+               '% Hochzeit (von Ansager)',
+               '% Hochzeit gew. (von Hochzeit)',
+               '% Solo (von Ansager)',
+               '% Solo gew. (von Solo)',
+               '% Rufspiel Partner (von Partner)',
+               '% Rufspiel Partner gew. (von Rufspiel Partner)',
+               '% Hochzeit Partner (von Partner)',
+               '% Hochzeit Partner gew. (von Hochzeit Partner)',
                '% Gegenspieler (von Einzelspiele)',
-               '% Gegenspieler gewonnen (von Gegenspieler)',
+               '% Gegenspieler gew. (von Gegenspieler)',
                '% Gelegt (von Einzelspiele)',
                '% Kontriert (von Einzelspiele)',
                '% Re (von Einzelspiele)'
                ]]
     res.rename(columns={'name': 'Teilnehmer'}, inplace=True)
 
-    spieler = res[['Teilnehmer',
-                   '% Spieler (von Einzelspiele)',
-                   '% Rufspiel (von Spieler)',
-                   '% Rufspiel gewonnen (von Rufspiel)',
-                   '% Solo (von Spieler)',
-                   '% Solo gewonnen (von Solo)',
+    ansager = res[['Teilnehmer',
+                   '% Ansager (von Einzelspiele)',
+                   '% Rufspiel (von Ansager)',
+                   '% Rufspiel gew. (von Rufspiel)',
+                   '% Hochzeit (von Ansager)',
+                   '% Hochzeit gew. (von Hochzeit)',
+                   '% Solo (von Ansager)',
+                   '% Solo gew. (von Solo)',
                    ]].copy()
     partner = res[['Teilnehmer',
                    '% Partner (von Einzelspiele)',
-                   '% Partner gewonnen (von Partner)',
+                   '% Rufspiel Partner (von Partner)',
+                   '% Rufspiel Partner gew. (von Rufspiel Partner)',
+                   '% Hochzeit Partner (von Partner)',
+                   '% Hochzeit Partner gew. (von Hochzeit Partner)',
                    ]].copy()
     gegenspieler = res[['Teilnehmer',
                         '% Gegenspieler (von Einzelspiele)',
-                        '% Gegenspieler gewonnen (von Gegenspieler)'
+                        '% Gegenspieler gew. (von Gegenspieler)'
                         ]].copy()
     verdopplungen = res[['Teilnehmer',
                          '% Gelegt (von Einzelspiele)',
                          '% Kontriert (von Einzelspiele)',
                          '% Re (von Einzelspiele)',
                          ]].copy()
-    spieler.sort_values('% Spieler (von Einzelspiele)', inplace=True, ascending=False)
+    ansager.sort_values('% Ansager (von Einzelspiele)', inplace=True, ascending=False)
     partner.sort_values('% Partner (von Einzelspiele)', inplace=True, ascending=False)
     gegenspieler.sort_values('% Gegenspieler (von Einzelspiele)', inplace=True, ascending=False)
     verdopplungen.sort_values('% Gelegt (von Einzelspiele)', inplace=True, ascending=False)
-    return spieler.round(2), partner.round(2), gegenspieler.round(2), verdopplungen.round(2)
+    return ansager.round(2), partner.round(2), gegenspieler.round(2), verdopplungen.round(2)

@@ -1,15 +1,17 @@
 1. Analysis für Hochzeit bei Spieler integrieren -> Titel anpassen
 2. Hochzeitstests
-3. Überhaupt alles nochmal testen nach massiver Refaktorierung
-2. Ramsch (Durchmarsch ab 91)
+3. Ramsch (Durchmarsch ab 91)
+4. Überhaupt alles nochmal testen nach massiver Refaktorierung
+5. Script zum Datenbank initialisieren verbessern
+6. Make public on Github
+
 
 Falls ich noch Lust habe
 - Übersichtsreport erstellen
-- Code besser refaktorieren
+- Code noch besser refaktorieren
 - Teilnehmer einrichten/bearbeiten, Runde einrichten/bearbeiten, Einzelspiele bearbeiten -> Dashboard
 - Spielegenerator um Datenbank zu befüllen (Testdatenbank)
 - Rundungen bei Statistik verbessern
-- Make public on Github
  
  Wichtig für SQL:
  - Schema definition with alchemy: https://overiq.com/sqlalchemy-101/defining-schema-in-sqlalchemy-orm/

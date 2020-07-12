@@ -385,11 +385,11 @@ def _build_body(runde_ids: List[int], details: bool):
     fig = px.line(list_dataframe, x='Einzelspiele', y='Punkte', color='Teilnehmer')
     graph_div = html.Div([html.H5('Verlauf des Punktestands'), html.Div(dbc.Row(dbc.Col(dcc.Graph(figure=fig))))])
     if details:
-        spieler, partner, gegenspieler, verdopplungen = get_stats_dataframe_by_runde_ids(runde_ids)
-        spieler_div = html.Div([html.H5('Statistiken als Spieler'), wrap_dataframe_table_div(spieler)])
+        ansager, partner, gegenspieler, verdopplungen = get_stats_dataframe_by_runde_ids(runde_ids)
+        ansager_div = html.Div([html.H5('Statistiken als Ansager'), wrap_dataframe_table_div(ansager)])
         partner_div = html.Div([html.H5('Statistiken als Partner'), wrap_dataframe_table_div(partner)])
         gegenspieler_div = html.Div([html.H5('Statistiken als Gegenspieler'), wrap_dataframe_table_div(gegenspieler)])
         verdopplungen_div = html.Div(
             [html.H5('Statistiken der Aggressivität'), wrap_dataframe_table_div(verdopplungen)])
-        return html.Div([ranking_div, graph_div, spieler_div, partner_div, gegenspieler_div, verdopplungen_div])
+        return html.Div([ranking_div, graph_div, ansager_div, partner_div, gegenspieler_div, verdopplungen_div])
     return html.Div([ranking_div, graph_div])
