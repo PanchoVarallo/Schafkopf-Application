@@ -1,12 +1,17 @@
-1. Ramsch (Durchmarsch ab 91)
-2. Überhaupt alles nochmal testen nach massiver Refaktorierung
-3. Script zum Datenbank initialisieren verbessern
-4. Make public on Github
+1. Ramsch (Durchmarsch ab 91) -> Nächster Schritt: Validierung
+    a) Calculator with Tests
+    b) Presenter
+    c) Writer
+    d) Analyzer
+2. Alles nochmal intensiv refaktorieren
+3. Script zum Datenbank initialisieren verbessern (userfriendly)
+4. Selber intensiv testen
+5. Make public on Github -> Maria Lackmustest
 
 
 Falls ich noch Lust habe
 - Übersichtsreport erstellen
-- Code noch besser refaktorieren
+- Code noch besser refaktorieren (z.B. wann macht ABC bei Abstrakten Klassen Sinn?)
 - Teilnehmer einrichten/bearbeiten, Runde einrichten/bearbeiten, Einzelspiele bearbeiten -> Dashboard
 - Spielegenerator um Datenbank zu befüllen (Testdatenbank)
 - Rundungen bei Statistik verbessern
