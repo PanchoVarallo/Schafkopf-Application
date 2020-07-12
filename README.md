@@ -1,9 +1,7 @@
-1. Analysis für Hochzeit bei Spieler integrieren -> Titel anpassen
-2. Hochzeitstests
-3. Ramsch (Durchmarsch ab 91)
-4. Überhaupt alles nochmal testen nach massiver Refaktorierung
-5. Script zum Datenbank initialisieren verbessern
-6. Make public on Github
+1. Ramsch (Durchmarsch ab 91)
+2. Überhaupt alles nochmal testen nach massiver Refaktorierung
+3. Script zum Datenbank initialisieren verbessern
+4. Make public on Github
 
 
 Falls ich noch Lust habe

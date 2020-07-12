@@ -4,8 +4,8 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from schafkopf.backend.calculator import RufspielCalculator, SoloCalculator
-from schafkopf.backend.configs import RufspielConfig, SoloConfig
+from schafkopf.backend.calculator import RufspielCalculator, SoloCalculator, HochzeitCalculator
+from schafkopf.backend.configs import RufspielConfig, SoloConfig, HochzeitConfig
 from schafkopf.database.data_model import Teilnehmer, Runde, Base, Punkteconfig, Farbgebung, Spielart
 
 S1 = 'Spieler_1'
@@ -13,7 +13,7 @@ S2 = 'Spieler_2'
 S3 = 'Spieler_3'
 S4 = 'Spieler_4'
 
-data_rufspiel = [
+data_rufspiel_hochzeit = [
     ([], None, None, 0, 0, True, {S1: -40, S2: -40, S3: 40, S4: 40}),
     ([], None, None, 0, 0, False, {S1: -30, S2: -30, S3: 30, S4: 30}),
     ([], None, None, 0, 29, False, {S1: -30, S2: -30, S3: 30, S4: 30}),
@@ -53,7 +53,7 @@ data_rufspiel = [
      'laufende',
      'spieler_augen',
      'schwarz',
-     'expected'), data_rufspiel)
+     'expected'), data_rufspiel_hochzeit)
 def test_rufspiele(gelegt_teilnehmer_names: List[str],
                    kontriert_teilnehmer_name: Union[None, str],
                    re_teilnehmer_name: Union[None, str],
@@ -70,7 +70,7 @@ def test_rufspiele(gelegt_teilnehmer_names: List[str],
         transform_teilnehmer_names_to_teilnehmer_ids([re_teilnehmer_name], teilnehmers)[0]
     c = RufspielConfig(runde_id=runde.id,
                        punkteconfig=runde.punkteconfig,
-                       geber_id= ansager.id,
+                       geber_id=ansager.id,
                        teilnehmer_ids=[ansager.id, partner.id, gegner1.id, gegner2.id],
                        gelegt_ids=transform_teilnehmer_names_to_teilnehmer_ids(gelegt_teilnehmer_names, teilnehmers),
                        ansager_id=ansager.id,
@@ -91,15 +91,22 @@ data_solo = [
     ([], None, None, 0, False, False, Spielart.WENZ, None, 0, True, {S1: -210, S2: 70, S3: 70, S4: 70}),
     ([], None, None, 0, False, False, Spielart.WENZ, None, 0, False, {S1: -180, S2: 60, S3: 60, S4: 60}),
     ([], None, None, 0, False, False, Spielart.GEYER, None, 29, False, {S1: -180, S2: 60, S3: 60, S4: 60}),
-    ([], None, None, 0, False, False, Spielart.FARBSOLO, Farbgebung.EICHEL, 30, False, {S1: -180, S2: 60, S3: 60, S4: 60}),
-    ([], None, None, 0, False, False, Spielart.FARBSOLO, Farbgebung.BLATT, 31, False, {S1: -150, S2: 50, S3: 50, S4: 50}),
-    ([], None, None, 0, False, False, Spielart.FARBSOLO, Farbgebung.HERZ, 59, False, {S1: -150, S2: 50, S3: 50, S4: 50}),
-    ([], None, None, 0, False, False, Spielart.FARBSOLO, Farbgebung.SCHELLEN, 60, False, {S1: -150, S2: 50, S3: 50, S4: 50}),
+    ([], None, None, 0, False, False, Spielart.FARBSOLO, Farbgebung.EICHEL, 30, False,
+     {S1: -180, S2: 60, S3: 60, S4: 60}),
+    ([], None, None, 0, False, False, Spielart.FARBSOLO, Farbgebung.BLATT, 31, False,
+     {S1: -150, S2: 50, S3: 50, S4: 50}),
+    (
+    [], None, None, 0, False, False, Spielart.FARBSOLO, Farbgebung.HERZ, 59, False, {S1: -150, S2: 50, S3: 50, S4: 50}),
+    ([], None, None, 0, False, False, Spielart.FARBSOLO, Farbgebung.SCHELLEN, 60, False,
+     {S1: -150, S2: 50, S3: 50, S4: 50}),
     ([], None, None, 0, False, False, Spielart.WENZ, None, 61, False, {S1: 150, S2: -50, S3: -50, S4: -50}),
     ([], None, None, 0, False, False, Spielart.GEYER, None, 89, False, {S1: 150, S2: -50, S3: -50, S4: -50}),
-    ([], None, None, 0, False, False, Spielart.FARBSOLO, Farbgebung.EICHEL, 90, False, {S1: 150, S2: -50, S3: -50, S4: -50}),
-    ([], None, None, 0, False, False, Spielart.FARBSOLO, Farbgebung.BLATT, 91, False, {S1: 180, S2: -60, S3: -60, S4: -60}),
-    ([], None, None, 0, False, False, Spielart.FARBSOLO, Farbgebung.HERZ, 120, True, {S1: 210, S2: -70, S3: -70, S4: -70}),
+    ([], None, None, 0, False, False, Spielart.FARBSOLO, Farbgebung.EICHEL, 90, False,
+     {S1: 150, S2: -50, S3: -50, S4: -50}),
+    ([], None, None, 0, False, False, Spielart.FARBSOLO, Farbgebung.BLATT, 91, False,
+     {S1: 180, S2: -60, S3: -60, S4: -60}),
+    ([], None, None, 0, False, False, Spielart.FARBSOLO, Farbgebung.HERZ, 120, True,
+     {S1: 210, S2: -70, S3: -70, S4: -70}),
     ([], None, None, 2, False, False, Spielart.WENZ, None, 61, False, {S1: 210, S2: -70, S3: -70, S4: -70}),
     ([S1, S2], None, None, 4, False, False, Spielart.WENZ, None, 91, False, {S1: 1200, S2: -400, S3: -400, S4: -400}),
     # Tout Spiele
@@ -163,6 +170,46 @@ def test_solo(gelegt_teilnehmer_names: List[str],
     assert transform_dc_teilnehmer_id_to_teilnehmer_name(result, teilnehmers) == expected
 
 
+@pytest.mark.parametrize(
+    ('gelegt_teilnehmer_names',
+     'kontriert_teilnehmer_name',
+     're_teilnehmer_name',
+     'laufende',
+     'spieler_augen',
+     'schwarz',
+     'expected'), data_rufspiel_hochzeit)
+def test_hochzeit(gelegt_teilnehmer_names: List[str],
+                  kontriert_teilnehmer_name: Union[None, str],
+                  re_teilnehmer_name: Union[None, str],
+                  laufende: int,
+                  spieler_augen: int,
+                  schwarz: bool,
+                  expected: Dict[str, int]):
+    runde, ansager, partner, gegner1, gegner2 = init_in_memory_database()
+    teilnehmers = [ansager, partner, gegner1, gegner2]
+
+    kontriert_id = None if kontriert_teilnehmer_name is None else \
+        transform_teilnehmer_names_to_teilnehmer_ids([kontriert_teilnehmer_name], teilnehmers)[0]
+    re_id = None if re_teilnehmer_name is None else \
+        transform_teilnehmer_names_to_teilnehmer_ids([re_teilnehmer_name], teilnehmers)[0]
+    c = HochzeitConfig(runde_id=runde.id,
+                       punkteconfig=runde.punkteconfig,
+                       geber_id=ansager.id,
+                       teilnehmer_ids=[ansager.id, partner.id, gegner1.id, gegner2.id],
+                       gelegt_ids=transform_teilnehmer_names_to_teilnehmer_ids(gelegt_teilnehmer_names, teilnehmers),
+                       ansager_id=ansager.id,
+                       kontriert_id=kontriert_id,
+                       re_id=re_id,
+                       partner_id=partner.id,
+                       laufende=laufende,
+                       spieler_augen=spieler_augen,
+                       nicht_spieler_augen=120 - spieler_augen,
+                       schwarz=schwarz)
+    hochzeit = HochzeitCalculator(c)
+    result = hochzeit.get_teilnehmer_id_to_punkte()
+    assert transform_dc_teilnehmer_id_to_teilnehmer_name(result, teilnehmers) == expected
+
+
 def transform_teilnehmer_names_to_teilnehmer_ids(inputs: List[str], teilnehmer: List[Teilnehmer]) -> List[int]:
     return [{s.name: s.id for s in teilnehmer}[i] for i in inputs]
 
@@ -178,7 +225,8 @@ def init_in_memory_database() -> Tuple[Runde, Teilnehmer, Teilnehmer, Teilnehmer
     my_session = sessionmaker(bind=engine)
     session = my_session()
 
-    punkteconfig = Punkteconfig()
+    # After this setting, Hochzeit should return the same results as rufspiel
+    punkteconfig = Punkteconfig(hochzeit=20.0)
     session.add(punkteconfig)
     session.commit()
     runde = Runde(name="Sonntagsspiel", punkteconfig_id=punkteconfig.id, ort='Nürnberg')
