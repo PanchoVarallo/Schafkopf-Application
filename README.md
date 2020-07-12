@@ -18,10 +18,10 @@ Falls ich noch Lust habe
  Erklärungen zu Regeln:
 - 10/20/50 (Hochzeit: 30)
 - Kontra/Re: Bevor zweite Karte gefallen ist
-- 6 Nixer: Pech gehabt
-- Farbsolo: Ab drei Laufende
-- Wenz/Geyer: Ab zwei Laufende
-- Tout/Sie: Kein Schneider und kein Schwarz
+- 6 Nixer: Pech gehabt, es wird trotzdem gespielt
+- Farbsolo: Ab drei Laufenden
+- Wenz/Geyer: Ab zwei Laufenden
+- Tout/Sie: Kein Schneider und kein Schwarz (nochmal überprüfen)
 - Ramsch: 
   - Punktgleichheit: Bei Punktgleichheit zählen die Anzahl der Stiche. Ist die Anzahl der Stiche ebenfalls gleich, 
     entscheidet die Anzahl der Trümpfe in den Stichen. Und wenn auch diese noch identisch sind, verliert derjenige, der 

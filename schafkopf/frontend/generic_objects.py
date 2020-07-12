@@ -101,9 +101,9 @@ def wrap_laufende_div(form_text: str,
     ])
 
 
-def wrap_punkte_div(spieler_nichtspieler_id: str,
-                    augen_id: str,
-                    schwarz_id: str) -> html.Div:
+def wrap_augen_div(spieler_nichtspieler_id: str,
+                   augen_id: str,
+                   schwarz_id: str) -> html.Div:
     return html.Div([
         dbc.FormGroup([
             dbc.FormText('Augen'),
@@ -132,6 +132,24 @@ def wrap_punkte_div(spieler_nichtspieler_id: str,
                     value=0,
                     switch=True
                 )
+            )
+        ])
+    ])
+
+
+def wrap_ramsch_augen_div(augen_id: str, teilnehmer_name: str) -> html.Div:
+    return html.Div([
+        dbc.FormGroup([
+            dbc.FormText(f'Augen von {teilnehmer_name}'),
+            html.Div(
+                [
+                    dbc.Input(
+                        id=augen_id,
+                        type='number', min=0, max=120, step=1,
+                        value=30
+                    )
+                ],
+                id='styled-numeric-input',
             )
         ])
     ])
@@ -224,8 +242,8 @@ def wrap_rufspiel_card(ausspieler_id: str, mittelhand_id: str, hinterhand_id: st
         wrap_empty_dbc_row(),
         dbc.Row([
             dbc.Col([
-                wrap_punkte_div(spieler_nichtspieler_id='rufspiel_spieler_nichtspieler_augen',
-                                augen_id='rufspiel_augen', schwarz_id='rufspiel_schwarz')],
+                wrap_augen_div(spieler_nichtspieler_id='rufspiel_spieler_nichtspieler_augen',
+                               augen_id='rufspiel_augen', schwarz_id='rufspiel_schwarz')],
                 width={'size': 6, 'offset': 3}),
         ]),
         wrap_empty_dbc_row(),
@@ -289,8 +307,8 @@ def wrap_solo_card(ausspieler_id: str, mittelhand_id: str, hinterhand_id: str, g
         wrap_empty_dbc_row(),
         dbc.Row([
             dbc.Col([
-                wrap_punkte_div(spieler_nichtspieler_id='solo_spieler_nichtspieler_augen',
-                                augen_id='solo_augen', schwarz_id='solo_schwarz')],
+                wrap_augen_div(spieler_nichtspieler_id='solo_spieler_nichtspieler_augen',
+                               augen_id='solo_augen', schwarz_id='solo_schwarz')],
                 width={'size': 6, 'offset': 3}),
         ]),
         wrap_empty_dbc_row(),
@@ -352,8 +370,8 @@ def wrap_hochzeit_card(ausspieler_id: str, mittelhand_id: str, hinterhand_id: st
         wrap_empty_dbc_row(),
         dbc.Row([
             dbc.Col([
-                wrap_punkte_div(spieler_nichtspieler_id='hochzeit_spieler_nichtspieler_augen',
-                                augen_id='hochzeit_augen', schwarz_id='hochzeit_schwarz')],
+                wrap_augen_div(spieler_nichtspieler_id='hochzeit_spieler_nichtspieler_augen',
+                               augen_id='hochzeit_augen', schwarz_id='hochzeit_schwarz')],
                 width={'size': 6, 'offset': 3}),
         ]),
         wrap_empty_dbc_row(),
@@ -365,6 +383,56 @@ def wrap_hochzeit_card(ausspieler_id: str, mittelhand_id: str, hinterhand_id: st
             dbc.Col([
                 html.Div(
                     dbc.Button('Spiel eintragen', id='hochzeit_spielstand_eintragen_button',
+                               color='primary', block=True)),
+            ], width={'size': 6, 'offset': 3}),
+        ])
+    ]), className='mt-3')
+    return card
+
+
+def wrap_ramsch_card(ausspieler_id: str, mittelhand_id: str, hinterhand_id: str, geberhand_id: str) -> dbc.Card:
+    teilnehmer_ids = [int(ausspieler_id), int(mittelhand_id), int(hinterhand_id), int(geberhand_id)]
+    teilnehmers = [get_teilnehmers_by_ids([teilnehmer_id])[0] for teilnehmer_id in teilnehmer_ids]
+    teilnehmers_options = [{'label': f'{t.name}', 'value': t.id} for t in teilnehmers]
+    card = dbc.Card(dbc.CardBody([
+        dbc.Row([
+            wrap_dbc_col([
+                wrap_checklist_div(form_text='Gelegt', id='ramsch_gelegt_ids', options=teilnehmers_options)
+            ]),
+            wrap_dbc_col([
+                wrap_checklist_div(form_text='Jungfrau', id='ramsch_jungfrau_ids', options=teilnehmers_options)
+            ]),
+            wrap_dbc_col([
+                wrap_checklist_div(form_text='Bei Punktgleichheit Verlierer manuell angeben.', id='ramsch_verlierer_id',
+                                   options=teilnehmers_options)
+            ])
+        ]),
+        wrap_empty_dbc_row(),
+        dbc.Row([
+            dbc.Col([wrap_ramsch_augen_div(augen_id='ramsch_ausspieler_augen', teilnehmer_name=teilnehmers[0].name)],
+                    width={'size': 6, 'offset': 3}),
+        ]),
+        dbc.Row([
+            dbc.Col([wrap_ramsch_augen_div(augen_id='ramsch_mittelhand_augen', teilnehmer_name=teilnehmers[1].name)],
+                    width={'size': 6, 'offset': 3}),
+        ]),
+        dbc.Row([
+            dbc.Col([wrap_ramsch_augen_div(augen_id='ramsch_hinterhand_augen', teilnehmer_name=teilnehmers[2].name)],
+                    width={'size': 6, 'offset': 3}),
+        ]),
+        dbc.Row([
+            dbc.Col([wrap_ramsch_augen_div(augen_id='ramsch_geberhand_augen', teilnehmer_name=teilnehmers[3].name)],
+                    width={'size': 6, 'offset': 3}),
+        ]),
+        wrap_empty_dbc_row(),
+        dbc.Row([
+            dbc.Col([
+                html.Div(id='ramsch_validierung_content'), ], width={'size': 6, 'offset': 3}),
+        ]),
+        dbc.Row([
+            dbc.Col([
+                html.Div(
+                    dbc.Button('Spiel eintragen', id='ramsch_spielstand_eintragen_button',
                                color='primary', block=True)),
             ], width={'size': 6, 'offset': 3}),
         ])

@@ -2,7 +2,7 @@ from abc import abstractmethod
 from typing import List, Union
 
 from schafkopf.backend.configs import RufspielRawConfig, RufspielConfig, SoloRawConfig, SoloConfig, HochzeitRawConfig, \
-    HochzeitConfig, RufspielHochzeitRawConfig, NormalspielRawConfig, RawConfig
+    HochzeitConfig, RufspielHochzeitRawConfig, NormalspielRawConfig, RawConfig, RamschRawConfig
 from schafkopf.database.data_model import Farbgebung, Spielart
 from schafkopf.database.queries import get_teilnehmer_name_by_id, get_punkteconfig_by_runde_id
 
@@ -304,3 +304,12 @@ class HochzeitValidator(RufspielHochzeitValidator):
                                                     schwarz=schwarz)
         else:
             self._validation_messages = m
+
+
+class RamschValidator(Validator):
+    def __init__(self, raw_config: RamschRawConfig):
+        super().__init__(raw_config)
+        self._raw_config = raw_config
+
+    def _validate(self):
+        self._validated = True

@@ -86,7 +86,7 @@ class RawConfig:
     gelegt_ids: List[int]
 
 
-@dataclass()
+@dataclass
 class NormalspielRawConfig(RawConfig):
     ansager_id: Union[None, int]
     kontriert_id: List[int]
@@ -118,3 +118,13 @@ class SoloRawConfig(NormalspielRawConfig):
 @dataclass
 class HochzeitRawConfig(RufspielHochzeitRawConfig):
     partner_id: Union[None, int]
+
+
+@dataclass
+class RamschRawConfig(RawConfig):
+    jungfrau_ids: List[int]
+    ausspieler_augen: Union[None, int]
+    mittelhand_augen: Union[None, int]
+    hinterhand_augen: Union[None, int]
+    geberhand_augen: Union[None, int]
+    verlierer_id: Union[None, int]

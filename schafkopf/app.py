@@ -9,13 +9,14 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State
 
 from schafkopf.backend.calculator import RufspielCalculator, SoloCalculator, HochzeitCalculator
-from schafkopf.backend.configs import RufspielRawConfig, SoloRawConfig, HochzeitRawConfig
-from schafkopf.backend.validator import RufspielValidator, SoloValidator, HochzeitValidator
+from schafkopf.backend.configs import RufspielRawConfig, SoloRawConfig, HochzeitRawConfig, RamschRawConfig
+from schafkopf.backend.validator import RufspielValidator, SoloValidator, HochzeitValidator, RamschValidator
 from schafkopf.database.queries import get_runden, get_teilnehmer, get_latest_einzelspiel_id, \
     get_runde_id_by_einzelspiel_id, get_einzelspiele_by_einzelspiel_id
 from schafkopf.database.writer import RufspielWriter, SoloWriter, HochzeitWriter
 from schafkopf.frontend.generic_objects import wrap_alert, wrap_stats, wrap_rufspiel_card, \
-    wrap_next_game_button, wrap_select_div, wrap_dbc_col, wrap_empty_dbc_row, wrap_solo_card, wrap_hochzeit_card
+    wrap_next_game_button, wrap_select_div, wrap_dbc_col, wrap_empty_dbc_row, wrap_solo_card, wrap_hochzeit_card, \
+    wrap_ramsch_card
 from schafkopf.frontend.presenter import RufspielPresenter, SoloPresenter, HochzeitPresenter
 
 
@@ -177,10 +178,8 @@ def switch_tab(active_tab: str,
         return wrap_hochzeit_card(ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id), \
                wrap_next_game_button(), wrap_next_game_button(), wrap_next_game_button(), wrap_next_game_button()
     elif active_tab == 'ramsch_tab':
-        return dbc.Card(dbc.CardBody([
-            html.P('This is Ramsch!', className='card-text'),
-            dbc.Button('Click here', color='success'),
-        ]), className='mt-3'), html.Div(), html.Div(), html.Div(), html.Div()
+        return wrap_ramsch_card(ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id), \
+               wrap_next_game_button(), wrap_next_game_button(), wrap_next_game_button(), wrap_next_game_button()
     return html.P('This should not ever be displayed...')
 
 
@@ -395,6 +394,69 @@ def calculate_rufspiel(
         return result, dict(), header, body, True
     else:
         return result, dict(), html.Div(), html.Div(), False
+
+
+@app.callback(
+    [Output('ramsch_validierung_content', 'children'),
+     Output('ramsch_spielstand_eintragen_button', 'style'),
+     Output('ramsch_stats_modal_header', 'children'),
+     Output('ramsch_stats_modal_body', 'children'),
+     Output('ramsch_spielstand_modal', 'is_open')],
+    [Input('ramsch_spielstand_eintragen_button', 'n_clicks'),
+     Input('ramsch_gelegt_ids', 'value'),
+     Input('ramsch_jungfrau_ids', 'value'),
+     Input('ramsch_ausspieler_augen', 'value'),
+     Input('ramsch_mittelhand_augen', 'value'),
+     Input('ramsch_hinterhand_augen', 'value'),
+     Input('ramsch_geberhand_augen', 'value'),
+     Input('ramsch_verlierer_id', 'value')],
+    [State('runde_id', 'value'),
+     State('geber_id', 'value'),
+     State('ausspieler_id', 'value'),
+     State('mittelhand_id', 'value'),
+     State('hinterhand_id', 'value'),
+     State('geberhand_id', 'value')])
+def calculate_ramsch(
+        ramsch_spielstand_eintragen_button_n_clicks: int,
+        ramsch_gelegt_ids: List[int],
+        ramsch_jungfrau_ids: List[int],
+        ramsch_ausspieler_augen: Union[None, int],
+        ramsch_mittelhand_augen: Union[None, int],
+        ramsch_hinterhand_augen: Union[None, int],
+        ramsch_geberhand_augen: Union[None, int],
+        ramsch_verlierer_id: Union[None, int],
+        runde_id: Union[None, str],
+        geber_id: Union[None, str],
+        ausspieler_id: Union[None, str],
+        mittelhand_id: Union[None, str],
+        hinterhand_id: Union[None, str],
+        geberhand_id: Union[None, str]) -> Tuple[Union[None, List[html.Div]], Dict, html.Div, html.Div, bool]:
+    teilnehmer_ids = [ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id]
+    if _validate_teilnehmer(runde_id, geber_id, teilnehmer_ids) is not None:
+        return None, dict(), html.Div(), html.Div(), False
+    raw_config = RamschRawConfig(runde_id=int(runde_id),
+                                 geber_id=geber_id,
+                                 teilnehmer_ids=[int(t) for t in teilnehmer_ids],
+                                 gelegt_ids=ramsch_gelegt_ids,
+                                 jungfrau_ids=ramsch_jungfrau_ids,
+                                 ausspieler_augen=ramsch_ausspieler_augen,
+                                 mittelhand_augen=ramsch_mittelhand_augen,
+                                 hinterhand_augen=ramsch_hinterhand_augen,
+                                 geberhand_augen=ramsch_geberhand_augen,
+                                 verlierer_id=ramsch_verlierer_id)
+    ramsch_validator = RamschValidator(raw_config)
+    messages = ramsch_validator.validation_messages
+    if len(messages) > 0:
+        return wrap_alert(messages), dict(display='none'), html.Div(), html.Div(), False
+    return None, dict(), html.Div(), html.Div(), False
+    # rufspiel_calculator = RufspielCalculator(rufspiel_validator.validated_config)
+    # result = RufspielPresenter(rufspiel_calculator).get_result()
+    # if rufspiel_spielstand_eintragen_button_n_clicks is not None and rufspiel_spielstand_eintragen_button_n_clicks >= 1:
+    #     RufspielWriter(rufspiel_calculator).write()
+    #     header, body = wrap_stats([runde_id])
+    #     return result, dict(), header, body, True
+    # else:
+    #     return result, dict(), html.Div(), html.Div(), False
 
 
 @app.callback(
