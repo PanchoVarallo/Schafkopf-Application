@@ -124,7 +124,7 @@ def wrap_initial_layout():
                     dbc.Tab(tab_id='solo_tab', label='Solo'),
                     dbc.Tab(tab_id='hochzeit_tab', label='Hochzeit'),
                     dbc.Tab(tab_id='ramsch_tab', label='Ramsch')],
-                    id='tabs', active_tab='rufspiel_tab'),
+                    id='tabs', active_tab='ramsch_tab'),
                     html.Div(id='tab_content')])])
             ]),
             dbc.Row([
@@ -409,7 +409,7 @@ def calculate_rufspiel(
      Input('ramsch_mittelhand_augen', 'value'),
      Input('ramsch_hinterhand_augen', 'value'),
      Input('ramsch_geberhand_augen', 'value'),
-     Input('ramsch_verlierer_id', 'value')],
+     Input('ramsch_manuelle_verlierer_ids', 'value')],
     [State('runde_id', 'value'),
      State('geber_id', 'value'),
      State('ausspieler_id', 'value'),
@@ -424,7 +424,7 @@ def calculate_ramsch(
         ramsch_mittelhand_augen: Union[None, int],
         ramsch_hinterhand_augen: Union[None, int],
         ramsch_geberhand_augen: Union[None, int],
-        ramsch_verlierer_id: Union[None, int],
+        ramsch_manuelle_verlierer_ids: List[int],
         runde_id: Union[None, str],
         geber_id: Union[None, str],
         ausspieler_id: Union[None, str],
@@ -443,13 +443,13 @@ def calculate_ramsch(
                                  mittelhand_augen=ramsch_mittelhand_augen,
                                  hinterhand_augen=ramsch_hinterhand_augen,
                                  geberhand_augen=ramsch_geberhand_augen,
-                                 verlierer_id=ramsch_verlierer_id)
+                                 manuelle_verlierer_ids=ramsch_manuelle_verlierer_ids)
     ramsch_validator = RamschValidator(raw_config)
     messages = ramsch_validator.validation_messages
     if len(messages) > 0:
         return wrap_alert(messages), dict(display='none'), html.Div(), html.Div(), False
+    # ramsch_calculator = RamschCalculator(ramsch_validator.validated_config)
     return None, dict(), html.Div(), html.Div(), False
-    # rufspiel_calculator = RufspielCalculator(rufspiel_validator.validated_config)
     # result = RufspielPresenter(rufspiel_calculator).get_result()
     # if rufspiel_spielstand_eintragen_button_n_clicks is not None and rufspiel_spielstand_eintragen_button_n_clicks >= 1:
     #     RufspielWriter(rufspiel_calculator).write()

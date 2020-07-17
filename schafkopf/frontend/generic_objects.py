@@ -403,8 +403,8 @@ def wrap_ramsch_card(ausspieler_id: str, mittelhand_id: str, hinterhand_id: str,
                 wrap_checklist_div(form_text='Jungfrau', id='ramsch_jungfrau_ids', options=teilnehmers_options)
             ]),
             wrap_dbc_col([
-                wrap_checklist_div(form_text='Bei Punktgleichheit Verlierer manuell angeben.', id='ramsch_verlierer_id',
-                                   options=teilnehmers_options)
+                wrap_checklist_div(form_text='Bei Punktgleichheit Verlierer manuell angeben.',
+                                   id='ramsch_manuelle_verlierer_ids', options=teilnehmers_options)
             ])
         ]),
         wrap_empty_dbc_row(),

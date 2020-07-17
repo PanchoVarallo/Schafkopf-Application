@@ -167,3 +167,34 @@ class HochzeitCalculator(RufspielHochzeitCalculator):
 
     def _get_punkte_from_punkteconfig(self) -> int:
         return self._config.punkteconfig.hochzeit
+
+# class RamschCalculator(Calculator):
+#     def __init__(self, config: RamschConfig):
+#         super().__init__(config)
+#         self._config = config
+#
+#     @property
+#     def config(self) -> RamschConfig:
+#         return self._config
+#
+#     def get_spielpunkte(self) -> int:
+#         punkteconfig = self._config.punkteconfig
+#         punkte = punkteconfig.rufspiel
+#         punkte += self.get_punkte_laufende()
+#         return punkte * self._get_verdopplung()
+#
+#     def get_gewinner_ids(self) -> List[int]:
+#         spieler = [self._config.ansager_id, self._config.partner_id]
+#         if self._config.spieler_augen >= 61:
+#             return [s for s in self._config.teilnehmer_ids if s in spieler]
+#         else:
+#             return [s for s in self._config.teilnehmer_ids if s not in spieler]
+#
+#     def get_teilnehmer_id_to_punkte(self) -> Dict:
+#         dc = {s: self.get_spielpunkte() for s in self._config.teilnehmer_ids if s in self.get_gewinner_ids()}
+#         dc.update({s: -self.get_spielpunkte() for s in self._config.teilnehmer_ids if s in self.get_verlierer_ids()})
+#         return dc
+#
+#     def _get_verdopplung(self) -> int:
+#         jungfrauen = len(['_' for d in self._config.junfgrau_ids if d is not None])
+#         return 2 ** (len(self._config.gelegt_ids) + jungfrauen)

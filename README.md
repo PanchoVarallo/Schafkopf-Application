@@ -1,4 +1,6 @@
-1. Ramsch (Durchmarsch ab 91) -> Nächster Schritt: Validierung
+0.1 Validierung: Durchmarsch darf keine Jungfrauen haben
+0.2 verlierer_id und durchmarsch_id -> Code klarer strukturieren
+1. Ramsch
     a) Calculator with Tests
     b) Presenter
     c) Writer

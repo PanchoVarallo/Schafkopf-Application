@@ -79,6 +79,17 @@ class HochzeitConfig(RufspielHochzeitConfig):
 
 
 @dataclass
+class RamschConfig(Config):
+    junfgrau_ids: List[int]
+    ausspieler_augen: int
+    mittelhand_augen: int
+    hinterhand_augen: int
+    geberhand_augen: int
+    verlierer_id: Union[None, int]
+    durchmarsch_id: Union[None, int]
+
+
+@dataclass
 class RawConfig:
     runde_id: Union[None, int]
     geber_id: Union[None, int]
@@ -127,4 +138,4 @@ class RamschRawConfig(RawConfig):
     mittelhand_augen: Union[None, int]
     hinterhand_augen: Union[None, int]
     geberhand_augen: Union[None, int]
-    verlierer_id: Union[None, int]
+    manuelle_verlierer_ids: List[int]

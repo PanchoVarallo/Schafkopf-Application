@@ -2,7 +2,7 @@ from abc import abstractmethod
 from typing import List, Union
 
 from schafkopf.backend.configs import RufspielRawConfig, RufspielConfig, SoloRawConfig, SoloConfig, HochzeitRawConfig, \
-    HochzeitConfig, RufspielHochzeitRawConfig, NormalspielRawConfig, RawConfig, RamschRawConfig
+    HochzeitConfig, RufspielHochzeitRawConfig, NormalspielRawConfig, RawConfig, RamschRawConfig, RamschConfig
 from schafkopf.database.data_model import Farbgebung, Spielart
 from schafkopf.database.queries import get_teilnehmer_name_by_id, get_punkteconfig_by_runde_id
 
@@ -35,6 +35,15 @@ class Validator:
     def _list(var: Union[None, List[int]]) -> List[int]:
         return [] if var in [None, []] else var
 
+
+class NormalspielValidator(Validator):
+    def __init__(self, raw_config: NormalspielRawConfig):
+        super().__init__(raw_config)
+        self._raw_config = raw_config
+
+    def _validate(self):
+        pass
+
     @staticmethod
     def _validate_kontra_and_re(m: List[str], kontriert_id: List[int], re_id: List[int]):
         if len(kontriert_id) >= 2:
@@ -45,15 +54,6 @@ class Validator:
             teilnehmer_re = re_id[0]
             m.append(
                 f'Re darf nicht ohne Kontra geben werden. Momentan Re: {get_teilnehmer_name_by_id(teilnehmer_re)}')
-
-
-class NormalspielValidator(Validator):
-    def __init__(self, raw_config: NormalspielRawConfig):
-        super().__init__(raw_config)
-        self._raw_config = raw_config
-
-    def _validate(self):
-        pass
 
 
 class RufspielHochzeitValidator(NormalspielValidator):
@@ -186,8 +186,7 @@ class SoloValidator(NormalspielValidator):
 
         m = []
         pflichtfeld = [(runde_id, 'Runde'), (ansager_id, 'Ansager'), (spielart, 'Solo')]
-        [m.append(f'Kein/e {pflicht[1]} gewählt.') for pflicht in pflichtfeld if
-         pflicht[0] is None]
+        [m.append(f'Kein/e {pflicht[1]} gewählt.') for pflicht in pflichtfeld if pflicht[0] is None]
         self._validate_kontra_and_re(m, kontriert_id, re_id)
         if len(farbe) > 1:
             m.append(f'Es darf maximal eine Farbe gewählt werden. Momentan: {len(farbe)}')
@@ -311,5 +310,103 @@ class RamschValidator(Validator):
         super().__init__(raw_config)
         self._raw_config = raw_config
 
+    @property
+    def validated_config(self) -> RamschConfig:
+        if self._validated:
+            return self._validated_config
+        else:
+            raise Exception(f'Validation of Ramsch not successful. Cannot return config.')
+
     def _validate(self):
-        self._validated = True
+        runde_id = self._raw_config.runde_id
+        geber_id = self._raw_config.geber_id
+        teilnehmer_ids = self._list(self._raw_config.teilnehmer_ids)
+        gelegt_ids = self._list(self._raw_config.gelegt_ids)
+        jungfrau_ids = self._list(self._raw_config.jungfrau_ids)
+        ausspieler_augen = self._raw_config.ausspieler_augen
+        mittelhand_augen = self._raw_config.mittelhand_augen
+        hinterhand_augen = self._raw_config.hinterhand_augen
+        geberhand_augen = self._raw_config.geberhand_augen
+        manuelle_verlierer_ids = self._list(self._raw_config.manuelle_verlierer_ids)
+
+        verlierer_id = None
+        durchmarsch_id = None
+
+        m = []
+        pflichtfeld = [(runde_id, 'Runde')]
+        [m.append(f'Kein/e {pflicht[1]} gewählt.') for pflicht in pflichtfeld if pflicht[0] is None]
+
+        augen_teilnehmers = [(ausspieler_augen, teilnehmer_ids[0]), (mittelhand_augen, teilnehmer_ids[1]),
+                             (hinterhand_augen, teilnehmer_ids[2]), (geberhand_augen, teilnehmer_ids[3])]
+        augen_valid = True
+        for augen_teilnehmer in augen_teilnehmers:
+            if augen_teilnehmer[0] is None:
+                m.append(f'Ungültige Augen für {get_teilnehmer_name_by_id(augen_teilnehmer[1])} angegeben. Bitte '
+                         f'eine Zahl von 0 - 120 angeben.')
+                augen_valid = False
+        if augen_valid:
+            augen = ausspieler_augen + mittelhand_augen + hinterhand_augen + geberhand_augen
+            if augen != 120:
+                m.append(f'Summe der Augen muss 120 sein. Momentan: {augen}.')
+            else:
+                for augen_teilnehmer in augen_teilnehmers:
+                    if augen_teilnehmer[0] > 0 and augen_teilnehmer[1] in jungfrau_ids:
+                        m.append(f'Jungfrau darf nicht mehr als 0 Augen haben. Momentan: '
+                                 f'{get_teilnehmer_name_by_id(augen_teilnehmer[1])} ist mit {augen_teilnehmer[0]} Augen '
+                                 f'Jungfrau.')
+                augen_teilnehmers_sorted = augen_teilnehmers.copy()
+                augen_teilnehmers_sorted.sort(key=lambda x: x[0], reverse=True)
+                augen_teilnehmers_mit_max_augen = [augen_teilnehmer for augen_teilnehmer in augen_teilnehmers if
+                                                   augen_teilnehmer[0] == augen_teilnehmers_sorted[0][0]]
+                max_augen = augen_teilnehmers_mit_max_augen[0][0]
+                if len(augen_teilnehmers_mit_max_augen) == 1:
+                    max_augen_teilnehmer = get_teilnehmer_name_by_id(augen_teilnehmers_mit_max_augen[0][1])
+                    if len(manuelle_verlierer_ids) != 0:
+                        if max_augen >= 91:
+                            m.append(f'{max_augen_teilnehmer} hat mit {max_augen} Augen einen erfolgreichen Durchmarsch'
+                                     f' erreicht. Verlierer darf nicht manuell angegeben werden.')
+                        elif max_augen <= 90:
+                            m.append(f'{max_augen_teilnehmer} hat mit {max_augen} Augen eindeutig verloren. Verlierer '
+                                     f'darf nicht manuell angegeben werden.')
+                    else:
+                        if max_augen >= 91:
+                            durchmarsch_id = augen_teilnehmers_mit_max_augen[0][1]
+                        elif max_augen >= 90:
+                            verlierer_id = augen_teilnehmers_mit_max_augen[0][1]
+                elif len(augen_teilnehmers_mit_max_augen) > 1:
+                    reale_verlierer = "; ".join([get_teilnehmer_name_by_id(augen_teilnehmer[1]) for
+                                                 augen_teilnehmer in augen_teilnehmers_mit_max_augen])
+                    manuelle_verlierer = "; ".join([get_teilnehmer_name_by_id(v) for v in manuelle_verlierer_ids])
+                    if len(manuelle_verlierer_ids) == 0:
+                        m.append(f'Bei Augengleichheit muss ein manueller Verlierer gewählt werden. Manuellen '
+                                 f'Verlierer aus folgenden Teilnehmern wählen: {reale_verlierer}')
+                    elif len(manuelle_verlierer_ids) == 1:
+                        potenzielle_verlierer_ids = [augen_teilnehmer[1] for augen_teilnehmer in
+                                                     augen_teilnehmers_mit_max_augen]
+                        if manuelle_verlierer_ids[0] not in potenzielle_verlierer_ids:
+                            m.append(f'Bei Augengleichheit muss ein manueller Verlierer gewählt werden. Der gewählte '
+                                     f'Verlierer {manuelle_verlierer} gehört nicht zu den Teilnehmern mit maximaler '
+                                     f'Augenzahl. Manuellen Verlierer aus folgenden Teilnehmern wählen: '
+                                     f'{reale_verlierer}')
+                        else:
+                            verlierer_id = manuelle_verlierer_ids[0]
+                    elif len(manuelle_verlierer_ids) > 1:
+                        m.append(f'Bei Augengleichheit muss ein eindeutiger manueller Verlierer gewählt werden. '
+                                 f'Manuellen Verlierer aus folgenden Teilnehmern wählen: {reale_verlierer}')
+
+        if len(m) == 0:
+            self._validated = True
+            self._validated_config = RamschConfig(runde_id=runde_id,
+                                                  punkteconfig=get_punkteconfig_by_runde_id(runde_id),
+                                                  geber_id=geber_id,
+                                                  teilnehmer_ids=teilnehmer_ids,
+                                                  gelegt_ids=gelegt_ids,
+                                                  junfgrau_ids=jungfrau_ids,
+                                                  ausspieler_augen=ausspieler_augen,
+                                                  mittelhand_augen=mittelhand_augen,
+                                                  hinterhand_augen=hinterhand_augen,
+                                                  geberhand_augen=geberhand_augen,
+                                                  verlierer_id=verlierer_id,
+                                                  durchmarsch_id=durchmarsch_id)
+        else:
+            self._validation_messages = m
