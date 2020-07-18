@@ -349,30 +349,37 @@ class RamschValidator(Validator):
             if augen != 120:
                 m.append(f'Summe der Augen muss 120 sein. Momentan: {augen}.')
             else:
-                for augen_teilnehmer in augen_teilnehmers:
-                    if augen_teilnehmer[0] > 0 and augen_teilnehmer[1] in jungfrau_ids:
-                        m.append(f'Jungfrau darf nicht mehr als 0 Augen haben. Momentan: '
-                                 f'{get_teilnehmer_name_by_id(augen_teilnehmer[1])} ist mit {augen_teilnehmer[0]} Augen '
-                                 f'Jungfrau.')
                 augen_teilnehmers_sorted = augen_teilnehmers.copy()
                 augen_teilnehmers_sorted.sort(key=lambda x: x[0], reverse=True)
                 augen_teilnehmers_mit_max_augen = [augen_teilnehmer for augen_teilnehmer in augen_teilnehmers if
                                                    augen_teilnehmer[0] == augen_teilnehmers_sorted[0][0]]
                 max_augen = augen_teilnehmers_mit_max_augen[0][0]
+                durchmarsch = True if max_augen >= 91 else False
+                if not durchmarsch:
+                    falsche_jungfrauen = [augen_teilnehmer[1] for augen_teilnehmer in augen_teilnehmers if
+                                          augen_teilnehmer[0] > 0 and augen_teilnehmer[1] in jungfrau_ids]
+                    if len(falsche_jungfrauen) > 0:
+                        falsche_jungfrauen = "; ".join([get_teilnehmer_name_by_id(falsche_jungfrau) for
+                                                        falsche_jungfrau in falsche_jungfrauen])
+                        m.append(f'Jungfrau darf nicht mehr als 0 Augen haben. Momentan: {falsche_jungfrauen}')
+                else:
+                    durchmarsch_id = augen_teilnehmers_mit_max_augen[0][1]
+                    if len(jungfrau_ids) > 0:
+                        falsche_jungfrauen = "; ".join([get_teilnehmer_name_by_id(jungfrau_id) for
+                                                        jungfrau_id in jungfrau_ids])
+                        m.append(
+                            f'Bei einem Durchmarsch darf es keine Jungfrauen geben. Momentan: {falsche_jungfrauen}')
                 if len(augen_teilnehmers_mit_max_augen) == 1:
+                    if not durchmarsch:
+                        verlierer_id = augen_teilnehmers_mit_max_augen[0][1]
                     max_augen_teilnehmer = get_teilnehmer_name_by_id(augen_teilnehmers_mit_max_augen[0][1])
                     if len(manuelle_verlierer_ids) != 0:
-                        if max_augen >= 91:
+                        if durchmarsch:
                             m.append(f'{max_augen_teilnehmer} hat mit {max_augen} Augen einen erfolgreichen Durchmarsch'
                                      f' erreicht. Verlierer darf nicht manuell angegeben werden.')
-                        elif max_augen <= 90:
+                        elif not durchmarsch:
                             m.append(f'{max_augen_teilnehmer} hat mit {max_augen} Augen eindeutig verloren. Verlierer '
                                      f'darf nicht manuell angegeben werden.')
-                    else:
-                        if max_augen >= 91:
-                            durchmarsch_id = augen_teilnehmers_mit_max_augen[0][1]
-                        elif max_augen >= 90:
-                            verlierer_id = augen_teilnehmers_mit_max_augen[0][1]
                 elif len(augen_teilnehmers_mit_max_augen) > 1:
                     reale_verlierer = "; ".join([get_teilnehmer_name_by_id(augen_teilnehmer[1]) for
                                                  augen_teilnehmer in augen_teilnehmers_mit_max_augen])
@@ -381,6 +388,7 @@ class RamschValidator(Validator):
                         m.append(f'Bei Augengleichheit muss ein manueller Verlierer gewählt werden. Manuellen '
                                  f'Verlierer aus folgenden Teilnehmern wählen: {reale_verlierer}')
                     elif len(manuelle_verlierer_ids) == 1:
+                        verlierer_id = manuelle_verlierer_ids[0]
                         potenzielle_verlierer_ids = [augen_teilnehmer[1] for augen_teilnehmer in
                                                      augen_teilnehmers_mit_max_augen]
                         if manuelle_verlierer_ids[0] not in potenzielle_verlierer_ids:
@@ -388,25 +396,25 @@ class RamschValidator(Validator):
                                      f'Verlierer {manuelle_verlierer} gehört nicht zu den Teilnehmern mit maximaler '
                                      f'Augenzahl. Manuellen Verlierer aus folgenden Teilnehmern wählen: '
                                      f'{reale_verlierer}')
-                        else:
-                            verlierer_id = manuelle_verlierer_ids[0]
                     elif len(manuelle_verlierer_ids) > 1:
                         m.append(f'Bei Augengleichheit muss ein eindeutiger manueller Verlierer gewählt werden. '
                                  f'Manuellen Verlierer aus folgenden Teilnehmern wählen: {reale_verlierer}')
-
         if len(m) == 0:
+            if verlierer_id is None and durchmarsch_id is None or verlierer_id is not None and durchmarsch_id is not None:
+                raise Exception(f'Validation of Ramsch not successful. Cannot return config.')
             self._validated = True
             self._validated_config = RamschConfig(runde_id=runde_id,
                                                   punkteconfig=get_punkteconfig_by_runde_id(runde_id),
                                                   geber_id=geber_id,
                                                   teilnehmer_ids=teilnehmer_ids,
                                                   gelegt_ids=gelegt_ids,
-                                                  junfgrau_ids=jungfrau_ids,
+                                                  jungfrau_ids=jungfrau_ids,
                                                   ausspieler_augen=ausspieler_augen,
                                                   mittelhand_augen=mittelhand_augen,
                                                   hinterhand_augen=hinterhand_augen,
                                                   geberhand_augen=geberhand_augen,
                                                   verlierer_id=verlierer_id,
-                                                  durchmarsch_id=durchmarsch_id)
+                                                  durchmarsch_id=durchmarsch_id,
+                                                  durchmarsch=False if durchmarsch_id is None else True)
         else:
             self._validation_messages = m

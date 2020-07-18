@@ -5,8 +5,8 @@ import dash_bootstrap_components as dbc
 import dash_html_components as html
 
 from schafkopf.backend.calculator import RufspielCalculator, SoloCalculator, Calculator, RufspielHochzeitCalculator, \
-    NormalspielCalculator, HochzeitCalculator
-from schafkopf.backend.configs import Config, NormalspielConfig
+    NormalspielCalculator, HochzeitCalculator, RamschCalculator
+from schafkopf.backend.configs import Config, NormalspielConfig, RamschConfig
 from schafkopf.database.queries import get_teilnehmer_name_by_id
 from schafkopf.frontend.generic_objects import wrap_html_tr, wrap_html_tbody
 
@@ -122,3 +122,32 @@ class HochzeitPresenter(RufspielHochzeitPresenter):
 
     def _get_punkte_from_punkteconfig(self) -> int:
         return self._calculator.config.punkteconfig.hochzeit
+
+
+class RamschPresenter(Presenter):
+
+    def __init__(self, calculator: RamschCalculator):
+        super().__init__(calculator)
+        self._calculator = calculator
+
+    @staticmethod
+    def _add_result_points_details(calculator: RamschCalculator, config: RamschConfig, r: List[html.Tr]):
+        if len(config.gelegt_ids) > 0:
+            teilnehmer_gelegt_ids = [get_teilnehmer_name_by_id(s) for s in config.gelegt_ids]
+            r.append(wrap_html_tr(['Gelegt', '; '.join(teilnehmer_gelegt_ids), f'x{2 ** len(config.gelegt_ids)}']))
+        if len(config.jungfrau_ids) > 0:
+            teilnehmer_jungfrau_ids = [get_teilnehmer_name_by_id(s) for s in config.jungfrau_ids]
+            r.append(wrap_html_tr(['Gelegt', '; '.join(teilnehmer_jungfrau_ids), f'x{2 ** len(config.jungfrau_ids)}']))
+        r.append(wrap_html_tr(["Summe", '', f'{calculator.get_spielpunkte()}']))
+
+    def _get_result_body(self) -> html.Tbody:
+        calculator = self._calculator
+        config = calculator.config
+        result_points = [wrap_html_tr(["Grundpunkte", "", f'{self._get_punkte_from_punkteconfig()}'])]
+        self._add_result_points_details(calculator, config, result_points)
+        return wrap_html_tbody(result_points)
+
+    def _get_punkte_from_punkteconfig(self) -> int:
+        if self._calculator.config.durchmarsch:
+            return self._calculator.config.punkteconfig.solo
+        return self._calculator.config.punkteconfig.rufspiel

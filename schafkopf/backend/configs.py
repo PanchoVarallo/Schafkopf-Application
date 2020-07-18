@@ -80,13 +80,14 @@ class HochzeitConfig(RufspielHochzeitConfig):
 
 @dataclass
 class RamschConfig(Config):
-    junfgrau_ids: List[int]
+    jungfrau_ids: List[int]
     ausspieler_augen: int
     mittelhand_augen: int
     hinterhand_augen: int
     geberhand_augen: int
     verlierer_id: Union[None, int]
     durchmarsch_id: Union[None, int]
+    durchmarsch: bool
 
 
 @dataclass

@@ -1,11 +1,7 @@
-0.1 Validierung: Durchmarsch darf keine Jungfrauen haben
-0.2 verlierer_id und durchmarsch_id -> Code klarer strukturieren
 1. Ramsch
-    a) Calculator with Tests
-    b) Presenter
     c) Writer
     d) Analyzer
-2. Alles nochmal intensiv refaktorieren
+2. Alles nochmal intensiv refaktorieren (v.a. Validierung Ramsch)
 3. Script zum Datenbank initialisieren verbessern (userfriendly)
 4. Selber intensiv testen
 5. Make public on Github -> Maria Lackmustest
@@ -13,7 +9,7 @@
 
 Falls ich noch Lust habe
 - Übersichtsreport erstellen
-- Code noch besser refaktorieren (z.B. wann macht ABC bei Abstrakten Klassen Sinn?)
+- Code noch besser refaktorieren
 - Teilnehmer einrichten/bearbeiten, Runde einrichten/bearbeiten, Einzelspiele bearbeiten -> Dashboard
 - Spielegenerator um Datenbank zu befüllen (Testdatenbank)
 - Rundungen bei Statistik verbessern
@@ -28,14 +24,14 @@ Falls ich noch Lust habe
 - 6 Nixer: Pech gehabt, es wird trotzdem gespielt
 - Farbsolo: Ab drei Laufenden
 - Wenz/Geyer: Ab zwei Laufenden
-- Tout/Sie: Kein Schneider und kein Schwarz (nochmal überprüfen)
+- Tout/Sie: Kein Schneider und kein Schwarz
 - Ramsch: 
   - Hat ein Spieler am Ende des Spiels mindestens 91 Augen, ist ihm ein Durchmarsch gelungen und er bekommt von den 
-    anderen drei Spielern jeweils 50 Cent (im Tarif 10-20-50) (Was ist mit Legern?)
+    anderen drei Spielern jeweils 50 Cent (im Tarif 10-20-50) (Leger bleiben, es gibt keine Jungfrauen)
   - Punktgleichheit: Bei Punktgleichheit zählt die Anzahl der Stiche. Ist die Anzahl der Stiche ebenfalls gleich, 
     entscheidet die Anzahl der Trümpfe in den eigenen Stichen. Und wenn auch diese noch identisch sind, verliert 
     derjenige, der den höchsten Trumpf in seinen Stichen hat. Danach entscheidet, wer das höchste Ass hat (in der 
-    Reihenfolge Eichel, Gras, Herz, Schell).
+    Reihenfolge Eichel, Gras, Herz, Schellen).
  
  
  

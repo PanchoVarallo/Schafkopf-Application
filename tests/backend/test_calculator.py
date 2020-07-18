@@ -4,8 +4,8 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from schafkopf.backend.calculator import RufspielCalculator, SoloCalculator, HochzeitCalculator
-from schafkopf.backend.configs import RufspielConfig, SoloConfig, HochzeitConfig
+from schafkopf.backend.calculator import RufspielCalculator, SoloCalculator, HochzeitCalculator, RamschCalculator
+from schafkopf.backend.configs import RufspielConfig, SoloConfig, HochzeitConfig, RamschConfig
 from schafkopf.database.data_model import Teilnehmer, Runde, Base, Punkteconfig, Farbgebung, Spielart
 
 S1 = 'Spieler_1'
@@ -96,7 +96,8 @@ data_solo = [
     ([], None, None, 0, False, False, Spielart.FARBSOLO, Farbgebung.BLATT, 31, False,
      {S1: -150, S2: 50, S3: 50, S4: 50}),
     (
-    [], None, None, 0, False, False, Spielart.FARBSOLO, Farbgebung.HERZ, 59, False, {S1: -150, S2: 50, S3: 50, S4: 50}),
+        [], None, None, 0, False, False, Spielart.FARBSOLO, Farbgebung.HERZ, 59, False,
+        {S1: -150, S2: 50, S3: 50, S4: 50}),
     ([], None, None, 0, False, False, Spielart.FARBSOLO, Farbgebung.SCHELLEN, 60, False,
      {S1: -150, S2: 50, S3: 50, S4: 50}),
     ([], None, None, 0, False, False, Spielart.WENZ, None, 61, False, {S1: 150, S2: -50, S3: -50, S4: -50}),
@@ -207,6 +208,55 @@ def test_hochzeit(gelegt_teilnehmer_names: List[str],
                        schwarz=schwarz)
     hochzeit = HochzeitCalculator(c)
     result = hochzeit.get_teilnehmer_id_to_punkte()
+    assert transform_dc_teilnehmer_id_to_teilnehmer_name(result, teilnehmers) == expected
+
+
+data_ramsch = [
+    ([], [], None, S1, {S1: -60, S2: 20, S3: 20, S4: 20}),
+    ([], [], None, S2, {S1: 20, S2: -60, S3: 20, S4: 20}),
+    ([], [], None, S3, {S1: 20, S2: 20, S3: -60, S4: 20}),
+    ([], [], None, S4, {S1: 20, S2: 20, S3: 20, S4: -60}),
+    ([S1], [], None, S1, {S1: -120, S2: 40, S3: 40, S4: 40}),
+    ([S1, S2], [S3], None, S1, {S1: -480, S2: 160, S3: 160, S4: 160}),
+    ([], [], S1, None, {S1: 150, S2: -50, S3: -50, S4: -50}),
+    ([S2], [], S1, None, {S1: 300, S2: -100, S3: -100, S4: -100}),
+    ([S1, S3], [], S1, None, {S1: 600, S2: -200, S3: -200, S4: -200}),
+]
+
+
+@pytest.mark.parametrize(
+    ('gelegt_teilnehmer_names',
+     'jungfrau_teilnehmer_names',
+     'durchmarsch_name',
+     'verlierer_name',
+     'expected'), data_ramsch)
+def test_ramsch(gelegt_teilnehmer_names: List[str],
+                jungfrau_teilnehmer_names: List[str],
+                durchmarsch_name: Union[None, str],
+                verlierer_name: Union[None, str],
+                expected: Dict[str, int]):
+    runde, ansager, partner, gegner1, gegner2 = init_in_memory_database()
+    teilnehmers = [ansager, partner, gegner1, gegner2]
+
+    verlierer_id = None if verlierer_name is None else \
+        transform_teilnehmer_names_to_teilnehmer_ids([verlierer_name], teilnehmers)[0]
+    durchmarsch_id = None if durchmarsch_name is None else \
+        transform_teilnehmer_names_to_teilnehmer_ids([durchmarsch_name], teilnehmers)[0]
+    c = RamschConfig(runde_id=runde.id,
+                     punkteconfig=runde.punkteconfig,
+                     geber_id=ansager.id,
+                     teilnehmer_ids=[ansager.id, partner.id, gegner1.id, gegner2.id],
+                     gelegt_ids=transform_teilnehmer_names_to_teilnehmer_ids(gelegt_teilnehmer_names, teilnehmers),
+                     jungfrau_ids=transform_teilnehmer_names_to_teilnehmer_ids(jungfrau_teilnehmer_names, teilnehmers),
+                     ausspieler_augen=30,
+                     mittelhand_augen=30,
+                     hinterhand_augen=30,
+                     geberhand_augen=30,
+                     verlierer_id=verlierer_id,
+                     durchmarsch_id=durchmarsch_id,
+                     durchmarsch=True if durchmarsch_id is not None else False)
+    ramsch = RamschCalculator(c)
+    result = ramsch.get_teilnehmer_id_to_punkte()
     assert transform_dc_teilnehmer_id_to_teilnehmer_name(result, teilnehmers) == expected
 
 

@@ -8,7 +8,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
 
-from schafkopf.backend.calculator import RufspielCalculator, SoloCalculator, HochzeitCalculator
+from schafkopf.backend.calculator import RufspielCalculator, SoloCalculator, HochzeitCalculator, RamschCalculator
 from schafkopf.backend.configs import RufspielRawConfig, SoloRawConfig, HochzeitRawConfig, RamschRawConfig
 from schafkopf.backend.validator import RufspielValidator, SoloValidator, HochzeitValidator, RamschValidator
 from schafkopf.database.queries import get_runden, get_teilnehmer, get_latest_einzelspiel_id, \
@@ -17,7 +17,7 @@ from schafkopf.database.writer import RufspielWriter, SoloWriter, HochzeitWriter
 from schafkopf.frontend.generic_objects import wrap_alert, wrap_stats, wrap_rufspiel_card, \
     wrap_next_game_button, wrap_select_div, wrap_dbc_col, wrap_empty_dbc_row, wrap_solo_card, wrap_hochzeit_card, \
     wrap_ramsch_card
-from schafkopf.frontend.presenter import RufspielPresenter, SoloPresenter, HochzeitPresenter
+from schafkopf.frontend.presenter import RufspielPresenter, SoloPresenter, HochzeitPresenter, RamschPresenter
 
 
 def wrap_initial_layout():
@@ -448,9 +448,9 @@ def calculate_ramsch(
     messages = ramsch_validator.validation_messages
     if len(messages) > 0:
         return wrap_alert(messages), dict(display='none'), html.Div(), html.Div(), False
-    # ramsch_calculator = RamschCalculator(ramsch_validator.validated_config)
-    return None, dict(), html.Div(), html.Div(), False
-    # result = RufspielPresenter(rufspiel_calculator).get_result()
+    ramsch_calculator = RamschCalculator(ramsch_validator.validated_config)
+    result = RamschPresenter(ramsch_calculator).get_result()
+    return result, dict(), html.Div(), html.Div(), False
     # if rufspiel_spielstand_eintragen_button_n_clicks is not None and rufspiel_spielstand_eintragen_button_n_clicks >= 1:
     #     RufspielWriter(rufspiel_calculator).write()
     #     header, body = wrap_stats([runde_id])
