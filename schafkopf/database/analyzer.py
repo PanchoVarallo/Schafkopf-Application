@@ -47,17 +47,20 @@ def get_ranking_dataframe_by_runde_ids(runde_ids: List[int]) -> pd.DataFrame:
 
 
 def get_stats_dataframe_by_runde_ids(
-        runde_ids: List[int]) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+        runde_ids: List[int]) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     resultate_df = pd.merge(left=get_resultate_by_runde_ids(runde_ids=runde_ids, dataframe=True),
                             right=get_einzelspiele_by_runde_id(runde_ids=runde_ids, dataframe=True),
                             how='left', left_on='einzelspiel_id', right_on='id')
     resultate_df['gewonnen'] = resultate_df['gewonnen'].astype(int)
+    resultate_df['verloren'] = 1 - resultate_df['gewonnen']
 
     ansager_resultate_df = resultate_df.loc[resultate_df['teilnehmer_id'] == resultate_df['ansager_id']]
     partner_resultate_df = resultate_df.loc[resultate_df['teilnehmer_id'] == resultate_df['partner_id']]
     gegenspieler_resultate_df = resultate_df.loc[(resultate_df['teilnehmer_id'] != resultate_df['ansager_id'])
                                                  & ((resultate_df['teilnehmer_id'] != resultate_df['partner_id']) |
-                                                    (resultate_df['teilnehmer_id'] is None))]
+                                                    (resultate_df['teilnehmer_id'] is None))
+                                                 & (resultate_df['spielart'] != Spielart.RAMSCH.name)]
+    ramsch_resultate_df = resultate_df.loc[resultate_df['spielart'] == Spielart.RAMSCH.name]
 
     einzelspiele = resultate_df.groupby('teilnehmer_id')['einzelspiel_id'].count().to_frame()
     einzelspiele.rename(columns={'einzelspiel_id': 'Einzelspiele'}, inplace=True)
@@ -102,6 +105,14 @@ def get_stats_dataframe_by_runde_ids(
     gegenspieler_gewonnen = gegenspieler_resultate_df.groupby(['teilnehmer_id'])['gewonnen'].sum().to_frame()
     gegenspieler_gewonnen.rename(columns={'gewonnen': 'Gegenspieler gew.'}, inplace=True)
 
+    ramschspieler = ramsch_resultate_df.groupby('teilnehmer_id').size().to_frame()
+    ramschspieler.rename(columns={0: 'Ramsch'}, inplace=True)
+
+    ramschspieler_gewonnen = ramsch_resultate_df.groupby(['teilnehmer_id'])['gewonnen'].sum().to_frame()
+    ramschspieler_gewonnen.rename(columns={'gewonnen': 'Ramsch gew.'}, inplace=True)
+    ramschspieler_verloren = ramsch_resultate_df.groupby(['teilnehmer_id'])['verloren'].sum().to_frame()
+    ramschspieler_verloren.rename(columns={'verloren': 'Ramsch verl.'}, inplace=True)
+
     einzelspiel_ids = get_einzelspiel_ids_by_runde_id(runde_ids=runde_ids)
     verdopplungen = get_verdopplungen_by_einzelspiel_ids(einzelspiel_ids=einzelspiel_ids, dataframe=True)
     verdopplungen = verdopplungen.groupby(["teilnehmer_id", "doppler"])["doppler"].count().to_frame()
@@ -111,12 +122,15 @@ def get_stats_dataframe_by_runde_ids(
     einzelspiele.reset_index(inplace=True)
     ansager.reset_index(inplace=True)
     partner.reset_index(inplace=True)
-    gegenspieler.reset_index(inplace=True)
     ansagespieler.reset_index(inplace=True)
     ansagespieler_gewonnen.reset_index(inplace=True)
     partnerspieler.reset_index(inplace=True)
     partnerspieler_gewonnen.reset_index(inplace=True)
+    gegenspieler.reset_index(inplace=True)
     gegenspieler_gewonnen.reset_index(inplace=True)
+    ramschspieler.reset_index(inplace=True)
+    ramschspieler_gewonnen.reset_index(inplace=True)
+    ramschspieler_verloren.reset_index(inplace=True)
     verdopplungen.reset_index(inplace=True)
 
     res = einzelspiele.merge(right=ansager, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
@@ -124,18 +138,21 @@ def get_stats_dataframe_by_runde_ids(
     res = res.merge(right=ansagespieler, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
     res = res.merge(right=partnerspieler, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
     res = res.merge(right=gegenspieler, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
+    res = res.merge(right=ramschspieler, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
     res = res.merge(right=ansagespieler_gewonnen, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
     res = res.merge(right=partnerspieler_gewonnen, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
     res = res.merge(right=gegenspieler_gewonnen, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
+    res = res.merge(right=ramschspieler_gewonnen, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
+    res = res.merge(right=ramschspieler_verloren, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
     res = res.merge(right=verdopplungen, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
     res = res.merge(right=get_teilnehmer(dataframe=True), how='left', left_on='teilnehmer_id', right_on='id')
 
     # Add columns if they are missing
     columns_to_add = ['Ansager', 'Partner', 'Rufspiel Ansage', 'Rufspiel Ansage gew.', 'Hochzeit Ansage',
                       'Hochzeit Ansage gew.', 'Rufspiel Partner', 'Rufspiel Partner gew.', 'Hochzeit Partner',
-                      'Hochzeit Partner gew.', 'Einzelspiele', 'Gegenspieler', 'Gegenspieler gew.', 'GELEGT',
-                      'KONTRIERT', 'RE', 'Farbsolo Ansage', 'Farbsolo Ansage gew.', 'Wenz Ansage',
-                      'Wenz Ansage gew.', 'Geyer Ansage', 'Geyer Ansage gew.']
+                      'Hochzeit Partner gew.', 'Einzelspiele', 'Gegenspieler', 'Gegenspieler gew.', 'Ramsch',
+                      'Ramsch gew.', 'Ramsch verl.', 'JUNGFRAU', 'GELEGT', 'KONTRIERT', 'RE', 'Farbsolo Ansage',
+                      'Farbsolo Ansage gew.', 'Wenz Ansage', 'Wenz Ansage gew.', 'Geyer Ansage', 'Geyer Ansage gew.']
     for col in columns_to_add:
         if col not in res.columns:
             res[col] = np.NaN
@@ -159,6 +176,10 @@ def get_stats_dataframe_by_runde_ids(
         'Hochzeit Partner']) * 100.0
     res['% Gegenspieler (von Einzelspiele)'] = (res['Gegenspieler'] / res['Einzelspiele']) * 100.0
     res['% Gegenspieler gew. (von Gegenspieler)'] = (res['Gegenspieler gew.'] / res['Gegenspieler']) * 100.0
+    res['% Ramsch (von Einzelspiele)'] = (res['Ramsch'] / res['Einzelspiele']) * 100.0
+    res['% Ramsch gew. (von Ramsch)'] = (res['Ramsch gew.'] / res['Ramsch']) * 100.0
+    res['% Ramsch verl. (von Ramsch)'] = (res['Ramsch verl.'] / res['Ramsch']) * 100.0
+    res['% Jungfrau (von Ramsch gew.)'] = (res['JUNGFRAU'] / res['Ramsch gew.']) * 100.0
     res['% Gelegt (von Einzelspiele)'] = (res['GELEGT'] / res['Einzelspiele']) * 100.0
     res['% Kontriert (von Einzelspiele)'] = (res['KONTRIERT'] / res['Einzelspiele']) * 100.0
     res['% Re (von Einzelspiele)'] = (res['RE'] / res['Einzelspiele']) * 100.0
@@ -181,6 +202,10 @@ def get_stats_dataframe_by_runde_ids(
                '% Hochzeit Partner gew. (von Hochzeit Partner)',
                '% Gegenspieler (von Einzelspiele)',
                '% Gegenspieler gew. (von Gegenspieler)',
+               '% Ramsch (von Einzelspiele)',
+               '% Ramsch gew. (von Ramsch)',
+               '% Ramsch verl. (von Ramsch)',
+               '% Jungfrau (von Ramsch gew.)',
                '% Gelegt (von Einzelspiele)',
                '% Kontriert (von Einzelspiele)',
                '% Re (von Einzelspiele)'
@@ -207,6 +232,12 @@ def get_stats_dataframe_by_runde_ids(
                         '% Gegenspieler (von Einzelspiele)',
                         '% Gegenspieler gew. (von Gegenspieler)'
                         ]].copy()
+    ramschspieler = res[['Teilnehmer',
+                         '% Ramsch (von Einzelspiele)',
+                         '% Ramsch verl. (von Ramsch)',
+                         '% Ramsch gew. (von Ramsch)',
+                         '% Jungfrau (von Ramsch gew.)'
+                         ]].copy()
     verdopplungen = res[['Teilnehmer',
                          '% Gelegt (von Einzelspiele)',
                          '% Kontriert (von Einzelspiele)',
@@ -215,5 +246,7 @@ def get_stats_dataframe_by_runde_ids(
     ansager.sort_values('% Ansager (von Einzelspiele)', inplace=True, ascending=False)
     partner.sort_values('% Partner (von Einzelspiele)', inplace=True, ascending=False)
     gegenspieler.sort_values('% Gegenspieler (von Einzelspiele)', inplace=True, ascending=False)
+    ramschspieler.sort_values(['% Ramsch (von Einzelspiele)', '% Ramsch verl. (von Ramsch)'],
+                              inplace=True, ascending=False)
     verdopplungen.sort_values('% Gelegt (von Einzelspiele)', inplace=True, ascending=False)
-    return ansager.round(2), partner.round(2), gegenspieler.round(2), verdopplungen.round(2)
+    return ansager.round(2), partner.round(2), gegenspieler.round(2), ramschspieler.round(2), verdopplungen.round(2)

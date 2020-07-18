@@ -229,9 +229,9 @@ def get_latest_einzelspiel_id(session: sessionmaker() = None) -> Union[None, int
     return einzelspiel_id
 
 
-def insert_einzelspiel(runde_id: int, ansager_id: int, geber_id: int, ausspieler_id: int,
+def insert_einzelspiel(runde_id: int, ansager_id: Union[None, int], geber_id: int, ausspieler_id: int,
                        mittelhand_id: int, hinterhand_id: int, geberhand_id: int, farbe: Union[None, str],
-                       laufende: int, spielart: str, schneider: bool, schwarz: bool, spielpunkte: float,
+                       laufende: Union[None, int], spielart: str, schneider: bool, schwarz: bool, spielpunkte: float,
                        partner_id: Union[None, int] = None, tout: Union[None, bool] = False,
                        session: sessionmaker() = None) -> Einzelspiel:
     actual_session = _build_session(session)

@@ -13,6 +13,7 @@ class Doppler(enum.Enum):
     GELEGT = 1
     KONTRIERT = 2
     RE = 3
+    JUNGFRAU = 4
 
 
 class Farbgebung(enum.Enum):

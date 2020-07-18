@@ -2,8 +2,9 @@ from abc import abstractmethod
 from typing import Union
 
 from schafkopf.backend.calculator import RufspielCalculator, SoloCalculator, NormalspielCalculator, \
-    RufspielHochzeitCalculator, HochzeitCalculator
-from schafkopf.database.data_model import Spielart, Doppler
+    RufspielHochzeitCalculator, HochzeitCalculator, RamschCalculator
+from schafkopf.backend.configs import RamschConfig
+from schafkopf.database.data_model import Spielart, Doppler, Einzelspiel
 from schafkopf.database.queries import insert_einzelspiel, insert_resultat, insert_verdopplung
 from schafkopf.database.session import Sessions
 
@@ -139,3 +140,54 @@ class HochzeitWriter(RufspielHochzeitWriter):
 
     def _get_spielart(self) -> str:
         return Spielart.HOCHZEIT.name
+
+
+class RamschWriter(Writer):
+    def __init__(self, calculator: RamschCalculator):
+        super().__init__()
+        self._calculator = calculator
+
+    def write(self):
+        calculator = self._calculator
+        config = calculator.config
+        session = Sessions.get_session()
+        einzelspiel = insert_einzelspiel(runde_id=config.runde_id,
+                                         ansager_id=None,
+                                         geber_id=config.geber_id,
+                                         ausspieler_id=config.teilnehmer_ids[0],
+                                         mittelhand_id=config.teilnehmer_ids[1],
+                                         hinterhand_id=config.teilnehmer_ids[2],
+                                         geberhand_id=config.teilnehmer_ids[3],
+                                         farbe=None,
+                                         laufende=None,
+                                         schneider=False,
+                                         schwarz=False,
+                                         spielart=Spielart.RAMSCH.name,
+                                         spielpunkte=calculator.get_spielpunkte(),
+                                         session=session)
+        self._eintrag(session, einzelspiel, config, calculator)
+        session.commit()
+        session.close()
+
+    @staticmethod
+    def _eintrag(session, einzelspiel: Einzelspiel, config: RamschConfig, calculator: RamschCalculator):
+        for teilnehmer, augen in zip(config.teilnehmer_ids, [config.ausspieler_augen,
+                                                             config.mittelhand_augen,
+                                                             config.hinterhand_augen,
+                                                             config.geberhand_augen]):
+            insert_resultat(teilnehmer_id=teilnehmer,
+                            einzelspiel_id=einzelspiel.id,
+                            augen=augen,
+                            punkte=calculator.get_teilnehmer_id_to_punkte().get(teilnehmer),
+                            gewonnen=True if teilnehmer in calculator.get_gewinner_ids() else False,
+                            session=session)
+        for teilnehmer_gelegt in config.gelegt_ids:
+            insert_verdopplung(teilnehmer_id=teilnehmer_gelegt,
+                               einzelspiel_id=einzelspiel.id,
+                               doppler=Doppler.GELEGT.name,
+                               session=session)
+        for teilnehmer_jungfrau in config.jungfrau_ids:
+            insert_verdopplung(teilnehmer_id=teilnehmer_jungfrau,
+                               einzelspiel_id=einzelspiel.id,
+                               doppler=Doppler.JUNGFRAU.name,
+                               session=session)

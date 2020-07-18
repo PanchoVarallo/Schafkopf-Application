@@ -13,7 +13,7 @@ from schafkopf.backend.configs import RufspielRawConfig, SoloRawConfig, Hochzeit
 from schafkopf.backend.validator import RufspielValidator, SoloValidator, HochzeitValidator, RamschValidator
 from schafkopf.database.queries import get_runden, get_teilnehmer, get_latest_einzelspiel_id, \
     get_runde_id_by_einzelspiel_id, get_einzelspiele_by_einzelspiel_id
-from schafkopf.database.writer import RufspielWriter, SoloWriter, HochzeitWriter
+from schafkopf.database.writer import RufspielWriter, SoloWriter, HochzeitWriter, RamschWriter
 from schafkopf.frontend.generic_objects import wrap_alert, wrap_stats, wrap_rufspiel_card, \
     wrap_next_game_button, wrap_select_div, wrap_dbc_col, wrap_empty_dbc_row, wrap_solo_card, wrap_hochzeit_card, \
     wrap_ramsch_card
@@ -450,13 +450,12 @@ def calculate_ramsch(
         return wrap_alert(messages), dict(display='none'), html.Div(), html.Div(), False
     ramsch_calculator = RamschCalculator(ramsch_validator.validated_config)
     result = RamschPresenter(ramsch_calculator).get_result()
-    return result, dict(), html.Div(), html.Div(), False
-    # if rufspiel_spielstand_eintragen_button_n_clicks is not None and rufspiel_spielstand_eintragen_button_n_clicks >= 1:
-    #     RufspielWriter(rufspiel_calculator).write()
-    #     header, body = wrap_stats([runde_id])
-    #     return result, dict(), header, body, True
-    # else:
-    #     return result, dict(), html.Div(), html.Div(), False
+    if ramsch_spielstand_eintragen_button_n_clicks is not None and ramsch_spielstand_eintragen_button_n_clicks >= 1:
+        RamschWriter(ramsch_calculator).write()
+        header, body = wrap_stats([runde_id])
+        return result, dict(), header, body, True
+    else:
+        return result, dict(), html.Div(), html.Div(), False
 
 
 @app.callback(

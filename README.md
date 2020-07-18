@@ -1,6 +1,4 @@
-1. Ramsch
-    c) Writer
-    d) Analyzer
+1. Analyzer: Add Übersicht über Anzahl Spiele (Rufspiel, Wenz, Ramsch, ...)
 2. Alles nochmal intensiv refaktorieren (v.a. Validierung Ramsch)
 3. Script zum Datenbank initialisieren verbessern (userfriendly)
 4. Selber intensiv testen
@@ -13,6 +11,7 @@ Falls ich noch Lust habe
 - Teilnehmer einrichten/bearbeiten, Runde einrichten/bearbeiten, Einzelspiele bearbeiten -> Dashboard
 - Spielegenerator um Datenbank zu befüllen (Testdatenbank)
 - Rundungen bei Statistik verbessern
+- Extra Tab für falsch ausgeteilt
  
  Wichtig für SQL:
  - Schema definition with alchemy: https://overiq.com/sqlalchemy-101/defining-schema-in-sqlalchemy-orm/
