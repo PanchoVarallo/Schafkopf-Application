@@ -25,3 +25,4 @@ dist
 # Exclude IPython checkpoints
 .ipynb_checkpoints/
 /schafkopf/databases/schafkopf_*
+/schafkopf/scripts/write_database_to_excel.py
