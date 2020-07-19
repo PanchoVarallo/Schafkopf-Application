@@ -1,6 +1,4 @@
-1. Intensiv Refaktorieren
-2. Script zum Datenbank initialisieren verbessern (userfriendly)
-3. Intensiv testen
+1. Refaktorieren und Testen
 4. Make public on Github -> Maria Lackmustest
 
 Falls ich noch Lust habe

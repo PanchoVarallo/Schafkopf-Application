@@ -1,5 +1,7 @@
+import datetime
 import logging
 import os
+from shutil import copyfile
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -7,32 +9,23 @@ from sqlalchemy.orm import sessionmaker
 from schafkopf.database.data_model import Base
 from schafkopf.database.data_model import Punkteconfig
 from schafkopf.database.queries import insert_runde, get_punkteconfig_by_name, insert_teilnehmer
-from schafkopf.scripts.backup_database import backup_database
+import json
 
 logging.getLogger().setLevel(logging.INFO)
 
 
 def database_init():
-    runden = [
-        ('Sonntagsrunde', 'Kalchreuth'),
-    ]
-    teilnehmers = [
-        # ("Johannes", "Holzwarth"),
-        # ("Ted", "Harder"),
-        # ("Marcus", "Becher"),
-        # ("Michael", "Theil"),
-        ("Mathias", "Sirvent"),
-        ("Mariana", "Sirvent"),
-        ("Maria", "Schütz"),
-        ("Ricardo", "Sirvent"),
-    ]
+    with open('init.json') as json_file:
+        data = json.load(json_file)
+        runden = data['Runden']
+        teilnehmers = data['Teilnehmer']
 
-    path_to_database = 'schafkopf/schafkopf.db'
+    path_to_database = 'schafkopf.db'
     if not os.path.isfile(path_to_database):
         create_empty_database()
     else:
         backup_database()
-    engine = create_engine('sqlite:///schafkopf/schafkopf.db')
+    engine = create_engine('sqlite:///schafkopf.db')
     if len(runden) > 0:
         session = sessionmaker(bind=engine)()
         punkteconfig = get_punkteconfig_by_name(name='sauspiel_config_plus_hochzeit', session=session)
@@ -41,15 +34,17 @@ def database_init():
             session.add(punkteconfig)
             session.commit()
             # logging.info(f'Punktekonfiguration "{punkteconfig.name}" successfully created')
-        inserted = [insert_runde(name=r[0], ort=r[1], punkteconfig_id=punkteconfig.id, session=session) for r in runden]
+        inserted = [insert_runde(name=r['name'], ort=r['ort'], punkteconfig_id=punkteconfig.id, session=session) for r
+                    in runden]
         session.commit()
         [logging.info(f'Runde "{t.name}" in "{t.ort}" successfully created') for t in inserted]
         session.close()
 
     if len(teilnehmers) > 0:
-        engine = create_engine("sqlite:///schafkopf/schafkopf.db")
+        engine = create_engine("sqlite:///schafkopf.db")
         session = sessionmaker(bind=engine)()
-        inserted = [insert_teilnehmer(vorname=t[0], nachname=t[1], session=session) for t in teilnehmers]
+        inserted = [insert_teilnehmer(vorname=t['vorname'], nachname=t['nachname'], session=session) for t in
+                    teilnehmers]
         session.commit()
         [logging.info(f'Teilnehmer "{t.name}" successfully created') for t in inserted]
         session.close()
@@ -58,10 +53,19 @@ def database_init():
 def create_empty_database():
     backup_database()
     database = 'schafkopf.db'
-    engine = create_engine(f'sqlite:///schafkopf/{database}')
+    engine = create_engine(f'sqlite:///{database}')
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
     logging.info(f'Empty database {database} created successfully')
+
+
+def backup_database():
+    backup = f'schafkopf_{datetime.datetime.now()}.db'
+    current_database = 'schafkopf.db'
+    path_to_database = f'{current_database}'
+    if os.path.isfile(path_to_database):
+        copyfile(path_to_database, f'{backup}')
+        logging.info(f'Current database {current_database} backuped successfully as {backup}')
 
 
 if __name__ == '__main__':
