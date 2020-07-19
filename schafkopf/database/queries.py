@@ -230,16 +230,17 @@ def get_latest_einzelspiel_id(session: sessionmaker() = None) -> Union[None, int
 
 
 def insert_einzelspiel(runde_id: int, ansager_id: Union[None, int], geber_id: int, ausspieler_id: int,
-                       mittelhand_id: int, hinterhand_id: int, geberhand_id: int, farbe: Union[None, str],
-                       laufende: Union[None, int], spielart: str, schneider: bool, schwarz: bool, spielpunkte: float,
-                       partner_id: Union[None, int] = None, tout: Union[None, bool] = False,
+                       mittelhand_id: int, hinterhand_id: int, geberhand_id: int, spielpunkte: float,
+                       spielart: str, farbe: Union[None, str] = None, laufende: Union[None, int] = None,
+                       schneider: bool = False, schwarz: bool = False, partner_id: Union[None, int] = None,
+                       durchmarsch: Union[None, bool] = False, tout: Union[None, bool] = False,
                        session: sessionmaker() = None) -> Einzelspiel:
     actual_session = _build_session(session)
     einzelspiel = Einzelspiel(runde_id=runde_id, ansager_id=ansager_id,
                               partner_id=partner_id, geber_id=geber_id, ausspieler_id=ausspieler_id,
                               mittelhand_id=mittelhand_id, hinterhand_id=hinterhand_id, geberhand_id=geberhand_id,
                               farbe=farbe, laufende=laufende, spielart=spielart, schneider=schneider, schwarz=schwarz,
-                              tout=tout, spielpunkte=spielpunkte)
+                              durchmarsch=durchmarsch, tout=tout, spielpunkte=spielpunkte)
     actual_session.add(einzelspiel)
     actual_session.flush()
     if session is None:

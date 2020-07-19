@@ -453,13 +453,24 @@ def _build_body(runde_ids: List[int], details: bool):
     fig = px.line(list_dataframe, x='Einzelspiele', y='Punkte', color='Teilnehmer')
     graph_div = html.Div([html.H5('Verlauf des Punktestands'), html.Div(dbc.Row(dbc.Col(dcc.Graph(figure=fig))))])
     if details:
-        ansager, partner, gegenspieler, ramschspieler, verdopplungen = get_stats_dataframe_by_runde_ids(runde_ids)
-        ansager_div = html.Div([html.H5('Statistiken als Ansager'), wrap_dataframe_table_div(ansager)])
-        partner_div = html.Div([html.H5('Statistiken als Partner'), wrap_dataframe_table_div(partner)])
-        gegenspieler_div = html.Div([html.H5('Statistiken als Gegenspieler'), wrap_dataframe_table_div(gegenspieler)])
-        ramschspieler_div = html.Div([html.H5('Statistiken im Ramsch'), wrap_dataframe_table_div(ramschspieler)])
-        verdopplungen_div = html.Div(
-            [html.H5('Statistiken der Aggressivität'), wrap_dataframe_table_div(verdopplungen)])
-        return html.Div([ranking_div, graph_div, ansager_div, partner_div, gegenspieler_div, ramschspieler_div,
-                         verdopplungen_div])
+        spielstatistik, gewonnen, ansager, solo, partner, gegenspieler, ramschspieler, verdopplungen \
+            = get_stats_dataframe_by_runde_ids(runde_ids)
+        spielstatistik_div = html.Div([html.H5('Statistiken der Spielarten'),
+                                       wrap_dataframe_table_div(spielstatistik)])
+        gewonnen_div = html.Div([html.H5('Teilnehmerstatistiken'),
+                                 wrap_dataframe_table_div(gewonnen)])
+        ansager_div = html.Div([html.H5('Teilnehmerstatistiken der Ansagen (Rufspiel, Hochzeit, Solo)'),
+                                wrap_dataframe_table_div(ansager)])
+        solo_div = html.Div([html.H5('Detailstatistik: Teilnehmerstatistiken der Solos (Farbsolo, Wenz, Geyer)'),
+                             wrap_dataframe_table_div(solo)])
+        partner_div = html.Div([html.H5('Teilnehmerstatistiken der Partnerspiele (Rufspiel, Hochzeit)'),
+                                wrap_dataframe_table_div(partner)])
+        gegenspieler_div = html.Div([html.H5('Teilnehmerstatistiken der Gegenspiele (Rufspiel, Hochzeit, Solo)'),
+                                     wrap_dataframe_table_div(gegenspieler)])
+        ramschspieler_div = html.Div([html.H5('Teilnehmerstatistiken der Rämsche'),
+                                      wrap_dataframe_table_div(ramschspieler)])
+        verdopplungen_div = html.Div([html.H5('Teilnehmerstatistiken der Aggressivität'),
+                                      wrap_dataframe_table_div(verdopplungen)])
+        return html.Div([ranking_div, graph_div, spielstatistik_div, gewonnen_div, ansager_div, solo_div,
+                         partner_div, gegenspieler_div, ramschspieler_div, verdopplungen_div])
     return html.Div([ranking_div, graph_div])

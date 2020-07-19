@@ -158,12 +158,9 @@ class RamschWriter(Writer):
                                          mittelhand_id=config.teilnehmer_ids[1],
                                          hinterhand_id=config.teilnehmer_ids[2],
                                          geberhand_id=config.teilnehmer_ids[3],
-                                         farbe=None,
-                                         laufende=None,
-                                         schneider=False,
-                                         schwarz=False,
                                          spielart=Spielart.RAMSCH.name,
                                          spielpunkte=calculator.get_spielpunkte(),
+                                         durchmarsch=config.durchmarsch,
                                          session=session)
         self._eintrag(session, einzelspiel, config, calculator)
         session.commit()

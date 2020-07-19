@@ -1,17 +1,15 @@
-1. Analyzer: Add Übersicht über Anzahl Spiele (Rufspiel, Wenz, Ramsch, ...)
-2. Alles nochmal intensiv refaktorieren (v.a. Validierung Ramsch)
-3. Script zum Datenbank initialisieren verbessern (userfriendly)
-4. Selber intensiv testen
-5. Make public on Github -> Maria Lackmustest
-
+1. Intensiv Refaktorieren
+2. Script zum Datenbank initialisieren verbessern (userfriendly)
+3. Intensiv testen
+4. Make public on Github -> Maria Lackmustest
 
 Falls ich noch Lust habe
+- Tests für Validator - Writer/Analyzer - Frontend
 - Übersichtsreport erstellen
-- Code noch besser refaktorieren
 - Teilnehmer einrichten/bearbeiten, Runde einrichten/bearbeiten, Einzelspiele bearbeiten -> Dashboard
-- Spielegenerator um Datenbank zu befüllen (Testdatenbank)
 - Rundungen bei Statistik verbessern
-- Extra Tab für falsch ausgeteilt
+- Extra Tab für 'Falsch ausgeteilt'
+- Statistik Kontriert und Re abhängig von der Möglichkeit an Kontras und Res machen (nicht abhängig von Einzelspielen)
  
  Wichtig für SQL:
  - Schema definition with alchemy: https://overiq.com/sqlalchemy-101/defining-schema-in-sqlalchemy-orm/
@@ -30,7 +28,4 @@ Falls ich noch Lust habe
   - Punktgleichheit: Bei Punktgleichheit zählt die Anzahl der Stiche. Ist die Anzahl der Stiche ebenfalls gleich, 
     entscheidet die Anzahl der Trümpfe in den eigenen Stichen. Und wenn auch diese noch identisch sind, verliert 
     derjenige, der den höchsten Trumpf in seinen Stichen hat. Danach entscheidet, wer das höchste Ass hat (in der 
-    Reihenfolge Eichel, Gras, Herz, Schellen).
- 
- 
- 
+    Reihenfolge Eichel, Gras, Herz, Schellen)

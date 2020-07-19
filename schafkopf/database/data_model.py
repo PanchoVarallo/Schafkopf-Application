@@ -98,6 +98,7 @@ class Einzelspiel(Base):
     spielart = Column(String(20), default=Spielart.RUFSPIEL, nullable=False)
     schneider = Column(Boolean, nullable=False, default=False)
     schwarz = Column(Boolean, nullable=False, default=False)
+    durchmarsch = Column(Boolean, nullable=False, default=False)
     tout = Column(Boolean, nullable=False, default=False)
     spielpunkte = Column(Float, nullable=False)
     created_on = Column(DateTime(), default=datetime.now)

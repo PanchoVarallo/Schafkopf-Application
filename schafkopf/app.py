@@ -124,7 +124,7 @@ def wrap_initial_layout():
                     dbc.Tab(tab_id='solo_tab', label='Solo'),
                     dbc.Tab(tab_id='hochzeit_tab', label='Hochzeit'),
                     dbc.Tab(tab_id='ramsch_tab', label='Ramsch')],
-                    id='tabs', active_tab='ramsch_tab'),
+                    id='tabs', active_tab='rufspiel_tab'),
                     html.Div(id='tab_content')])])
             ]),
             dbc.Row([

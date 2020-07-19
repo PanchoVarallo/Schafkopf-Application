@@ -47,12 +47,25 @@ def get_ranking_dataframe_by_runde_ids(runde_ids: List[int]) -> pd.DataFrame:
 
 
 def get_stats_dataframe_by_runde_ids(
-        runde_ids: List[int]) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+        runde_ids: List[int]) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame,
+                                       pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    einzelspiele = get_einzelspiele_by_runde_id(runde_ids=runde_ids, dataframe=True)
     resultate_df = pd.merge(left=get_resultate_by_runde_ids(runde_ids=runde_ids, dataframe=True),
-                            right=get_einzelspiele_by_runde_id(runde_ids=runde_ids, dataframe=True),
+                            right=einzelspiele,
                             how='left', left_on='einzelspiel_id', right_on='id')
     resultate_df['gewonnen'] = resultate_df['gewonnen'].astype(int)
     resultate_df['verloren'] = 1 - resultate_df['gewonnen']
+
+    haeufigkeit = einzelspiele['spielart'].value_counts().to_frame()
+    prozent = einzelspiele['spielart'].value_counts(normalize=True).to_frame()
+    haeufigkeit.rename(columns={'spielart': 'Häufigkeit'}, inplace=True)
+    prozent.rename(columns={'spielart': 'Anteil'}, inplace=True)
+    spielstatistik = pd.concat([haeufigkeit, prozent], axis=1).reset_index()
+    spielstatistik.rename(columns={'index': 'Spielart'}, inplace=True)
+    spielstatistik['Spielart'] = spielstatistik['Spielart'].str.capitalize()
+
+    gewonnen = resultate_df.groupby('teilnehmer_id')['gewonnen'].agg(['sum'])
+    gewonnen.rename(columns={'sum': 'Einzelspiele gew.'}, inplace=True)
 
     ansager_resultate_df = resultate_df.loc[resultate_df['teilnehmer_id'] == resultate_df['ansager_id']]
     partner_resultate_df = resultate_df.loc[resultate_df['teilnehmer_id'] == resultate_df['partner_id']]
@@ -120,6 +133,7 @@ def get_stats_dataframe_by_runde_ids(
     verdopplungen.columns = verdopplungen.columns.droplevel()
 
     einzelspiele.reset_index(inplace=True)
+    gewonnen.reset_index(inplace=True)
     ansager.reset_index(inplace=True)
     partner.reset_index(inplace=True)
     ansagespieler.reset_index(inplace=True)
@@ -134,6 +148,7 @@ def get_stats_dataframe_by_runde_ids(
     verdopplungen.reset_index(inplace=True)
 
     res = einzelspiele.merge(right=ansager, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
+    res = res.merge(right=gewonnen, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
     res = res.merge(right=partner, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
     res = res.merge(right=ansagespieler, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
     res = res.merge(right=partnerspieler, how='left', left_on='teilnehmer_id', right_on='teilnehmer_id')
@@ -152,21 +167,29 @@ def get_stats_dataframe_by_runde_ids(
                       'Hochzeit Ansage gew.', 'Rufspiel Partner', 'Rufspiel Partner gew.', 'Hochzeit Partner',
                       'Hochzeit Partner gew.', 'Einzelspiele', 'Gegenspieler', 'Gegenspieler gew.', 'Ramsch',
                       'Ramsch gew.', 'Ramsch verl.', 'JUNGFRAU', 'GELEGT', 'KONTRIERT', 'RE', 'Farbsolo Ansage',
-                      'Farbsolo Ansage gew.', 'Wenz Ansage', 'Wenz Ansage gew.', 'Geyer Ansage', 'Geyer Ansage gew.']
+                      'Farbsolo Ansage gew.', 'Wenz Ansage', 'Wenz Ansage gew.', 'Geyer Ansage', 'Geyer Ansage gew.',
+                      'Einzelspiele gew.']
     for col in columns_to_add:
         if col not in res.columns:
             res[col] = np.NaN
     res.fillna(0.0, inplace=True)
+    res['% Einzelspiele gew. (von Einzelspiele)'] = (res['Einzelspiele gew.'] / res['Einzelspiele']) * 100.0
     res['% Ansager (von Einzelspiele)'] = (res['Ansager'] / res['Einzelspiele']) * 100.0
     res['% Rufspiel (von Ansager)'] = (res['Rufspiel Ansage'] / res['Ansager']) * 100.0
     res['% Rufspiel gew. (von Rufspiel)'] = (res['Rufspiel Ansage gew.'] / res['Rufspiel Ansage']) * 100.0
     res['% Hochzeit (von Ansager)'] = (res['Hochzeit Ansage'] / res['Ansager']) * 100.0
     res['% Hochzeit gew. (von Hochzeit)'] = (res['Hochzeit Ansage gew.'] / res['Hochzeit Ansage']) * 100.0
     res['Solo Ansage'] = res['Wenz Ansage'] + res['Geyer Ansage'] + res['Farbsolo Ansage']
-    res['Solo Ansage gew.'] = res['Wenz Ansage gew.'] + res['Geyer Ansage gew.'] + res[
-        'Farbsolo Ansage gew.']
+    res['Solo Ansage gew.'] = res['Wenz Ansage gew.'] + res['Geyer Ansage gew.'] + res['Farbsolo Ansage gew.']
     res['% Solo (von Ansager)'] = (res['Solo Ansage'] / res['Ansager']) * 100.0
     res['% Solo gew. (von Solo)'] = (res['Solo Ansage gew.'] / res['Solo Ansage']) * 100.0
+    res['% Solo (von Einzelspiele)'] = (res['Solo Ansage'] / res['Einzelspiele']) * 100.0
+    res['% Farbsolo (von Solo)'] = (res['Farbsolo Ansage'] / res['Solo Ansage']) * 100.0
+    res['% Farbsolo gew. (von Farbsolo)'] = (res['Farbsolo Ansage gew.'] / res['Farbsolo Ansage']) * 100.0
+    res['% Wenz (von Solo)'] = (res['Wenz Ansage'] / res['Solo Ansage']) * 100.0
+    res['% Wenz gew. (von Wenz)'] = (res['Wenz Ansage gew.'] / res['Wenz Ansage']) * 100.0
+    res['% Geyer (von Solo)'] = (res['Geyer Ansage'] / res['Solo Ansage']) * 100.0
+    res['% Geyer gew. (von Geyer)'] = (res['Geyer Ansage gew.'] / res['Geyer Ansage']) * 100.0
     res['% Partner (von Einzelspiele)'] = (res['Partner'] / res['Einzelspiele']) * 100.0
     res['% Rufspiel Partner (von Partner)'] = (res['Rufspiel Partner'] / res['Partner']) * 100.0
     res['% Rufspiel Partner gew. (von Rufspiel Partner)'] = (res['Rufspiel Partner gew.'] / res[
@@ -188,6 +211,9 @@ def get_stats_dataframe_by_runde_ids(
             '% Gelegt (von Einzelspiele)', '% Kontriert (von Einzelspiele)', '% Re (von Einzelspiele)']
     res[temp] = res[temp].fillna(value=0.0)
     res = res[['name',
+               'Einzelspiele',
+               'Einzelspiele gew.',
+               '% Einzelspiele gew. (von Einzelspiele)',
                '% Ansager (von Einzelspiele)',
                '% Partner (von Einzelspiele)',
                '% Rufspiel (von Ansager)',
@@ -196,6 +222,13 @@ def get_stats_dataframe_by_runde_ids(
                '% Hochzeit gew. (von Hochzeit)',
                '% Solo (von Ansager)',
                '% Solo gew. (von Solo)',
+               '% Solo (von Einzelspiele)',
+               '% Farbsolo (von Solo)',
+               '% Farbsolo gew. (von Farbsolo)',
+               '% Wenz (von Solo)',
+               '% Wenz gew. (von Wenz)',
+               '% Geyer (von Solo)',
+               '% Geyer gew. (von Geyer)',
                '% Rufspiel Partner (von Partner)',
                '% Rufspiel Partner gew. (von Rufspiel Partner)',
                '% Hochzeit Partner (von Partner)',
@@ -211,7 +244,10 @@ def get_stats_dataframe_by_runde_ids(
                '% Re (von Einzelspiele)'
                ]]
     res.rename(columns={'name': 'Teilnehmer'}, inplace=True)
-
+    gewonnen = res[['Teilnehmer',
+                    'Einzelspiele',
+                    '% Einzelspiele gew. (von Einzelspiele)',
+                    ]].copy()
     ansager = res[['Teilnehmer',
                    '% Ansager (von Einzelspiele)',
                    '% Rufspiel (von Ansager)',
@@ -221,6 +257,16 @@ def get_stats_dataframe_by_runde_ids(
                    '% Solo (von Ansager)',
                    '% Solo gew. (von Solo)',
                    ]].copy()
+    solo = res[['Teilnehmer',
+                '% Solo (von Einzelspiele)',
+                '% Solo gew. (von Solo)',
+                '% Farbsolo (von Solo)',
+                '% Farbsolo gew. (von Farbsolo)',
+                '% Wenz (von Solo)',
+                '% Wenz gew. (von Wenz)',
+                '% Geyer (von Solo)',
+                '% Geyer gew. (von Geyer)',
+                ]].copy()
     partner = res[['Teilnehmer',
                    '% Partner (von Einzelspiele)',
                    '% Rufspiel Partner (von Partner)',
@@ -243,10 +289,14 @@ def get_stats_dataframe_by_runde_ids(
                          '% Kontriert (von Einzelspiele)',
                          '% Re (von Einzelspiele)',
                          ]].copy()
+    spielstatistik.sort_values('Häufigkeit', inplace=True, ascending=False)
+    gewonnen.sort_values('% Einzelspiele gew. (von Einzelspiele)', inplace=True, ascending=False)
     ansager.sort_values('% Ansager (von Einzelspiele)', inplace=True, ascending=False)
+    solo.sort_values('% Solo (von Einzelspiele)', inplace=True, ascending=False)
     partner.sort_values('% Partner (von Einzelspiele)', inplace=True, ascending=False)
     gegenspieler.sort_values('% Gegenspieler (von Einzelspiele)', inplace=True, ascending=False)
     ramschspieler.sort_values(['% Ramsch (von Einzelspiele)', '% Ramsch verl. (von Ramsch)'],
                               inplace=True, ascending=False)
     verdopplungen.sort_values('% Gelegt (von Einzelspiele)', inplace=True, ascending=False)
-    return ansager.round(2), partner.round(2), gegenspieler.round(2), ramschspieler.round(2), verdopplungen.round(2)
+    return spielstatistik.round(2), gewonnen.round(2), ansager.round(2), solo.round(2), partner.round(
+        2), gegenspieler.round(2), ramschspieler.round(2), verdopplungen.round(2)

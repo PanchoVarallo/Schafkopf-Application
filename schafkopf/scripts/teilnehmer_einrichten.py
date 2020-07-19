@@ -14,8 +14,8 @@ logging.getLogger().setLevel(logging.INFO)
 def teilnehmer_einrichten():
     teilnehmers = [
         # ("Johannes", "Holzwarth"),
-        ("Marcus", "Becher"),
         # ("Ted", "Harder"),
+        # ("Marcus", "Becher"),
         # ("Michael", "Theil"),
         ("Mathias", "Sirvent"),
         ("Mariana", "Sirvent"),

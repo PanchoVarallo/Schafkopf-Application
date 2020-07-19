@@ -14,8 +14,7 @@ logging.getLogger().setLevel(logging.INFO)
 
 def runde_einrichten():
     runden = [
-        ('Elternrunde', 'Kalchreuth'),
-        ('Profirunde', 'Nürnberg'),
+        ('Sonntagsrunde', 'Kalchreuth'),
     ]
 
     path_to_database = '../schafkopf.db'
