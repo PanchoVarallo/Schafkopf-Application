@@ -59,10 +59,11 @@ def get_stats_dataframe_by_runde_ids(
     haeufigkeit = einzelspiele['spielart'].value_counts().to_frame()
     prozent = einzelspiele['spielart'].value_counts(normalize=True).to_frame()
     haeufigkeit.rename(columns={'spielart': 'Häufigkeit'}, inplace=True)
-    prozent.rename(columns={'spielart': 'Anteil'}, inplace=True)
+    prozent.rename(columns={'spielart': '% Anteil'}, inplace=True)
     spielstatistik = pd.concat([haeufigkeit, prozent], axis=1).reset_index()
     spielstatistik.rename(columns={'index': 'Spielart'}, inplace=True)
     spielstatistik['Spielart'] = spielstatistik['Spielart'].str.capitalize()
+    spielstatistik['% Anteil'] *= 100.0
 
     gewonnen = resultate_df.groupby('teilnehmer_id')['gewonnen'].agg(['sum'])
     gewonnen.rename(columns={'sum': 'Einzelspiele gew.'}, inplace=True)

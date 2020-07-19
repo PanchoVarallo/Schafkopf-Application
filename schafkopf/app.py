@@ -80,7 +80,8 @@ def wrap_initial_layout():
         ]),
         dbc.Container([
             wrap_empty_dbc_row(),
-            dbc.Row([html.Div(html.H1('Schafkopfliste'))], justify='center'),
+            dbc.Row([html.Div(html.H1('Digitale Schafkopfliste'))], justify='center'),
+
             dbc.Row([
                 wrap_dbc_col([wrap_select_div(form_text='Runde', id='runde_id',
                                               options=[{'label': f'{r.created_on.strftime("%d. %b %Y")} - {r.name} - '
@@ -137,11 +138,11 @@ def wrap_initial_layout():
     ])
 
 
-external_stylesheets = [dbc.themes.SANDSTONE]
+external_stylesheets = [dbc.themes.UNITED]
 locale.setlocale(locale.LC_TIME, 'de_DE.utf8')
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.config.suppress_callback_exceptions = True
-app.title = 'Schafkopfliste'
+app.title = 'Digitale Schafkopfliste'
 app.layout = wrap_initial_layout
 
 
@@ -532,7 +533,7 @@ def _validate_teilnehmer(runde_id: str, geber_id: str, teilnehmer_ids: List[str]
         m.append(f'Bitte wählen Sie eindeutige Teilnehmer.')
     teilnehmer_ids_without_none_and_geberhand = [int(t) for t in teilnehmer_ids[:-1] if t is not None]
     if geber_id is not None and int(geber_id) in teilnehmer_ids_without_none_and_geberhand:
-        m.append(f'Bitte positionieren Sie den Geber auf die Geberhand.')
+        m.append(f'Bitte positionieren Sie den Geber eindeutig auf die Geberhand.')
     if len(m) == 0:
         return None
     return wrap_alert(m)

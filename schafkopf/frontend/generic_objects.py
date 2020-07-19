@@ -471,6 +471,11 @@ def _build_body(runde_ids: List[int], details: bool):
                                       wrap_dataframe_table_div(ramschspieler)])
         verdopplungen_div = html.Div([html.H5('Teilnehmerstatistiken der Aggressivität'),
                                       wrap_dataframe_table_div(verdopplungen)])
-        return html.Div([ranking_div, graph_div, spielstatistik_div, gewonnen_div, ansager_div, solo_div,
-                         partner_div, gegenspieler_div, ramschspieler_div, verdopplungen_div])
-    return html.Div([ranking_div, graph_div])
+        divs = [ranking_div, graph_div, spielstatistik_div, gewonnen_div, ansager_div, solo_div,
+                partner_div, gegenspieler_div, ramschspieler_div, verdopplungen_div]
+        return_divs = []
+        for div in divs:
+            return_divs.append(div)
+            return_divs.append(wrap_empty_dbc_row())
+        return html.Div(return_divs)
+    return html.Div([ranking_div, wrap_empty_dbc_row(), graph_div])
