@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+import json
 import locale
 from typing import List, Union, Dict, Tuple
 
 import dash
+import dash_auth
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
@@ -177,9 +179,16 @@ def wrap_initial_layout():
     ])
 
 
+with open('auth.json') as json_file:
+    data = json.load(json_file)
+    users = data['USER']
+VALID_USERNAME_PASSWORD_PAIRS = {user['username']: user['password'] for user in users}
 external_stylesheets = [dbc.themes.DARKLY]
 locale.setlocale(locale.LC_TIME, 'de_DE.utf8')
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+auth = dash_auth.BasicAuth(
+    app, VALID_USERNAME_PASSWORD_PAIRS
+)
 app.config.suppress_callback_exceptions = True
 app.title = 'Digitale Schafkopfliste'
 app.layout = wrap_initial_layout
