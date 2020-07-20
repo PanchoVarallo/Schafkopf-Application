@@ -9,7 +9,7 @@ from schafkopf.database.session import Sessions
 
 def get_teilnehmer(dataframe: bool = False, session: sessionmaker() = None) -> Union[List[Teilnehmer], pd.DataFrame]:
     actual_session = Sessions.get_session() if session is None else session
-    query = actual_session.query(Teilnehmer).order_by(Teilnehmer.nachname.asc())
+    query = actual_session.query(Teilnehmer).order_by(Teilnehmer.nachname.asc(), Teilnehmer.vorname.asc())
     teilnehmer = query.all() if not dataframe else pd.read_sql(query.statement, actual_session.bind)
     _close_session(actual_session, session)
     return teilnehmer
