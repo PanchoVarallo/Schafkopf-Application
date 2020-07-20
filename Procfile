@@ -1,1 +1,1 @@
-web: gunicorn schafkopf/app:server
+web: gunicorn schafkopf.app:server
