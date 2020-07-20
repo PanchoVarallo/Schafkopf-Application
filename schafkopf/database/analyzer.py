@@ -88,7 +88,7 @@ def get_stats_dataframe_by_runde_ids(
     ansagespieler = ansager_resultate_df.groupby(['teilnehmer_id', 'spielart'])['ansager_id'].count().to_frame()
     ansagespieler = ansagespieler.unstack()
     ansagespieler.columns = ansagespieler.columns.droplevel()
-    rename = {Spielart.WENZ.name: 'Wenz Ansage', Spielart.GEYER.name: 'Geyer Ansage',
+    rename = {Spielart.WENZ.name: 'Wenz Ansage', Spielart.GEIER.name: 'Geier Ansage',
               Spielart.FARBSOLO.name: 'Farbsolo Ansage', Spielart.RUFSPIEL.name: 'Rufspiel Ansage',
               Spielart.HOCHZEIT.name: 'Hochzeit Ansage'}
     ansagespieler.rename(columns=rename, inplace=True)
@@ -96,7 +96,7 @@ def get_stats_dataframe_by_runde_ids(
     ansagespieler_gewonnen = ansager_resultate_df.groupby(['teilnehmer_id', 'spielart'])['gewonnen'].sum().to_frame()
     ansagespieler_gewonnen = ansagespieler_gewonnen.unstack()
     ansagespieler_gewonnen.columns = ansagespieler_gewonnen.columns.droplevel()
-    rename = {Spielart.WENZ.name: 'Wenz Ansage gew.', Spielart.GEYER.name: 'Geyer Ansage gew.',
+    rename = {Spielart.WENZ.name: 'Wenz Ansage gew.', Spielart.GEIER.name: 'Geier Ansage gew.',
               Spielart.FARBSOLO.name: 'Farbsolo Ansage gew.', Spielart.HOCHZEIT.name: 'Hochzeit Ansage gew.',
               Spielart.RUFSPIEL.name: 'Rufspiel Ansage gew.'}
     ansagespieler_gewonnen.rename(columns=rename, inplace=True)
@@ -168,7 +168,7 @@ def get_stats_dataframe_by_runde_ids(
                       'Hochzeit Ansage gew.', 'Rufspiel Partner', 'Rufspiel Partner gew.', 'Hochzeit Partner',
                       'Hochzeit Partner gew.', 'Einzelspiele', 'Gegenspieler', 'Gegenspieler gew.', 'Ramsch',
                       'Ramsch gew.', 'Ramsch verl.', 'JUNGFRAU', 'GELEGT', 'KONTRIERT', 'RE', 'Farbsolo Ansage',
-                      'Farbsolo Ansage gew.', 'Wenz Ansage', 'Wenz Ansage gew.', 'Geyer Ansage', 'Geyer Ansage gew.',
+                      'Farbsolo Ansage gew.', 'Wenz Ansage', 'Wenz Ansage gew.', 'Geier Ansage', 'Geier Ansage gew.',
                       'Einzelspiele gew.']
     for col in columns_to_add:
         if col not in res.columns:
@@ -180,8 +180,8 @@ def get_stats_dataframe_by_runde_ids(
     res['% Rufspiel gew. (von Rufspiel)'] = (res['Rufspiel Ansage gew.'] / res['Rufspiel Ansage']) * 100.0
     res['% Hochzeit (von Ansager)'] = (res['Hochzeit Ansage'] / res['Ansager']) * 100.0
     res['% Hochzeit gew. (von Hochzeit)'] = (res['Hochzeit Ansage gew.'] / res['Hochzeit Ansage']) * 100.0
-    res['Solo Ansage'] = res['Wenz Ansage'] + res['Geyer Ansage'] + res['Farbsolo Ansage']
-    res['Solo Ansage gew.'] = res['Wenz Ansage gew.'] + res['Geyer Ansage gew.'] + res['Farbsolo Ansage gew.']
+    res['Solo Ansage'] = res['Wenz Ansage'] + res['Geier Ansage'] + res['Farbsolo Ansage']
+    res['Solo Ansage gew.'] = res['Wenz Ansage gew.'] + res['Geier Ansage gew.'] + res['Farbsolo Ansage gew.']
     res['% Solo (von Ansager)'] = (res['Solo Ansage'] / res['Ansager']) * 100.0
     res['% Solo gew. (von Solo)'] = (res['Solo Ansage gew.'] / res['Solo Ansage']) * 100.0
     res['% Solo (von Einzelspiele)'] = (res['Solo Ansage'] / res['Einzelspiele']) * 100.0
@@ -189,8 +189,8 @@ def get_stats_dataframe_by_runde_ids(
     res['% Farbsolo gew. (von Farbsolo)'] = (res['Farbsolo Ansage gew.'] / res['Farbsolo Ansage']) * 100.0
     res['% Wenz (von Solo)'] = (res['Wenz Ansage'] / res['Solo Ansage']) * 100.0
     res['% Wenz gew. (von Wenz)'] = (res['Wenz Ansage gew.'] / res['Wenz Ansage']) * 100.0
-    res['% Geyer (von Solo)'] = (res['Geyer Ansage'] / res['Solo Ansage']) * 100.0
-    res['% Geyer gew. (von Geyer)'] = (res['Geyer Ansage gew.'] / res['Geyer Ansage']) * 100.0
+    res['% Geier (von Solo)'] = (res['Geier Ansage'] / res['Solo Ansage']) * 100.0
+    res['% Geier gew. (von Geier)'] = (res['Geier Ansage gew.'] / res['Geier Ansage']) * 100.0
     res['% Partner (von Einzelspiele)'] = (res['Partner'] / res['Einzelspiele']) * 100.0
     res['% Rufspiel Partner (von Partner)'] = (res['Rufspiel Partner'] / res['Partner']) * 100.0
     res['% Rufspiel Partner gew. (von Rufspiel Partner)'] = (res['Rufspiel Partner gew.'] / res[
@@ -228,8 +228,8 @@ def get_stats_dataframe_by_runde_ids(
                '% Farbsolo gew. (von Farbsolo)',
                '% Wenz (von Solo)',
                '% Wenz gew. (von Wenz)',
-               '% Geyer (von Solo)',
-               '% Geyer gew. (von Geyer)',
+               '% Geier (von Solo)',
+               '% Geier gew. (von Geier)',
                '% Rufspiel Partner (von Partner)',
                '% Rufspiel Partner gew. (von Rufspiel Partner)',
                '% Hochzeit Partner (von Partner)',
@@ -265,8 +265,8 @@ def get_stats_dataframe_by_runde_ids(
                 '% Farbsolo gew. (von Farbsolo)',
                 '% Wenz (von Solo)',
                 '% Wenz gew. (von Wenz)',
-                '% Geyer (von Solo)',
-                '% Geyer gew. (von Geyer)',
+                '% Geier (von Solo)',
+                '% Geier gew. (von Geier)',
                 ]].copy()
     partner = res[['Teilnehmer',
                    '% Partner (von Einzelspiele)',

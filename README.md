@@ -1,6 +1,3 @@
-0. Geyer -> Geier
-1. 0.5 Schritte bei Grafik
-
 0. Gelegt muss hochgezogen werden, da es allgemein gilt
 1. Refaktorieren und Testen
 2. README, requirements schreiben -> Make public on Github -> Maria Lackmustest
@@ -22,7 +19,7 @@ Falls ich noch Lust habe
 - Kontra/Re: Bevor zweite Karte gefallen ist
 - 6 Nixer: Pech gehabt, es wird trotzdem gespielt
 - Farbsolo: Ab i Laufenden
-- Wenz/Geyer: Ab zwei Laufenden
+- Wenz/Geier: Ab zwei Laufenden
 - Tout/Sie: Kein Schneider und kein Schwarz
 - Unterspielen bei mindestens 4 von der Ruffarbe -> ???
 - Ramsch: 

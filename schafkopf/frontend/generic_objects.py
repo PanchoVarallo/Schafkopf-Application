@@ -461,7 +461,7 @@ def _build_body(runde_ids: List[int], details: bool):
                                  wrap_dataframe_table_div(gewonnen)])
         ansager_div = html.Div([html.H5('Teilnehmerstatistiken der Ansagen (Rufspiel, Hochzeit, Solo)'),
                                 wrap_dataframe_table_div(ansager)])
-        solo_div = html.Div([html.H5('Detailstatistik: Teilnehmerstatistiken der Solos (Farbsolo, Wenz, Geyer)'),
+        solo_div = html.Div([html.H5('Detailstatistik: Teilnehmerstatistiken der Solos (Farbsolo, Wenz, Geier)'),
                              wrap_dataframe_table_div(solo)])
         partner_div = html.Div([html.H5('Teilnehmerstatistiken der Partnerspiele (Rufspiel, Hochzeit)'),
                                 wrap_dataframe_table_div(partner)])

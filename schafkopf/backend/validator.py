@@ -190,13 +190,13 @@ class SoloValidator(NormalspielValidator):
         self._validate_kontra_and_re(m, kontriert_id, re_id)
         if len(farbe) > 1:
             m.append(f'Es darf maximal eine Farbe gewählt werden. Momentan: {len(farbe)}')
-        elif len(farbe) == 1 and spielart in [Spielart.WENZ, Spielart.GEYER]:
+        elif len(farbe) == 1 and spielart in [Spielart.WENZ, Spielart.GEIER]:
             m.append(f'Bei {spielart.name.lower().capitalize()} darf keine Farbe gewählt werden.')
         elif len(farbe) == 0 and spielart in [Spielart.FARBSOLO]:
             m.append(f'Bei Farbsolo muss eine Farbe gewählt werden.')
         if spielart in [Spielart.FARBSOLO] and laufende not in [0, 3, 4, 5, 6, 7, 8]:
             m.append(f'Ungültige Anzahl an Laufenden für Farbsolo. Bitte 0, 3, 4, 5, 6, 7 oder 8 wählen.')
-        if spielart in [Spielart.GEYER, Spielart.WENZ] and laufende not in [0, 2, 3, 4]:
+        if spielart in [Spielart.GEIER, Spielart.WENZ] and laufende not in [0, 2, 3, 4]:
             m.append(f'Ungültige Anzahl an Laufenden für {spielart.name.lower().capitalize()}. '
                      f'Bitte 0, 2, 3 oder 4 wählen.')
         if ansager_id is not None and len(kontriert_id) == 1 and kontriert_id[0] == ansager_id:

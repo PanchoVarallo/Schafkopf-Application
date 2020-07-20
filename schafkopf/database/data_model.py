@@ -27,7 +27,7 @@ class Spielart(enum.Enum):
     RUFSPIEL = 1
     FARBSOLO = 2
     WENZ = 3
-    GEYER = 4
+    GEIER = 4
     RAMSCH = 5
     HOCHZEIT = 6
 
