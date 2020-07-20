@@ -183,6 +183,7 @@ with open('schafkopf/auth.json') as json_file:
     data = json.load(json_file)
     users = data['USER']
 VALID_USERNAME_PASSWORD_PAIRS = {user['username']: user['password'] for user in users}
+
 external_stylesheets = [dbc.themes.DARKLY]
 locale.setlocale(locale.LC_TIME, 'de_DE.utf8')
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
