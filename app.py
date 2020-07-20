@@ -186,6 +186,7 @@ VALID_USERNAME_PASSWORD_PAIRS = {user['username']: user['password'] for user in 
 external_stylesheets = [dbc.themes.DARKLY]
 # locale.setlocale(locale.LC_TIME, 'de_DE.utf8')
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+server = app.server
 auth = dash_auth.BasicAuth(
     app, VALID_USERNAME_PASSWORD_PAIRS
 )
