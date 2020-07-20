@@ -1,7 +1,6 @@
-import datetime
+import json
 import logging
 import os
-from shutil import copyfile
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -9,7 +8,6 @@ from sqlalchemy.orm import sessionmaker
 from schafkopf.database.data_model import Base
 from schafkopf.database.data_model import Punkteconfig
 from schafkopf.database.queries import insert_runde, get_punkteconfig_by_name, insert_teilnehmer
-import json
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -20,11 +18,6 @@ def database_init():
         runden = data['Runden']
         teilnehmers = data['Teilnehmer']
 
-    path_to_database = 'schafkopf.db'
-    if not os.path.isfile(path_to_database):
-        create_empty_database()
-    else:
-        backup_database()
     database_url = os.environ['DATABASE_URL']
     engine = create_engine(database_url)
     if len(runden) > 0:
@@ -53,21 +46,11 @@ def database_init():
 
 
 def create_empty_database():
-    backup_database()
     database_url = os.environ['DATABASE_URL']
     engine = create_engine(database_url)
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
     logging.info(f'Empty database created successfully')
-
-
-def backup_database():
-    backup = f'schafkopf_{datetime.datetime.now()}.db'
-    current_database = 'schafkopf.db'
-    path_to_database = f'{current_database}'
-    if os.path.isfile(path_to_database):
-        copyfile(path_to_database, f'{backup}')
-        logging.info(f'Current database {current_database} backuped successfully as {backup}')
 
 
 if __name__ == '__main__':
