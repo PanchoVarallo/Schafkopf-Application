@@ -1,26 +1,10 @@
 {
   "Runden": [
-    {
-      "name": "Sonntagsrunde",
-      "ort": "Kalchreuth"
-    }
   ],
   "Teilnehmer": [
     {
-      "nachname": "Sirvent",
-      "vorname": "Mathias"
-    },
-    {
-      "nachname": "Sirvent",
-      "vorname": "Ricardo"
-    },
-    {
-      "nachname": "Sirvent",
-      "vorname": "Mariana"
-    },
-    {
-      "nachname": "Schütz",
-      "vorname": "Maria"
+      "nachname": "Holzwarth",
+      "vorname": "Johannes"
     }
   ]
 }

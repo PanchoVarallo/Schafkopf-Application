@@ -16,7 +16,7 @@ from schafkopf.database.queries import get_runden, get_teilnehmer, get_latest_ei
 from schafkopf.database.writer import RufspielWriter, SoloWriter, HochzeitWriter, RamschWriter
 from schafkopf.frontend.generic_objects import wrap_alert, wrap_stats, wrap_rufspiel_card, \
     wrap_next_game_button, wrap_select_div, wrap_dbc_col, wrap_empty_dbc_row, wrap_solo_card, wrap_hochzeit_card, \
-    wrap_ramsch_card
+    wrap_ramsch_card, wrap_checklist_div
 from schafkopf.frontend.presenter import RufspielPresenter, SoloPresenter, HochzeitPresenter, RamschPresenter
 
 
@@ -95,27 +95,66 @@ def wrap_initial_layout():
                                                   color='primary', block=True)),
                               ]),
                 wrap_dbc_col([
-                    wrap_select_div(form_text='Geber', id='geber_id',
-                                    options=teilnehmers_options,
-                                    value=geber_id
-                                    ),
+                    dbc.Row([
+                        dbc.Col([
+                            wrap_select_div(form_text='Geber', id='geber_id',
+                                            options=teilnehmers_options,
+                                            value=geber_id
+                                            ),
+                        ], width=9)]),
                     wrap_empty_dbc_row(),
-                    wrap_select_div(form_text='Ausspieler', id='ausspieler_id',
-                                    options=teilnehmers_options,
-                                    value=ausspieler_id
-                                    ),
-                    wrap_select_div(form_text='Mittelhand', id='mittelhand_id',
-                                    options=teilnehmers_options,
-                                    value=mittelhand_id
-                                    ),
-                    wrap_select_div(form_text='Hinterhand', id='hinterhand_id',
-                                    options=teilnehmers_options,
-                                    value=hinterhand_id
-                                    ),
-                    wrap_select_div(form_text='Geberhand', id='geberhand_id',
-                                    options=teilnehmers_options,
-                                    value=geberhand_id
-                                    ),
+                    dbc.Row([
+                        dbc.Col([
+                            wrap_select_div(form_text='Ausspieler', id='ausspieler_id',
+                                            options=teilnehmers_options,
+                                            value=ausspieler_id
+                                            ),
+                        ], width=9),
+                        dbc.Col([
+                            wrap_checklist_div(form_text='Gelegt', id='gelegt_ausspieler_id',
+                                               options=[{'label': '', 'value': ausspieler_id}],
+                                               value=[]),
+                        ], width=3)
+                    ]),
+                    dbc.Row([
+                        dbc.Col([
+                            wrap_select_div(form_text='Mittelhand', id='mittelhand_id',
+                                            options=teilnehmers_options,
+                                            value=mittelhand_id
+                                            ),
+                        ], width=9),
+                        dbc.Col([
+                            wrap_checklist_div(form_text='Gelegt', id='gelegt_mittelhand_id',
+                                               options=[{'label': '', 'value': mittelhand_id}],
+                                               value=[]),
+                        ], width=3)
+                    ]),
+                    dbc.Row([
+                        dbc.Col([
+                            wrap_select_div(form_text='Hinterhand', id='hinterhand_id',
+                                            options=teilnehmers_options,
+                                            value=hinterhand_id
+                                            ),
+                        ], width=9),
+                        dbc.Col([
+                            wrap_checklist_div(form_text='Gelegt', id='gelegt_hinterhand_id',
+                                               options=[{'label': '', 'value': hinterhand_id}],
+                                               value=[]),
+                        ], width=3)
+                    ]),
+                    dbc.Row([
+                        dbc.Col([
+                            wrap_select_div(form_text='Geberhand', id='geberhand_id',
+                                            options=teilnehmers_options,
+                                            value=geberhand_id
+                                            ),
+                        ], width=9),
+                        dbc.Col([
+                            wrap_checklist_div(form_text='Gelegt', id='gelegt_geberhand_id',
+                                               options=[{'label': '', 'value': geberhand_id}],
+                                               value=[]),
+                        ], width=3)
+                    ]),
                 ])
             ]),
             wrap_empty_dbc_row(),
@@ -138,7 +177,7 @@ def wrap_initial_layout():
     ])
 
 
-external_stylesheets = [dbc.themes.UNITED]
+external_stylesheets = [dbc.themes.DARKLY]
 locale.setlocale(locale.LC_TIME, 'de_DE.utf8')
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.config.suppress_callback_exceptions = True
@@ -157,14 +196,22 @@ app.layout = wrap_initial_layout
                Input('ausspieler_id', 'value'),
                Input('mittelhand_id', 'value'),
                Input('hinterhand_id', 'value'),
-               Input('geberhand_id', 'value')])
+               Input('geberhand_id', 'value'),
+               Input('gelegt_ausspieler_id', 'value'),
+               Input('gelegt_mittelhand_id', 'value'),
+               Input('gelegt_hinterhand_id', 'value'),
+               Input('gelegt_geberhand_id', 'value')])
 def switch_tab(active_tab: str,
                runde_id: Union[None, str],
                geber_id: Union[None, str],
                ausspieler_id: Union[None, str],
                mittelhand_id: Union[None, str],
                hinterhand_id: Union[None, str],
-               geberhand_id: Union[None, str]) -> Tuple[dbc.Card, html.Div, html.Div, html.Div, html.Div]:
+               geberhand_id: Union[None, str],
+               gelegt_ausspieler_id: List[int],
+               gelegt_mittelhand_id: List[int],
+               gelegt_hinterhand_id: List[int],
+               gelegt_geberhand_id: List[int]) -> Tuple[dbc.Card, html.Div, html.Div, html.Div, html.Div]:
     validation_result = _validate_teilnehmer(runde_id, geber_id,
                                              [ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id])
     if validation_result is not None:
@@ -191,7 +238,6 @@ def switch_tab(active_tab: str,
      Output('rufspiel_stats_modal_body', 'children'),
      Output('rufspiel_spielstand_modal', 'is_open')],
     [Input('rufspiel_spielstand_eintragen_button', 'n_clicks'),
-     Input('rufspiel_gelegt_ids', 'value'),
      Input('rufspiel_ansager_id', 'value'),
      Input('rufspiel_rufsau', 'value'),
      Input('rufspiel_kontriert_id', 'value'),
@@ -206,10 +252,14 @@ def switch_tab(active_tab: str,
      State('ausspieler_id', 'value'),
      State('mittelhand_id', 'value'),
      State('hinterhand_id', 'value'),
-     State('geberhand_id', 'value')])
+     State('geberhand_id', 'value'),
+     State('gelegt_ausspieler_id', 'value'),
+     State('gelegt_mittelhand_id', 'value'),
+     State('gelegt_hinterhand_id', 'value'),
+     State('gelegt_geberhand_id', 'value'),
+     ])
 def calculate_rufspiel(
         rufspiel_spielstand_eintragen_button_n_clicks: int,
-        rufspiel_gelegt_ids: List[int],
         rufspiel_ansager_id: Union[None, int],
         rufspiel_rufsau: Union[None, str],
         rufspiel_kontriert_id: List[int],
@@ -224,14 +274,20 @@ def calculate_rufspiel(
         ausspieler_id: Union[None, str],
         mittelhand_id: Union[None, str],
         hinterhand_id: Union[None, str],
-        geberhand_id: Union[None, str]) -> Tuple[Union[None, List[html.Div]], Dict, html.Div, html.Div, bool]:
+        geberhand_id: Union[None, str],
+        gelegt_ausspieler_id: List[int],
+        gelegt_mittelhand_id: List[int],
+        gelegt_hinterhand_id: List[int],
+        gelegt_geberhand_id: List[int]) -> Tuple[Union[None, List[html.Div]], Dict, html.Div, html.Div, bool]:
     teilnehmer_ids = [ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id]
     if _validate_teilnehmer(runde_id, geber_id, teilnehmer_ids) is not None:
         return None, dict(), html.Div(), html.Div(), False
+    leger = [gelegt_ausspieler_id, gelegt_mittelhand_id, gelegt_hinterhand_id, gelegt_geberhand_id]
+    gelegt_ids = [leg[0] for leg in leger if len(leg) == 1]
     raw_config = RufspielRawConfig(runde_id=int(runde_id),
                                    geber_id=geber_id,
                                    teilnehmer_ids=[int(t) for t in teilnehmer_ids],
-                                   gelegt_ids=rufspiel_gelegt_ids,
+                                   gelegt_ids=gelegt_ids,
                                    ansager_id=rufspiel_ansager_id,
                                    rufsau=rufspiel_rufsau,
                                    kontriert_id=rufspiel_kontriert_id,
@@ -262,7 +318,6 @@ def calculate_rufspiel(
      Output('solo_stats_modal_body', 'children'),
      Output('solo_spielstand_modal', 'is_open')],
     [Input('solo_spielstand_eintragen_button', 'n_clicks'),
-     Input('solo_gelegt_ids', 'value'),
      Input('solo_ansager_id', 'value'),
      Input('solo_spielart', 'value'),
      Input('solo_kontriert_id', 'value'),
@@ -278,10 +333,14 @@ def calculate_rufspiel(
      State('ausspieler_id', 'value'),
      State('mittelhand_id', 'value'),
      State('hinterhand_id', 'value'),
-     State('geberhand_id', 'value')])
+     State('geberhand_id', 'value'),
+     State('gelegt_ausspieler_id', 'value'),
+     State('gelegt_mittelhand_id', 'value'),
+     State('gelegt_hinterhand_id', 'value'),
+     State('gelegt_geberhand_id', 'value'),
+     ])
 def calculate_solo(
         solo_spielstand_eintragen_button_n_clicks: int,
-        solo_gelegt_ids: List[int],
         solo_ansager_id: Union[None, int],
         solo_spielart: Union[None, str],
         solo_kontriert_id: List[int],
@@ -297,14 +356,20 @@ def calculate_solo(
         ausspieler_id: Union[None, str],
         mittelhand_id: Union[None, str],
         hinterhand_id: Union[None, str],
-        geberhand_id: Union[None, str]) -> Tuple[Union[None, List[html.Div]], Dict, html.Div, html.Div, bool]:
+        geberhand_id: Union[None, str],
+        gelegt_ausspieler_id: List[int],
+        gelegt_mittelhand_id: List[int],
+        gelegt_hinterhand_id: List[int],
+        gelegt_geberhand_id: List[int]) -> Tuple[Union[None, List[html.Div]], Dict, html.Div, html.Div, bool]:
     teilnehmer_ids = [ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id]
     if _validate_teilnehmer(runde_id, geber_id, teilnehmer_ids) is not None:
         return None, dict(), html.Div(), html.Div(), False
+    leger = [gelegt_ausspieler_id, gelegt_mittelhand_id, gelegt_hinterhand_id, gelegt_geberhand_id]
+    gelegt_ids = [leg[0] for leg in leger if len(leg) == 1]
     raw_config = SoloRawConfig(runde_id=int(runde_id),
                                geber_id=geber_id,
                                teilnehmer_ids=[int(t) for t in teilnehmer_ids],
-                               gelegt_ids=solo_gelegt_ids,
+                               gelegt_ids=gelegt_ids,
                                ansager_id=solo_ansager_id,
                                spielart=solo_spielart,
                                kontriert_id=solo_kontriert_id,
@@ -336,7 +401,6 @@ def calculate_solo(
      Output('hochzeit_stats_modal_body', 'children'),
      Output('hochzeit_spielstand_modal', 'is_open')],
     [Input('hochzeit_spielstand_eintragen_button', 'n_clicks'),
-     Input('hochzeit_gelegt_ids', 'value'),
      Input('hochzeit_ansager_id', 'value'),
      Input('hochzeit_kontriert_id', 'value'),
      Input('hochzeit_re_id', 'value'),
@@ -350,10 +414,14 @@ def calculate_solo(
      State('ausspieler_id', 'value'),
      State('mittelhand_id', 'value'),
      State('hinterhand_id', 'value'),
-     State('geberhand_id', 'value')])
+     State('geberhand_id', 'value'),
+     State('gelegt_ausspieler_id', 'value'),
+     State('gelegt_mittelhand_id', 'value'),
+     State('gelegt_hinterhand_id', 'value'),
+     State('gelegt_geberhand_id', 'value'),
+     ])
 def calculate_rufspiel(
         hochzeit_spielstand_eintragen_button_n_clicks: int,
-        hochzeit_gelegt_ids: List[int],
         hochzeit_ansager_id: Union[None, int],
         hochzeit_kontriert_id: List[int],
         hochzeit_re_id: List[int],
@@ -367,14 +435,20 @@ def calculate_rufspiel(
         ausspieler_id: Union[None, str],
         mittelhand_id: Union[None, str],
         hinterhand_id: Union[None, str],
-        geberhand_id: Union[None, str]) -> Tuple[Union[None, List[html.Div]], Dict, html.Div, html.Div, bool]:
+        geberhand_id: Union[None, str],
+        gelegt_ausspieler_id: List[int],
+        gelegt_mittelhand_id: List[int],
+        gelegt_hinterhand_id: List[int],
+        gelegt_geberhand_id: List[int]) -> Tuple[Union[None, List[html.Div]], Dict, html.Div, html.Div, bool]:
     teilnehmer_ids = [ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id]
     if _validate_teilnehmer(runde_id, geber_id, teilnehmer_ids) is not None:
         return None, dict(), html.Div(), html.Div(), False
+    leger = [gelegt_ausspieler_id, gelegt_mittelhand_id, gelegt_hinterhand_id, gelegt_geberhand_id]
+    gelegt_ids = [leg[0] for leg in leger if len(leg) == 1]
     raw_config = HochzeitRawConfig(runde_id=int(runde_id),
                                    geber_id=geber_id,
                                    teilnehmer_ids=[int(t) for t in teilnehmer_ids],
-                                   gelegt_ids=hochzeit_gelegt_ids,
+                                   gelegt_ids=gelegt_ids,
                                    ansager_id=hochzeit_ansager_id,
                                    kontriert_id=hochzeit_kontriert_id,
                                    re_id=hochzeit_re_id,
@@ -404,7 +478,6 @@ def calculate_rufspiel(
      Output('ramsch_stats_modal_body', 'children'),
      Output('ramsch_spielstand_modal', 'is_open')],
     [Input('ramsch_spielstand_eintragen_button', 'n_clicks'),
-     Input('ramsch_gelegt_ids', 'value'),
      Input('ramsch_jungfrau_ids', 'value'),
      Input('ramsch_ausspieler_augen', 'value'),
      Input('ramsch_mittelhand_augen', 'value'),
@@ -416,10 +489,14 @@ def calculate_rufspiel(
      State('ausspieler_id', 'value'),
      State('mittelhand_id', 'value'),
      State('hinterhand_id', 'value'),
-     State('geberhand_id', 'value')])
+     State('geberhand_id', 'value'),
+     State('gelegt_ausspieler_id', 'value'),
+     State('gelegt_mittelhand_id', 'value'),
+     State('gelegt_hinterhand_id', 'value'),
+     State('gelegt_geberhand_id', 'value'),
+     ])
 def calculate_ramsch(
         ramsch_spielstand_eintragen_button_n_clicks: int,
-        ramsch_gelegt_ids: List[int],
         ramsch_jungfrau_ids: List[int],
         ramsch_ausspieler_augen: Union[None, int],
         ramsch_mittelhand_augen: Union[None, int],
@@ -431,14 +508,20 @@ def calculate_ramsch(
         ausspieler_id: Union[None, str],
         mittelhand_id: Union[None, str],
         hinterhand_id: Union[None, str],
-        geberhand_id: Union[None, str]) -> Tuple[Union[None, List[html.Div]], Dict, html.Div, html.Div, bool]:
+        geberhand_id: Union[None, str],
+        gelegt_ausspieler_id: List[int],
+        gelegt_mittelhand_id: List[int],
+        gelegt_hinterhand_id: List[int],
+        gelegt_geberhand_id: List[int]) -> Tuple[Union[None, List[html.Div]], Dict, html.Div, html.Div, bool]:
     teilnehmer_ids = [ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id]
     if _validate_teilnehmer(runde_id, geber_id, teilnehmer_ids) is not None:
         return None, dict(), html.Div(), html.Div(), False
+    leger = [gelegt_ausspieler_id, gelegt_mittelhand_id, gelegt_hinterhand_id, gelegt_geberhand_id]
+    gelegt_ids = [leg[0] for leg in leger if len(leg) == 1]
     raw_config = RamschRawConfig(runde_id=int(runde_id),
                                  geber_id=geber_id,
                                  teilnehmer_ids=[int(t) for t in teilnehmer_ids],
-                                 gelegt_ids=ramsch_gelegt_ids,
+                                 gelegt_ids=gelegt_ids,
                                  jungfrau_ids=ramsch_jungfrau_ids,
                                  ausspieler_augen=ramsch_ausspieler_augen,
                                  mittelhand_augen=ramsch_mittelhand_augen,

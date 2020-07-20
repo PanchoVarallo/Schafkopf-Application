@@ -27,11 +27,13 @@ class Presenter:
         verlierer = {key: value for key, value in teilnehmer_id_to_punkte.items() if value < 0}
         result_div = []
         for key, value in gewinner.items():
-            msg = [html.I(f'{get_teilnehmer_name_by_id(key)}'), f' gewinnt {value} Punkte!']
+            msg = [html.B(f'{get_teilnehmer_name_by_id(key)}'), f' gewinnt ', html.B(f'{int(value)}'),
+                   ' Punkte.']
             result_div.append(html.Div(dbc.Alert(msg, color='success')))
         for key, value in verlierer.items():
-            msg = [html.I(f'{get_teilnehmer_name_by_id(key)}'), f' verliert {-value} Punkte!']
-            result_div.append(html.Div(dbc.Alert(msg, color='secondary')))
+            msg = [html.B(f'{get_teilnehmer_name_by_id(key)}'), f' verliert ', html.B(f'{-int(value)}'),
+                   ' Punkte.']
+            result_div.append(html.Div(dbc.Alert(msg, color='danger')))
         return result_div
 
     @staticmethod
@@ -52,11 +54,11 @@ class NormalspielPresenter(Presenter):
     @staticmethod
     def _add_result_points_details(calculator: NormalspielCalculator, config: NormalspielConfig, r: List[html.Tr]):
         if calculator.is_schneider():
-            r.append(wrap_html_tr(['Schneider', 'ja', f'+{config.punkteconfig.schneider}']))
+            r.append(wrap_html_tr(['Schneider', '', f'+{int(config.punkteconfig.schneider)}']))
         if calculator.is_schwarz():
-            r.append(wrap_html_tr(['Schwarz', 'ja', f'+{config.punkteconfig.schwarz}']))
+            r.append(wrap_html_tr(['Schwarz', '', f'+{int(config.punkteconfig.schwarz)}']))
         if config.laufende > 0:
-            r.append(wrap_html_tr(['Laufende', f'{config.laufende}', f'+{calculator.get_punkte_laufende()}']))
+            r.append(wrap_html_tr(['Laufende', f'{config.laufende}', f'+{int(calculator.get_punkte_laufende())}']))
         if len(config.gelegt_ids) > 0:
             teilnehmer_gelegt_ids = [get_teilnehmer_name_by_id(s) for s in config.gelegt_ids]
             r.append(wrap_html_tr(['Gelegt', '; '.join(teilnehmer_gelegt_ids), f'x{2 ** len(config.gelegt_ids)}']))
@@ -64,7 +66,7 @@ class NormalspielPresenter(Presenter):
             r.append(wrap_html_tr(['Kontriert', get_teilnehmer_name_by_id(config.kontriert_id), f'x2']))
         if config.re_id is not None and config.re_id > 0:
             r.append(wrap_html_tr(['Re', get_teilnehmer_name_by_id(config.re_id), f'x2']))
-        r.append(wrap_html_tr(["Summe", '', f'{calculator.get_spielpunkte()}']))
+        r.append(wrap_html_tr(["Summe", '', html.B(f'{int(calculator.get_spielpunkte())}')]))
 
     @abstractmethod
     def _get_result_body(self) -> html.Tbody:
@@ -138,7 +140,7 @@ class RamschPresenter(Presenter):
         if len(config.jungfrau_ids) > 0:
             teilnehmer_jungfrau_ids = [get_teilnehmer_name_by_id(s) for s in config.jungfrau_ids]
             r.append(wrap_html_tr(['Gelegt', '; '.join(teilnehmer_jungfrau_ids), f'x{2 ** len(config.jungfrau_ids)}']))
-        r.append(wrap_html_tr(["Summe", '', f'{calculator.get_spielpunkte()}']))
+        r.append(wrap_html_tr(["Summe", '', html.B(f'{int(calculator.get_spielpunkte())}')]))
 
     def _get_result_body(self) -> html.Tbody:
         calculator = self._calculator

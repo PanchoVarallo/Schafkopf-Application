@@ -212,22 +212,16 @@ def wrap_rufspiel_card(ausspieler_id: str, mittelhand_id: str, hinterhand_id: st
     card = dbc.Card(dbc.CardBody([
         dbc.Row([
             wrap_dbc_col([
-                wrap_checklist_div(form_text='Gelegt', id='rufspiel_gelegt_ids', options=teilnehmers_options)
+                wrap_radioitem_div(form_text='Ansager', id='rufspiel_ansager_id', options=teilnehmers_options)
+            ]),
+            wrap_dbc_col([
+                wrap_radioitem_div(form_text='Rufsau', id='rufspiel_rufsau', options=farb_options)
             ]),
             wrap_dbc_col([
                 wrap_checklist_div(form_text='Kontriert', id='rufspiel_kontriert_id', options=teilnehmers_options)
             ]),
             wrap_dbc_col([
                 wrap_checklist_div(form_text='Re', id='rufspiel_re_id', options=teilnehmers_options)
-            ]),
-        ]),
-        wrap_empty_dbc_row(),
-        dbc.Row([
-            wrap_dbc_col([
-                wrap_radioitem_div(form_text='Ansager', id='rufspiel_ansager_id', options=teilnehmers_options)
-            ]),
-            wrap_dbc_col([
-                wrap_radioitem_div(form_text='Rufsau', id='rufspiel_rufsau', options=farb_options)
             ]),
             wrap_dbc_col([
                 wrap_radioitem_div(form_text='Partner', id='rufspiel_partner_id', options=teilnehmers_options)
@@ -272,18 +266,6 @@ def wrap_solo_card(ausspieler_id: str, mittelhand_id: str, hinterhand_id: str, g
     card = dbc.Card(dbc.CardBody([
         dbc.Row([
             wrap_dbc_col([
-                wrap_checklist_div(form_text='Gelegt', id='solo_gelegt_ids', options=teilnehmers_options)
-            ]),
-            wrap_dbc_col([
-                wrap_checklist_div(form_text='Kontriert', id='solo_kontriert_id', options=teilnehmers_options)
-            ]),
-            wrap_dbc_col([
-                wrap_checklist_div(form_text='Re', id='solo_re_id', options=teilnehmers_options)
-            ]),
-        ]),
-        wrap_empty_dbc_row(),
-        dbc.Row([
-            wrap_dbc_col([
                 wrap_radioitem_div(form_text='Ansager', id='solo_ansager_id', options=teilnehmers_options)
             ]),
             wrap_dbc_col([
@@ -291,6 +273,12 @@ def wrap_solo_card(ausspieler_id: str, mittelhand_id: str, hinterhand_id: str, g
             ]),
             wrap_dbc_col([
                 wrap_checklist_div(form_text='Farbe', id='solo_farbe', options=farb_options)
+            ]),
+            wrap_dbc_col([
+                wrap_checklist_div(form_text='Kontriert', id='solo_kontriert_id', options=teilnehmers_options)
+            ]),
+            wrap_dbc_col([
+                wrap_checklist_div(form_text='Re', id='solo_re_id', options=teilnehmers_options)
             ]),
         ]),
         wrap_empty_dbc_row(),
@@ -340,18 +328,6 @@ def wrap_hochzeit_card(ausspieler_id: str, mittelhand_id: str, hinterhand_id: st
     card = dbc.Card(dbc.CardBody([
         dbc.Row([
             wrap_dbc_col([
-                wrap_checklist_div(form_text='Gelegt', id='hochzeit_gelegt_ids', options=teilnehmers_options)
-            ]),
-            wrap_dbc_col([
-                wrap_checklist_div(form_text='Kontriert', id='hochzeit_kontriert_id', options=teilnehmers_options)
-            ]),
-            wrap_dbc_col([
-                wrap_checklist_div(form_text='Re', id='hochzeit_re_id', options=teilnehmers_options)
-            ]),
-        ]),
-        wrap_empty_dbc_row(),
-        dbc.Row([
-            wrap_dbc_col([
                 wrap_radioitem_div(form_text='Hochzeitsanbieter', id='hochzeit_partner_id',
                                    options=teilnehmers_options)
             ]),
@@ -359,7 +335,12 @@ def wrap_hochzeit_card(ausspieler_id: str, mittelhand_id: str, hinterhand_id: st
                 wrap_radioitem_div(form_text='Hochzeitsannehmer', id='hochzeit_ansager_id',
                                    options=teilnehmers_options)
             ]),
-            wrap_dbc_col([]),
+            wrap_dbc_col([
+                wrap_checklist_div(form_text='Kontriert', id='hochzeit_kontriert_id', options=teilnehmers_options)
+            ]),
+            wrap_dbc_col([
+                wrap_checklist_div(form_text='Re', id='hochzeit_re_id', options=teilnehmers_options)
+            ]),
         ]),
         wrap_empty_dbc_row(),
         dbc.Row([
@@ -396,9 +377,6 @@ def wrap_ramsch_card(ausspieler_id: str, mittelhand_id: str, hinterhand_id: str,
     teilnehmers_options = [{'label': f'{t.name}', 'value': t.id} for t in teilnehmers]
     card = dbc.Card(dbc.CardBody([
         dbc.Row([
-            wrap_dbc_col([
-                wrap_checklist_div(form_text='Gelegt', id='ramsch_gelegt_ids', options=teilnehmers_options)
-            ]),
             wrap_dbc_col([
                 wrap_checklist_div(form_text='Jungfrau', id='ramsch_jungfrau_ids', options=teilnehmers_options)
             ]),
