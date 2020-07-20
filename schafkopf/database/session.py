@@ -6,6 +6,6 @@ class Sessions:
 
     @staticmethod
     def get_session():
-        engine = create_engine("sqlite:///schafkopf.db")
+        engine = create_engine("sqlite:///schafkopf/schafkopf.db")
         my_session = sessionmaker(bind=engine)
         return my_session()

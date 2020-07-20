@@ -179,7 +179,7 @@ def wrap_initial_layout():
     ])
 
 
-with open('auth.json') as json_file:
+with open('schafkopf/auth.json') as json_file:
     data = json.load(json_file)
     users = data['USER']
 VALID_USERNAME_PASSWORD_PAIRS = {user['username']: user['password'] for user in users}
