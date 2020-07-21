@@ -1,5 +1,5 @@
-1. Refaktorieren (*args) und Testen
-2. README, requirements schreiben -> Make public on Github -> Maria Lackmustest
+1. Runde mit Datum definieren
+2. Refaktorieren (*args) und Testen
 3. Wahrscheinlichkeiten bei meinem Tout Blatt berechnen
 
 Falls ich noch Lust habe
@@ -13,7 +13,7 @@ Falls ich noch Lust habe
  - Schema definition with alchemy: https://overiq.com/sqlalchemy-101/defining-schema-in-sqlalchemy-orm/
  - Create SQLite from command line: https://stackoverflow.com/questions/20155693/create-empty-sqlite-db-from-command-line
   
- Erklärungen zu Regeln:
+ Erklärungen zu Regeln (aufschreiben):
 - 10/20/50 (Hochzeit: 30)
 - Kontra/Re: Bevor zweite Karte gefallen ist
 - 6 Nixer: Pech gehabt, es wird trotzdem gespielt
