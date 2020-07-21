@@ -29,3 +29,5 @@ dist
 
 # Exclude IPython checkpoints
 .ipynb_checkpoints/
+/schafkopf/init.json
+/schafkopf/init.py
