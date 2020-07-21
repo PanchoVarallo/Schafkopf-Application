@@ -48,37 +48,37 @@ def wrap_initial_layout():
                 dbc.ModalBody(html.Div(id='rufspiel_stats_modal_body')),
                 dbc.ModalFooter(
                     html.Div(id='rufspiel_stats_modal_close_button')
-                ), ], id='rufspiel_spielstand_modal', size="xl"),
+                ), ], id='rufspiel_spielstand_modal', size="xl", scrollable=True),
             dbc.Modal([
                 dbc.ModalHeader(id='solo_stats_modal_header'),
                 dbc.ModalBody(html.Div(id='solo_stats_modal_body')),
                 dbc.ModalFooter(
                     html.Div(id='solo_stats_modal_close_button')
-                ), ], id='solo_spielstand_modal', size="xl"),
+                ), ], id='solo_spielstand_modal', size="xl", scrollable=True),
             dbc.Modal([
                 dbc.ModalHeader(id='hochzeit_stats_modal_header'),
                 dbc.ModalBody(html.Div(id='hochzeit_stats_modal_body')),
                 dbc.ModalFooter(
                     html.Div(id='hochzeit_stats_modal_close_button')
-                ), ], id='hochzeit_spielstand_modal', size="xl"),
+                ), ], id='hochzeit_spielstand_modal', size="xl", scrollable=True),
             dbc.Modal([
                 dbc.ModalHeader(id='ramsch_stats_modal_header'),
                 dbc.ModalBody(html.Div(id='ramsch_stats_modal_body')),
                 dbc.ModalFooter(
                     html.Div(id='ramsch_stats_modal_close_button')
-                ), ], id='ramsch_spielstand_modal', size="xl"),
+                ), ], id='ramsch_spielstand_modal', size="xl", scrollable=True),
             dbc.Modal([
                 dbc.ModalHeader(id='stats_modal_header'),
                 dbc.ModalBody(html.Div(id='stats_modal_body')),
                 dbc.ModalFooter(
                     dbc.Button('Schließen', id='stats_modal_close', color='primary', block=True)
-                ), ], id='stats_modal', size="xl"),
+                ), ], id='stats_modal', size="xl", scrollable=True),
             dbc.Modal([
                 dbc.ModalHeader(id='stats_all_modal_header'),
                 dbc.ModalBody(html.Div(id='stats_all_modal_body')),
                 dbc.ModalFooter(
                     dbc.Button('Schließen', id='stats_all_modal_close', color='primary', block=True)
-                ), ], id='stats_all_modal', size="xl"),
+                ), ], id='stats_all_modal', size="xl", scrollable=True),
         ]),
         dbc.Container([
             wrap_empty_dbc_row(),
@@ -184,7 +184,7 @@ with open('schafkopf/auth.json') as json_file:
     users = data['USER']
 VALID_USERNAME_PASSWORD_PAIRS = {user['username']: user['password'] for user in users}
 
-external_stylesheets = [dbc.themes.DARKLY]
+external_stylesheets = [dbc.themes.SUPERHERO]
 locale.setlocale(locale.LC_TIME, 'de_DE.utf8')
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
@@ -631,12 +631,15 @@ def show_stats_all(stats_all_modal_open: Union[None, int],
     return header, body, not stats_all_modal, {'clicks': stats_all_modal_open}, {'clicks': stats_all_modal_close}
 
 
-def _validate_teilnehmer(runde_id: str, geber_id: str, teilnehmer_ids: List[str]) -> Union[html.Div, None]:
+def _validate_teilnehmer(runde_id: Union[None, str], geber_id: Union[None, str],
+                         teilnehmer_ids: List[str]) -> Union[html.Div, None]:
     m = []
     if runde_id is None:
         m.append(f'Bitte wählen Sie eine Runde.')
+    if geber_id is None:
+        m.append(f'Bitte wählen einen Geber.')
     if None in teilnehmer_ids:
-        m.append(f'Bitte wählen einen Geber und vier Teilnehmer.')
+        m.append(f'Bitte wählen Sie vier Teilnehmer.')
     teilnehmer_ids_without_none = [int(t) for t in teilnehmer_ids if t is not None]
     if len(teilnehmer_ids_without_none) != len(set(teilnehmer_ids_without_none)):
         m.append(f'Bitte wählen Sie eindeutige Teilnehmer.')
