@@ -1,6 +1,5 @@
 Code & Deployment todos:
-1. Runde mit Datum definieren und init anpassen und schützen
-2. Testen
+1. Testen mit lokaler Datenbank
 
 Code & Deployment todos (Keine Priorität):
 - Refaktorieren von app.py (v.a. *args bei Argumenten einbauen)

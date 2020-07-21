@@ -34,7 +34,7 @@ def database_init():
                                  punkteconfig_id=punkteconfig.id, session=session) for r
                     in runden]
         session.commit()
-        [logging.info(f'Runde "{t.name}" in "{t.ort}" successfully created') for t in inserted]
+        [logging.info(f'Runde "{t.name}" von "{t.datum}" in "{t.ort}" successfully created') for t in inserted]
         session.close()
 
     if len(teilnehmers) > 0:
@@ -57,5 +57,5 @@ def create_empty_database():
 
 
 if __name__ == '__main__':
-    # create_empty_database()
+    create_empty_database()
     database_init()
