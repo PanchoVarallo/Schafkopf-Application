@@ -31,3 +31,4 @@ dist
 .ipynb_checkpoints/
 /schafkopf/init.json
 /schafkopf/init.py
+/schafkopf.db

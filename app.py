@@ -114,7 +114,7 @@ def wrap_initial_layout():
                         ], width=9),
                         dbc.Col([
                             wrap_checklist_div(form_text='Gelegt', id='gelegt_ausspieler_id',
-                                               options=[{'label': '', 'value': ausspieler_id}],
+                                               options=[{'label': '', 'value': 1}],
                                                value=[]),
                         ], width=3)
                     ]),
@@ -127,7 +127,7 @@ def wrap_initial_layout():
                         ], width=9),
                         dbc.Col([
                             wrap_checklist_div(form_text='Gelegt', id='gelegt_mittelhand_id',
-                                               options=[{'label': '', 'value': mittelhand_id}],
+                                               options=[{'label': '', 'value': 1}],
                                                value=[]),
                         ], width=3)
                     ]),
@@ -140,7 +140,7 @@ def wrap_initial_layout():
                         ], width=9),
                         dbc.Col([
                             wrap_checklist_div(form_text='Gelegt', id='gelegt_hinterhand_id',
-                                               options=[{'label': '', 'value': hinterhand_id}],
+                                               options=[{'label': '', 'value': 1}],
                                                value=[]),
                         ], width=3)
                     ]),
@@ -153,7 +153,7 @@ def wrap_initial_layout():
                         ], width=9),
                         dbc.Col([
                             wrap_checklist_div(form_text='Gelegt', id='gelegt_geberhand_id',
-                                               options=[{'label': '', 'value': geberhand_id}],
+                                               options=[{'label': '', 'value': 1}],
                                                value=[]),
                         ], width=3)
                     ]),
@@ -293,8 +293,8 @@ def calculate_rufspiel(
     teilnehmer_ids = [ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id]
     if _validate_teilnehmer(runde_id, geber_id, teilnehmer_ids) is not None:
         return None, dict(), html.Div(), html.Div(), False
-    leger = [gelegt_ausspieler_id, gelegt_mittelhand_id, gelegt_hinterhand_id, gelegt_geberhand_id]
-    gelegt_ids = [leg[0] for leg in leger if len(leg) == 1]
+    gelegt_ids = _get_gelegt_ids(ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id, gelegt_ausspieler_id,
+                                 gelegt_mittelhand_id, gelegt_hinterhand_id, gelegt_geberhand_id)
     raw_config = RufspielRawConfig(runde_id=int(runde_id),
                                    geber_id=geber_id,
                                    teilnehmer_ids=[int(t) for t in teilnehmer_ids],
@@ -375,8 +375,8 @@ def calculate_solo(
     teilnehmer_ids = [ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id]
     if _validate_teilnehmer(runde_id, geber_id, teilnehmer_ids) is not None:
         return None, dict(), html.Div(), html.Div(), False
-    leger = [gelegt_ausspieler_id, gelegt_mittelhand_id, gelegt_hinterhand_id, gelegt_geberhand_id]
-    gelegt_ids = [leg[0] for leg in leger if len(leg) == 1]
+    gelegt_ids = _get_gelegt_ids(ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id, gelegt_ausspieler_id,
+                                 gelegt_mittelhand_id, gelegt_hinterhand_id, gelegt_geberhand_id)
     raw_config = SoloRawConfig(runde_id=int(runde_id),
                                geber_id=geber_id,
                                teilnehmer_ids=[int(t) for t in teilnehmer_ids],
@@ -454,8 +454,8 @@ def calculate_rufspiel(
     teilnehmer_ids = [ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id]
     if _validate_teilnehmer(runde_id, geber_id, teilnehmer_ids) is not None:
         return None, dict(), html.Div(), html.Div(), False
-    leger = [gelegt_ausspieler_id, gelegt_mittelhand_id, gelegt_hinterhand_id, gelegt_geberhand_id]
-    gelegt_ids = [leg[0] for leg in leger if len(leg) == 1]
+    gelegt_ids = _get_gelegt_ids(ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id, gelegt_ausspieler_id,
+                                 gelegt_mittelhand_id, gelegt_hinterhand_id, gelegt_geberhand_id)
     raw_config = HochzeitRawConfig(runde_id=int(runde_id),
                                    geber_id=geber_id,
                                    teilnehmer_ids=[int(t) for t in teilnehmer_ids],
@@ -527,8 +527,8 @@ def calculate_ramsch(
     teilnehmer_ids = [ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id]
     if _validate_teilnehmer(runde_id, geber_id, teilnehmer_ids) is not None:
         return None, dict(), html.Div(), html.Div(), False
-    leger = [gelegt_ausspieler_id, gelegt_mittelhand_id, gelegt_hinterhand_id, gelegt_geberhand_id]
-    gelegt_ids = [leg[0] for leg in leger if len(leg) == 1]
+    gelegt_ids = _get_gelegt_ids(ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id, gelegt_ausspieler_id,
+                                 gelegt_mittelhand_id, gelegt_hinterhand_id, gelegt_geberhand_id)
     raw_config = RamschRawConfig(runde_id=int(runde_id),
                                  geber_id=geber_id,
                                  teilnehmer_ids=[int(t) for t in teilnehmer_ids],
@@ -551,6 +551,21 @@ def calculate_ramsch(
         return result, dict(), header, body, True
     else:
         return result, dict(), html.Div(), html.Div(), False
+
+
+def _get_gelegt_ids(ausspieler_id: Union[None, str], mittelhand_id: Union[None, str], hinterhand_id: Union[None, str],
+                    geberhand_id: Union[None, str], gelegt_ausspieler_id: List[int], gelegt_mittelhand_id: List[int],
+                    gelegt_hinterhand_id: List[int], gelegt_geberhand_id: List[int]) -> List[int]:
+    gelegt_ids = []
+    if len(gelegt_ausspieler_id) == 1:
+        gelegt_ids.append(int(ausspieler_id))
+    if len(gelegt_mittelhand_id) == 1:
+        gelegt_ids.append(int(mittelhand_id))
+    if len(gelegt_hinterhand_id) == 1:
+        gelegt_ids.append(int(hinterhand_id))
+    if len(gelegt_geberhand_id) == 1:
+        gelegt_ids.append(int(geberhand_id))
+    return gelegt_ids
 
 
 @app.callback(
