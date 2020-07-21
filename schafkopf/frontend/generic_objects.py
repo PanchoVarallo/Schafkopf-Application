@@ -178,7 +178,7 @@ def wrap_dataframe_table_div(dataframe: pd.DataFrame) -> html.Div:
 
 def wrap_alert(messages: List[str]) -> html.Div:
     return html.Div([dbc.Card(
-        dbc.CardBody([dbc.Row([dbc.Col([html.Div(dbc.Alert(m, color='warning'))])]) for m in messages]),
+        dbc.CardBody([dbc.Row([dbc.Col([html.Div(dbc.Alert(m, color='info'))])]) for m in messages]),
         className='mt-3')
     ])
 
