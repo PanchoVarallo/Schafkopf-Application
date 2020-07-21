@@ -2,14 +2,13 @@ import os
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import QueuePool
+from sqlalchemy.pool import NullPool
 
 
 class Sessions:
+    engine = create_engine(os.environ['DATABASE_URL'], poolclass=NullPool)
 
     @staticmethod
     def get_session():
-        DATABASE_URL = os.environ['DATABASE_URL']
-        engine = create_engine(DATABASE_URL, pool_size=1, max_overflow=0, poolclass=QueuePool)
-        my_session = sessionmaker(bind=engine)
+        my_session = sessionmaker(bind=Sessions.engine)
         return my_session()
