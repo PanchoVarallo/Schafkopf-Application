@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
 import locale
-import os
 from typing import List, Union, Dict, Tuple
 
 import dash
@@ -10,8 +9,6 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
-from sqlalchemy import create_engine
-from sqlalchemy.pool import NullPool
 
 from schafkopf.backend.calculator import RufspielCalculator, SoloCalculator, HochzeitCalculator, RamschCalculator
 from schafkopf.backend.configs import RufspielRawConfig, SoloRawConfig, HochzeitRawConfig, RamschRawConfig
