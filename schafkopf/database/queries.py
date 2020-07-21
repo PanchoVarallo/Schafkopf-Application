@@ -1,3 +1,4 @@
+import datetime
 from typing import Union, List
 
 import pandas as pd
@@ -46,7 +47,7 @@ def get_runden(active: bool = True, dataframe: bool = False,
                session: sessionmaker() = None) -> Union[List[Runde], pd.DataFrame]:
     actual_session = _build_session(session)
     if active:
-        query = actual_session.query(Runde).filter(Runde.is_active == active).order_by(Runde.created_on.asc())
+        query = actual_session.query(Runde).filter(Runde.is_active == active).order_by(Runde.datum.asc())
     else:
         query = actual_session.query(Runde).order_by(Runde.created_on.asc())
     runden = query.all() if not dataframe else pd.read_sql(query.statement, actual_session.bind)
@@ -260,9 +261,9 @@ def insert_teilnehmer(vorname: str, nachname: str, session: sessionmaker() = Non
     return teilnehmer
 
 
-def insert_runde(name: str, ort: str, punkteconfig_id: int, session: sessionmaker() = None) -> Runde:
+def insert_runde(datum: datetime, name: str, ort: str, punkteconfig_id: int, session: sessionmaker() = None) -> Runde:
     actual_session = _build_session(session)
-    runde = Runde(name=name, ort=ort, punkteconfig_id=punkteconfig_id)
+    runde = Runde(datum=datum, name=name, ort=ort, punkteconfig_id=punkteconfig_id)
     actual_session.add(runde)
     actual_session.flush()
     if session is None:

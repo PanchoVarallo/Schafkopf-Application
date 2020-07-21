@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from datetime import datetime
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -28,7 +29,9 @@ def database_init():
             session.add(punkteconfig)
             session.commit()
             # logging.info(f'Punktekonfiguration "{punkteconfig.name}" successfully created')
-        inserted = [insert_runde(name=r['name'], ort=r['ort'], punkteconfig_id=punkteconfig.id, session=session) for r
+
+        inserted = [insert_runde(datum=datetime.strptime(r['datum'], '%Y-%m-%d'), name=r['name'], ort=r['ort'],
+                                 punkteconfig_id=punkteconfig.id, session=session) for r
                     in runden]
         session.commit()
         [logging.info(f'Runde "{t.name}" in "{t.ort}" successfully created') for t in inserted]
@@ -54,4 +57,5 @@ def create_empty_database():
 
 
 if __name__ == '__main__':
+    # create_empty_database()
     database_init()

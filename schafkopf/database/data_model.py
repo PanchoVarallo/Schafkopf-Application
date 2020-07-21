@@ -47,6 +47,7 @@ class Teilnehmer(Base):
 class Runde(Base):
     __tablename__ = 'runde'
     id = Column(Integer, primary_key=True)
+    datum = Column(DateTime())
     name = Column(String(100), nullable=False)
     ort = Column(String(100), nullable=False)
     is_active = Column(Boolean, nullable=False, default=True)

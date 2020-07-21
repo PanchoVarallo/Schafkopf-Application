@@ -86,7 +86,7 @@ def wrap_initial_layout():
 
             dbc.Row([
                 wrap_dbc_col([wrap_select_div(form_text='Runde', id='runde_id',
-                                              options=[{'label': f'{r.created_on.strftime("%d. %b %Y")} - {r.name} - '
+                                              options=[{'label': f'{r.datum.strftime("%d. %b %Y")} - {r.name} - '
                                                                  f'{r.ort}',
                                                         'value': f'{r.id}'} for r in get_runden()],
                                               value=runde_id),
