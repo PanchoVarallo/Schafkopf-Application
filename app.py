@@ -652,4 +652,5 @@ def _validate_teilnehmer(runde_id: Union[None, str], geber_id: Union[None, str],
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    # app.run_server(debug=True)
+    app.run_server()
