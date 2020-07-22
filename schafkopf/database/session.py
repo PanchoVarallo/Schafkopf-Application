@@ -6,7 +6,7 @@ from sqlalchemy.pool import NullPool
 
 
 class Sessions:
-    engine = create_engine(os.environ['DATABASE_URL'])
+    engine = create_engine(os.environ['DATABASE_URL'], poolclass=NullPool)
 
     @staticmethod
     def get_session():
