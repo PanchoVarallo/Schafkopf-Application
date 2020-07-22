@@ -456,4 +456,4 @@ def _build_body(runde_ids: List[int], details: bool):
             return_divs.append(div)
             return_divs.append(wrap_empty_dbc_row())
         return html.Div(return_divs)
-    return html.Div([ranking_div, wrap_empty_dbc_row(), graph_div])
+    return html.Div([ranking_div])
