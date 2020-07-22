@@ -1,14 +1,12 @@
-Code & Deployment todos:
-1. Testen mit lokaler Datenbank
-
 Code & Deployment todos (Keine Priorität):
 - Refaktorieren von app.py (v.a. *args bei Argumenten einbauen)
-- Tests für Validator - Writer/Analyzer - Frontend
-- Make design mobile phone friendly
+- Tests für Validator - Writer/Analyzer - Frontend (mit pytest dash)
+- Make design more mobile phone friendly with grids
 - Übersichtsreport erstellen
 - Dashboard: Teilnehmer einrichten/bearbeiten, Runde einrichten/bearbeiten, Einzelspiele bearbeiten
 - Extra Tab für 'Falsch ausgeteilt'
 - Statistik Kontriert und Re abhängig von der Möglichkeit an Kontras und Res machen (nicht abhängig von Einzelspielen)
+- Performance testen, v.a. bei Datenbankabfragen: 
  
  Hilfreiche Websites beim Projekt:
  - Schema definition with alchemy: https://overiq.com/sqlalchemy-101/defining-schema-in-sqlalchemy-orm/
