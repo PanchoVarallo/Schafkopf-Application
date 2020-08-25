@@ -1,4 +1,5 @@
 Code & Deployment todos (Keine Priorität):
+- Buttons für spielerabhängige Statistiken und Download der Daten 
 - Tests für Validator - Writer/Analyzer - Frontend (mit pytest dash)
 - Make design more mobile phone friendly with grids
 - Dashboard: Teilnehmer einrichten/bearbeiten, Runde einrichten/bearbeiten, Einzelspiele bearbeiten
