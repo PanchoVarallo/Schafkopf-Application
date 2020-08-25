@@ -1,6 +1,8 @@
 Code & Deployment todos (Keine Priorität):
-- Buttons für spielerabhängige Statistiken und Download der Daten 
-- Tests für Validator - Writer/Analyzer - Frontend (mit pytest dash)
+- Buttons für spielerabhängige Statistiken und Download der Daten
+- session.py. 
+    How can I adjust it such that it works correct locally and on server without commenting/uncommenting?
+    The same problem with DATABASE_URL in pycharm
 - Make design more mobile phone friendly with grids
 - Dashboard: Teilnehmer einrichten/bearbeiten, Runde einrichten/bearbeiten, Einzelspiele bearbeiten
 - Extra Tab für 'Falsch ausgeteilt'
