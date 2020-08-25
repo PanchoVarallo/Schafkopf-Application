@@ -7,9 +7,14 @@ from sqlalchemy.pool import NullPool, QueuePool
 
 
 class Sessions:
+    # Using the Heroku postgres database locally
     # engine = psycopg2.connect(os.environ['DATABASE_URL'], sslmode='require')
-    # engine = create_engine(os.environ['DATABASE_URL'], poolclass=NullPool)
-    engine = create_engine(os.environ['DATABASE_URL'], poolclass=QueuePool, pool_size=15, max_overflow=0)
+
+    # For sqlite
+    engine = create_engine(os.environ['DATABASE_URL'], poolclass=NullPool)
+
+    # On Heroku Server
+    # engine = create_engine(os.environ['DATABASE_URL'], poolclass=QueuePool, pool_size=15, max_overflow=0)
 
     @staticmethod
     def get_session():
