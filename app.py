@@ -409,35 +409,38 @@ def _get_gelegt_ids(ausspieler_id: Union[None, str], mittelhand_id: Union[None, 
 
 
 @app.callback(
-    [Output('stats_modal_header', 'children'),
-     Output('stats_modal_body', 'children'),
-     Output('stats_modal', 'is_open'),
-     Output('stats_modal_open_n_clicks', 'data'),
-     Output('stats_modal_close_n_clicks', 'data')],
-    [Input('stats_modal_open', 'n_clicks'),
-     Input('stats_modal_close', 'n_clicks')],
-    [State('stats_modal_open_n_clicks', 'data'),
-     State('stats_modal_close_n_clicks', 'data'),
-     State('stats_modal', 'is_open'),
-     State('runde_id', 'value')],
+    [Output('stats_runden_modal_header', 'children'),
+     Output('stats_runden_modal_body', 'children'),
+     Output('stats_runden_modal', 'is_open'),
+     Output('stats_runden_modal_open_n_clicks', 'data'),
+     Output('stats_runden_modal_close_n_clicks', 'data')],
+    [Input('stats_runden_modal_open', 'n_clicks'),
+     Input('stats_runden_modal_close', 'n_clicks')],
+    [State('stats_runden_modal_open_n_clicks', 'data'),
+     State('stats_runden_modal_close_n_clicks', 'data'),
+     State('stats_runden_modal', 'is_open'),
+     State('selected_runden_ids', 'value')],
 )
-def show_stats(stats_modal_open: Union[None, int],
-               stats_modal_close: Union[None, int],
-               stats_modal_open_n_clicks: Dict,
-               stats_modal_close_n_clicks: Dict,
-               stats_modal: bool,
-               runde_id: Union[None, str]) -> Tuple[html.Div, html.Div, bool, Dict, Dict]:
-    stats_modal_open = 0 if stats_modal_open is None else stats_modal_open
-    stats_modal_close = 0 if stats_modal_close is None else stats_modal_close
-    if stats_modal_open == 0 and stats_modal_close == 0:
-        return html.Div(), html.Div(), stats_modal, {'clicks': stats_modal_open}, {'clicks': stats_modal_close}
-    if stats_modal_open > stats_modal_open_n_clicks['clicks']:
-        header, body = wrap_stats([runde_id], True)
-    elif stats_modal_close > stats_modal_close_n_clicks['clicks']:
+def show_stats(stats_runden_modal_open: Union[None, int],
+               stats_runden_modal_close: Union[None, int],
+               stats_runden_modal_open_n_clicks: Dict,
+               stats_runden_modal_close_n_clicks: Dict,
+               stats_runden_modal: bool,
+               selected_runden_ids: Union[None, List[str]]) -> Tuple[html.Div, html.Div, bool, Dict, Dict]:
+    selected_runden_ids = [] if selected_runden_ids is None else selected_runden_ids
+    stats_runden_modal_open = 0 if stats_runden_modal_open is None else stats_runden_modal_open
+    stats_runden_modal_close = 0 if stats_runden_modal_close is None else stats_runden_modal_close
+    if stats_runden_modal_open == 0 and stats_runden_modal_close == 0:
+        return html.Div(), html.Div(), stats_runden_modal, {'clicks': stats_runden_modal_open}, \
+               {'clicks': stats_runden_modal_close}
+    if stats_runden_modal_open > stats_runden_modal_open_n_clicks['clicks']:
+        header, body = wrap_stats(selected_runden_ids, True)
+    elif stats_runden_modal_close > stats_runden_modal_close_n_clicks['clicks']:
         header, body = html.Div(), html.Div()
     else:
         header, body = html.Div(), html.Div()
-    return header, body, not stats_modal, {'clicks': stats_modal_open}, {'clicks': stats_modal_close}
+    return header, body, not stats_runden_modal, {'clicks': stats_runden_modal_open}, \
+           {'clicks': stats_runden_modal_close}
 
 
 @app.callback(

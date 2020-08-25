@@ -49,6 +49,28 @@ def wrap_select_div(form_text: str,
     )
 
 
+def wrap_dash_dropdown_div(form_text: str,
+                           id: str,
+                           options: List[Dict],
+                           multi: bool = True,
+                           value: Union[None, int, List[int]] = None) -> html.Div:
+    # This is just used once because this kind of multi dropdown does not exist in dbc.
+    # Unfortunately I have to adjust the style manually ... at least the color
+    return html.Div(
+        dbc.FormGroup([
+            dbc.FormText(form_text),
+            dcc.Dropdown(
+                id=id,
+                options=options,
+                value=value,
+                multi=multi,
+                placeholder='',
+                style={'color': 'black'}
+            ),
+        ])
+    )
+
+
 def wrap_checklist_div(form_text: str,
                        id: str,
                        options: List[Dict],
@@ -188,7 +210,7 @@ def wrap_stats(runde_ids: Union[None, List[str]], details: bool = False) -> Tupl
     runde_ids = [int(r) for r in runde_ids if r is not None]
     if len(runde_ids) == 0:
         header = html.Div()
-        body = wrap_alert(['Bitte wählen Sie eine Runde'])
+        body = wrap_alert(['Bitte wählen Sie mindestens eine Runde'])
     else:
         anzahl_einzelspiele = len(get_einzelspiel_ids_by_runde_id(runde_ids))
         if anzahl_einzelspiele == 0:
@@ -477,8 +499,8 @@ def wrap_initial_layout():
         geberhand_id = None
     return html.Div([
         html.Div([
-            dcc.Store(id='stats_modal_open_n_clicks', data={'n_clicks': 0}),
-            dcc.Store(id='stats_modal_close_n_clicks', data={'n_clicks': 0}),
+            dcc.Store(id='stats_runden_modal_open_n_clicks', data={'n_clicks': 0}),
+            dcc.Store(id='stats_runden_modal_close_n_clicks', data={'n_clicks': 0}),
             dcc.Store(id='stats_all_modal_open_n_clicks', data={'n_clicks': 0}),
             dcc.Store(id='stats_all_modal_close_n_clicks', data={'n_clicks': 0}),
             dbc.Modal([
@@ -506,11 +528,11 @@ def wrap_initial_layout():
                     html.Div(id='ramsch_stats_modal_close_button')
                 ), ], id='ramsch_spielstand_modal', size="xl", scrollable=True),
             dbc.Modal([
-                dbc.ModalHeader(id='stats_modal_header'),
-                dbc.ModalBody(html.Div(id='stats_modal_body')),
+                dbc.ModalHeader(id='stats_runden_modal_header'),
+                dbc.ModalBody(html.Div(id='stats_runden_modal_body')),
                 dbc.ModalFooter(
-                    dbc.Button('Schließen', id='stats_modal_close', color='primary', block=True)
-                ), ], id='stats_modal', size="xl", scrollable=True),
+                    dbc.Button('Schließen', id='stats_runden_modal_close', color='primary', block=True)
+                ), ], id='stats_runden_modal', size="xl", scrollable=True),
             dbc.Modal([
                 dbc.ModalHeader(id='stats_all_modal_header'),
                 dbc.ModalBody(html.Div(id='stats_all_modal_body')),
@@ -523,18 +545,16 @@ def wrap_initial_layout():
             dbc.Row([html.Div(html.H1('Digitale Schafkopfliste'))], justify='center'),
 
             dbc.Row([
-                wrap_dbc_col([wrap_select_div(form_text='Runde', id='runde_id',
-                                              options=[{'label': f'{r.datum.strftime("%d. %b %Y")} - {r.name} - '
-                                                                 f'{r.ort}',
-                                                        'value': f'{r.id}'} for r in get_runden()],
-                                              value=runde_id),
-                              html.Div(dbc.Button('Statistiken der Runde', id='stats_modal_open',
-                                                  color='primary', block=True)),
-                              html.Br(),
-                              html.Div(dbc.Button('Statistiken aller Runden', id='stats_all_modal_open',
-                                                  color='primary', block=True)),
-                              ]),
                 wrap_dbc_col([
+                    dbc.Row([
+                        dbc.Col([
+                            wrap_select_div(form_text='Runde', id='runde_id',
+                                            options=[{'label': f'{r.datum.strftime("%d. %b %Y")} - {r.name} - '
+                                                               f'{r.ort}',
+                                                      'value': f'{r.id}'} for r in get_runden()],
+                                            value=runde_id),
+                        ], width=9)]),
+                    wrap_empty_dbc_row(),
                     dbc.Row([
                         dbc.Col([
                             wrap_select_div(form_text='Geber', id='geber_id',
@@ -595,7 +615,56 @@ def wrap_initial_layout():
                                                value=[]),
                         ], width=3)
                     ]),
-                ])
+                ]),
+                wrap_dbc_col([wrap_dash_dropdown_div(form_text='Gewählte Spieler', id='selected_players_ids',
+                                                     options=teilnehmers_options,
+                                                     value=list({geber_id, ausspieler_id, mittelhand_id, hinterhand_id,
+                                                                 geberhand_id})),
+                              html.Div(
+                                  dbc.Row([
+                                      dbc.Col([
+                                          dbc.Button('Statistiken gewählter Spieler anzeigen',
+                                                     id='stats_players_modal_open',
+                                                     color='primary', block=True, disabled=True),
+                                      ]),
+                                      dbc.Col([
+                                          dbc.Button('Daten gewählter Spieler runterladen', id='stats_players_download',
+                                                     color='primary', block=True, disabled=True),
+                                      ]),
+                                  ])),
+                              html.Br(),
+                              wrap_dash_dropdown_div(form_text='Gewählte Runden', id='selected_runden_ids',
+                                                     options=[{'label': f'{r.datum.strftime("%d. %b %Y")} - {r.name} - '
+                                                                        f'{r.ort}',
+                                                               'value': f'{r.id}'} for r in get_runden()],
+                                                     value=[runde_id]),
+                              html.Div(
+                                  dbc.Row([
+                                      dbc.Col([
+                                          dbc.Button('Statistiken gewählter Runden anzeigen',
+                                                     id='stats_runden_modal_open',
+                                                     color='primary', block=True),
+                                      ]),
+                                      dbc.Col([
+                                          dbc.Button('Daten gewählter Runden runterladen', id='stats_runden_download',
+                                                     color='primary', block=True, disabled=True),
+                                      ]),
+                                  ])),
+                              html.Br(),
+                              html.Br(),
+                              html.Div(
+                                  dbc.Row([
+                                      dbc.Col([
+                                          dbc.Button('Alle Statistiken anzeigen',
+                                                     id='stats_all_modal_open',
+                                                     color='primary', block=True),
+                                      ]),
+                                      dbc.Col([
+                                          dbc.Button('Alle Daten runterladen', id='stats_all_download',
+                                                     color='primary', block=True, disabled=True),
+                                      ]),
+                                  ])),
+                              ]),
             ]),
             wrap_empty_dbc_row(),
             dbc.Row([
