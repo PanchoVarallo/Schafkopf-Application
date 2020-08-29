@@ -218,7 +218,7 @@ def _wrap_stats_by_einzelspiele_ids(einzelspiel_ids: Union[None, List[int]],
                                     details: bool = False) -> Tuple[html.Div, html.Div]:
     if len(einzelspiel_ids) == 0:
         header = html.Div()
-        body = wrap_alert(['Bitte wählen Sie mindestens einen Teilnehmer'])
+        body = wrap_alert(['Keine Spiele vorhanden'])
     else:
         body = _build_body(einzelspiel_ids, details)
         header = html.Div([f'Statistiken'])
@@ -229,7 +229,7 @@ def wrap_stats_by_runde_ids(runde_ids: Union[None, List[str]], details: bool = F
     runde_ids = [int(r) for r in runde_ids if r is not None]
     if len(runde_ids) == 0:
         header = html.Div()
-        body = wrap_alert(['Bitte wählen Sie mindestens eine Runde'])
+        body = wrap_alert(['Keine Spiele vorhanden'])
     else:
         einzelspiel_ids = get_einzelspiel_ids_by_runde_ids(runde_ids=runde_ids)
         if len(einzelspiel_ids) == 0:
