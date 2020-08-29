@@ -14,7 +14,7 @@ from schafkopf.backend.configs import RufspielRawConfig, SoloRawConfig, Hochzeit
 from schafkopf.backend.validator import RufspielValidator, SoloValidator, HochzeitValidator, RamschValidator
 from schafkopf.database.queries import get_runden
 from schafkopf.database.writer import RufspielWriter, SoloWriter, HochzeitWriter, RamschWriter
-from schafkopf.frontend.generic_objects import wrap_alert, wrap_stats, wrap_rufspiel_card, \
+from schafkopf.frontend.generic_objects import wrap_alert, wrap_stats_by_runde_ids, wrap_rufspiel_card, \
     wrap_next_game_button, wrap_solo_card, wrap_hochzeit_card, \
     wrap_ramsch_card, wrap_initial_layout
 from schafkopf.frontend.presenter import RufspielPresenter, SoloPresenter, HochzeitPresenter, RamschPresenter
@@ -156,7 +156,7 @@ def calculate_rufspiel(
     result = RufspielPresenter(rufspiel_calculator).get_result()
     if rufspiel_spielstand_eintragen_button_n_clicks is not None and rufspiel_spielstand_eintragen_button_n_clicks >= 1:
         RufspielWriter(rufspiel_calculator).write()
-        header, body = wrap_stats([runde_id])
+        header, body = wrap_stats_by_runde_ids([runde_id])
         return result, dict(), header, body, True
     else:
         return result, dict(), html.Div(), html.Div(), False
@@ -239,7 +239,7 @@ def calculate_solo(
     result = SoloPresenter(solo_calculator).get_result()
     if solo_spielstand_eintragen_button_n_clicks is not None and solo_spielstand_eintragen_button_n_clicks >= 1:
         SoloWriter(solo_calculator).write()
-        header, body = wrap_stats([runde_id])
+        header, body = wrap_stats_by_runde_ids([runde_id])
         return result, dict(), header, body, True
     else:
         return result, dict(), html.Div(), html.Div(), False
@@ -316,7 +316,7 @@ def calculate_rufspiel(
     result = HochzeitPresenter(hochzeit_calculator).get_result()
     if hochzeit_spielstand_eintragen_button_n_clicks is not None and hochzeit_spielstand_eintragen_button_n_clicks >= 1:
         HochzeitWriter(hochzeit_calculator).write()
-        header, body = wrap_stats([runde_id])
+        header, body = wrap_stats_by_runde_ids([runde_id])
         return result, dict(), header, body, True
     else:
         return result, dict(), html.Div(), html.Div(), False
@@ -387,7 +387,7 @@ def calculate_ramsch(
     result = RamschPresenter(ramsch_calculator).get_result()
     if ramsch_spielstand_eintragen_button_n_clicks is not None and ramsch_spielstand_eintragen_button_n_clicks >= 1:
         RamschWriter(ramsch_calculator).write()
-        header, body = wrap_stats([runde_id])
+        header, body = wrap_stats_by_runde_ids([runde_id])
         return result, dict(), header, body, True
     else:
         return result, dict(), html.Div(), html.Div(), False
@@ -434,7 +434,7 @@ def show_stats(stats_runden_modal_open: Union[None, int],
         return html.Div(), html.Div(), stats_runden_modal, {'clicks': stats_runden_modal_open}, \
                {'clicks': stats_runden_modal_close}
     if stats_runden_modal_open > stats_runden_modal_open_n_clicks['clicks']:
-        header, body = wrap_stats(selected_runden_ids, True)
+        header, body = wrap_stats_by_runde_ids(selected_runden_ids, True)
     elif stats_runden_modal_close > stats_runden_modal_close_n_clicks['clicks']:
         header, body = html.Div(), html.Div()
     else:
@@ -466,7 +466,7 @@ def show_stats_all(stats_all_modal_open: Union[None, int],
         return html.Div(), html.Div(), stats_all_modal, {'clicks': stats_all_modal_open}, {
             'clicks': stats_all_modal_close}
     if stats_all_modal_open > stats_all_modal_open_n_clicks['clicks']:
-        header, body = wrap_stats([str(r.id) for r in get_runden()], True)
+        header, body = wrap_stats_by_runde_ids([str(r.id) for r in get_runden()], True)
     elif stats_all_modal_close > stats_all_modal_close_n_clicks['clicks']:
         header, body = html.Div(), html.Div()
     else:

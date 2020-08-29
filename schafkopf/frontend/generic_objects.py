@@ -6,11 +6,11 @@ import dash_html_components as html
 import pandas as pd
 import plotly.express as px
 
-from schafkopf.database.analyzer import get_ranking_dataframe_by_runde_ids, get_stats_dataframe_by_runde_ids, \
-    get_list_dataframe_by_runde_ids
+from schafkopf.database.analyzer import get_ranking_dataframe_by_runde_ids, get_list_dataframe_by_einzelspiele_ids, \
+    get_stats_by_einzelspiel_ids
 from schafkopf.database.data_model import Farbgebung, Spielart
-from schafkopf.database.queries import get_einzelspiel_ids_by_runde_id, get_teilnehmers_by_ids, get_teilnehmer, \
-    get_latest_einzelspiel_id, get_runde_id_by_einzelspiel_id, get_einzelspiele_by_einzelspiel_id, get_runden
+from schafkopf.database.queries import get_einzelspiel_ids_by_runde_ids, get_teilnehmers_by_ids, get_teilnehmer, \
+    get_latest_einzelspiel_id, get_runde_id_by_einzelspiel_id, get_einzelspiele_by_einzelspiel_ids, get_runden
 
 
 def wrap_empty_dbc_row() -> dbc.Row:
@@ -206,18 +206,31 @@ def wrap_alert(messages: List[str]) -> html.Div:
     ])
 
 
-def wrap_stats(runde_ids: Union[None, List[str]], details: bool = False) -> Tuple[html.Div, html.Div]:
+def wrap_stats_by_einzelspiele_ids(einzelspiel_ids: Union[None, List[str]],
+                                   details: bool = False) -> Tuple[html.Div, html.Div]:
+    einzelspiel_ids = [int(r) for r in einzelspiel_ids if r is not None]
+    if len(einzelspiel_ids) == 0:
+        header = html.Div()
+        body = wrap_alert(['Keine Spiele gespielt'])
+    else:
+        body = _build_body(einzelspiel_ids, details)
+        header = html.Div([f'Statistiken'])
+    return header, body
+
+
+def wrap_stats_by_runde_ids(runde_ids: Union[None, List[str]], details: bool = False) -> Tuple[html.Div, html.Div]:
     runde_ids = [int(r) for r in runde_ids if r is not None]
     if len(runde_ids) == 0:
         header = html.Div()
         body = wrap_alert(['Bitte wählen Sie mindestens eine Runde'])
     else:
-        anzahl_einzelspiele = len(get_einzelspiel_ids_by_runde_id(runde_ids))
-        if anzahl_einzelspiele == 0:
+        einzelspiel_ids = get_einzelspiel_ids_by_runde_ids(runde_ids=runde_ids)
+        if len(einzelspiel_ids) == 0:
             header = html.Div()
-            body = wrap_alert(['Keine Spiele gespielt'])
+            body = wrap_alert(['Keine Spiele in diesen Runden gespielt'])
         else:
-            body = _build_body(runde_ids, details)
+
+            body = _build_body(einzelspiel_ids, details)
             header = html.Div([f'Statistiken'])
     return header, body
 
@@ -446,16 +459,16 @@ def wrap_next_game_button() -> html.Div:
     return html.Div(html.A(dbc.Button(txt, color='primary', id='close', className='ml-auto'), href='/'))
 
 
-def _build_body(runde_ids: List[int], details: bool):
-    ranking_dataframe = get_ranking_dataframe_by_runde_ids(runde_ids)
-    list_dataframe = get_list_dataframe_by_runde_ids(runde_ids)
+def _build_body(einzelspiele_ids: List[int], details: bool):
+    ranking_dataframe = get_ranking_dataframe_by_runde_ids(einzelspiele_ids)
+    list_dataframe = get_list_dataframe_by_einzelspiele_ids(einzelspiele_ids)
     ranking_div = wrap_dataframe_table_div(ranking_dataframe)
     ranking_div = html.Div([html.H5('Punktestand'), ranking_div])
     fig = px.line(list_dataframe, x='Einzelspiele', y='Punkte', color='Teilnehmer')
     graph_div = html.Div([html.H5('Verlauf des Punktestands'), html.Div(dbc.Row(dbc.Col(dcc.Graph(figure=fig))))])
     if details:
         spielstatistik, gewonnen, ansager, solo, partner, gegenspieler, ramschspieler, verdopplungen \
-            = get_stats_dataframe_by_runde_ids(runde_ids)
+            = get_stats_by_einzelspiel_ids(einzelspiele_ids)
         spielstatistik_div = html.Div([html.H5('Statistiken der Spielarten'),
                                        wrap_dataframe_table_div(spielstatistik)])
         gewonnen_div = html.Div([html.H5('Teilnehmerstatistiken'),
@@ -486,7 +499,7 @@ def wrap_initial_layout():
     teilnehmers_options = [{'label': f'{s.name}', 'value': f'{s.id}'} for s in get_teilnehmer()]
     einzelspiel_id = get_latest_einzelspiel_id()
     runde_id = get_runde_id_by_einzelspiel_id(einzelspiel_id)
-    einzelspiel = get_einzelspiele_by_einzelspiel_id([einzelspiel_id])
+    einzelspiel = get_einzelspiele_by_einzelspiel_ids([einzelspiel_id])
     geber_id = einzelspiel[0].ausspieler_id if len(einzelspiel) == 1 else None
     ausspieler_id = einzelspiel[0].mittelhand_id if len(einzelspiel) == 1 else None
     mittelhand_id = einzelspiel[0].hinterhand_id if len(einzelspiel) == 1 else None

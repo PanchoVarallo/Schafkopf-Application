@@ -4,12 +4,13 @@ import numpy as np
 import pandas as pd
 
 from schafkopf.database.data_model import Spielart
-from schafkopf.database.queries import get_resultate_by_runde_ids, get_teilnehmer, get_einzelspiele_by_runde_id, \
-    get_teilnehmer_name_by_id, get_einzelspiel_ids_by_runde_id, get_verdopplungen_by_einzelspiel_ids
+from schafkopf.database.queries import get_teilnehmer, get_teilnehmer_name_by_id, \
+    get_verdopplungen_by_einzelspiel_ids, \
+    get_resultate_by_einzelspiele_ids, get_einzelspiele_by_einzelspiel_ids
 
 
-def get_list_dataframe_by_runde_ids(runde_ids: List[int]) -> pd.DataFrame:
-    resultate = get_resultate_by_runde_ids(runde_ids=runde_ids, dataframe=True)
+def get_list_dataframe_by_einzelspiele_ids(einzelspiele_ids: List[int]) -> pd.DataFrame:
+    resultate = get_resultate_by_einzelspiele_ids(einzelspiel_ids=einzelspiele_ids, dataframe=True)
     resultate = resultate[['einzelspiel_id', 'teilnehmer_id', 'punkte']]
     resultate.set_index(['einzelspiel_id', 'teilnehmer_id'], inplace=True)
     resultate = resultate.unstack()
@@ -32,8 +33,8 @@ def get_list_dataframe_by_runde_ids(runde_ids: List[int]) -> pd.DataFrame:
     return resultate
 
 
-def get_ranking_dataframe_by_runde_ids(runde_ids: List[int]) -> pd.DataFrame:
-    resultate = get_resultate_by_runde_ids(runde_ids=runde_ids, dataframe=True)
+def get_ranking_dataframe_by_runde_ids(einzelspiele_ids: List[int]) -> pd.DataFrame:
+    resultate = get_resultate_by_einzelspiele_ids(einzelspiel_ids=einzelspiele_ids, dataframe=True)
     grouped_einzelspiele = resultate.groupby('teilnehmer_id')["einzelspiel_id"].count().to_frame()
     grouped_resultate = resultate.groupby(["teilnehmer_id"])["punkte"].sum().to_frame()
     grouped = pd.concat([grouped_einzelspiele, grouped_resultate], axis=1, join='inner')
@@ -46,16 +47,15 @@ def get_ranking_dataframe_by_runde_ids(runde_ids: List[int]) -> pd.DataFrame:
     return result_df
 
 
-def get_stats_dataframe_by_runde_ids(
-        runde_ids: List[int]) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame,
-                                       pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    einzelspiele = get_einzelspiele_by_runde_id(runde_ids=runde_ids, dataframe=True)
-    resultate_df = pd.merge(left=get_resultate_by_runde_ids(runde_ids=runde_ids, dataframe=True),
-                            right=einzelspiele,
-                            how='left', left_on='einzelspiel_id', right_on='id')
+def get_stats_by_einzelspiel_ids(
+        einzelspiel_ids: List[int]) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame,
+                                             pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    einzelspiele = get_einzelspiele_by_einzelspiel_ids(einzelspiel_ids=einzelspiel_ids, dataframe=True)
+    resultate = get_resultate_by_einzelspiele_ids(einzelspiel_ids=einzelspiel_ids, dataframe=True)
+
+    resultate_df = pd.merge(left=resultate, right=einzelspiele, how='left', left_on='einzelspiel_id', right_on='id')
     resultate_df['gewonnen'] = resultate_df['gewonnen'].astype(int)
     resultate_df['verloren'] = 1 - resultate_df['gewonnen']
-
     haeufigkeit = einzelspiele['spielart'].value_counts().to_frame()
     prozent = einzelspiele['spielart'].value_counts(normalize=True).to_frame()
     haeufigkeit.rename(columns={'spielart': 'Häufigkeit'}, inplace=True)
@@ -127,7 +127,6 @@ def get_stats_dataframe_by_runde_ids(
     ramschspieler_verloren = ramsch_resultate_df.groupby(['teilnehmer_id'])['verloren'].sum().to_frame()
     ramschspieler_verloren.rename(columns={'verloren': 'Ramsch verl.'}, inplace=True)
 
-    einzelspiel_ids = get_einzelspiel_ids_by_runde_id(runde_ids=runde_ids)
     verdopplungen = get_verdopplungen_by_einzelspiel_ids(einzelspiel_ids=einzelspiel_ids, dataframe=True)
     verdopplungen = verdopplungen.groupby(["teilnehmer_id", "doppler"])["doppler"].count().to_frame()
     verdopplungen = verdopplungen.unstack()

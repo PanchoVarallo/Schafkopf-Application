@@ -7,6 +7,7 @@ Code & Deployment todos (Keine Priorität):
 - Dashboard: Teilnehmer einrichten/bearbeiten, Runde einrichten/bearbeiten, Einzelspiele bearbeiten
 - Extra Tab für 'Falsch ausgeteilt'
 - Statistik Kontriert und Re abhängig von der Möglichkeit an Kontras und Res machen (nicht abhängig von Einzelspielen)
+- queries.py aufräumen. Viele Methoden werden nicht verwendet.
  
  Hilfreiche Websites beim Projekt:
  - Schema definition with alchemy: https://overiq.com/sqlalchemy-101/defining-schema-in-sqlalchemy-orm/

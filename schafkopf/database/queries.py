@@ -69,14 +69,14 @@ def get_resultate_by_runde_ids(runde_ids: List[int],
                                dataframe: bool = False,
                                session: sessionmaker() = None) -> Union[None, List[Resultat], pd.DataFrame]:
     actual_session = Sessions.get_session() if session is None else session
-    einzelspiel_ids = get_einzelspiel_ids_by_runde_id(runde_ids=runde_ids, active=active, session=actual_session)
-    resultate = _get_resultate_by_einzelspiel_ids(einzelspiel_ids=einzelspiel_ids, dataframe=dataframe,
+    einzelspiel_ids = get_einzelspiel_ids_by_runde_ids(runde_ids=runde_ids, active=active, session=actual_session)
+    resultate = get_resultate_by_einzelspiele_ids(einzelspiel_ids=einzelspiel_ids, dataframe=dataframe,
                                                   session=actual_session)
     _close_session(actual_session, session)
     return resultate
 
 
-def _get_resultate_by_einzelspiel_ids(einzelspiel_ids: List[int],
+def get_resultate_by_einzelspiele_ids(einzelspiel_ids: List[int],
                                       dataframe: bool = False,
                                       session: sessionmaker() = None) -> Union[None, List[Resultat], pd.DataFrame]:
     actual_session = Sessions.get_session() if session is None else session
@@ -162,15 +162,17 @@ def get_einzelspiele_by_runde_id(runde_ids: List[int],
     return einzelspiele
 
 
-def get_einzelspiele_by_einzelspiel_id(einzelspiel_ids: List[int],
-                                       active: bool = True,
-                                       session: sessionmaker() = None) -> List[Einzelspiel]:
+def get_einzelspiele_by_einzelspiel_ids(einzelspiel_ids: List[int],
+                                        active: bool = True,
+                                        dataframe: bool = False,
+                                        session: sessionmaker() = None) -> Union[None, List[Einzelspiel], pd.DataFrame]:
     actual_session = Sessions.get_session() if session is None else session
     if active:
-        einzelspiele = actual_session.query(Einzelspiel).filter(Einzelspiel.is_active == active) \
-            .filter(Einzelspiel.id.in_(einzelspiel_ids)).all()
+        query = actual_session.query(Einzelspiel).filter(Einzelspiel.is_active == active) \
+            .filter(Einzelspiel.id.in_(einzelspiel_ids))
     else:
-        einzelspiele = actual_session.query(Einzelspiel).filter(Einzelspiel.id.in_(einzelspiel_ids)).all()
+        query = actual_session.query(Einzelspiel).filter(Einzelspiel.id.in_(einzelspiel_ids))
+    einzelspiele = query.all() if not dataframe else pd.read_sql(query.statement, actual_session.bind)
     _close_session(actual_session, session)
     return einzelspiele
 
@@ -194,9 +196,9 @@ def get_verdopplungen_by_einzelspiel_ids(einzelspiel_ids: List[int],
     return verdopplungen
 
 
-def get_einzelspiel_ids_by_runde_id(runde_ids: List[int],
-                                    active: bool = True,
-                                    session: sessionmaker() = None) -> List[int]:
+def get_einzelspiel_ids_by_runde_ids(runde_ids: List[int],
+                                     active: bool = True,
+                                     session: sessionmaker() = None) -> List[int]:
     actual_session = _build_session(session)
     if active:
         einzelspiel_ids = [e[0] for e in
