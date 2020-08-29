@@ -1,5 +1,5 @@
 Code & Deployment todos (Keine Priorität):
-- Buttons für spielerabhängige Statistiken und Download der Daten
+- Buttons für Download der Daten
 - session.py. 
     How can I adjust it such that it works correct locally and on server without commenting/uncommenting?
     The same problem with DATABASE_URL in pycharm
@@ -7,7 +7,8 @@ Code & Deployment todos (Keine Priorität):
 - Dashboard: Teilnehmer einrichten/bearbeiten, Runde einrichten/bearbeiten, Einzelspiele bearbeiten
 - Extra Tab für 'Falsch ausgeteilt'
 - Statistik Kontriert und Re abhängig von der Möglichkeit an Kontras und Res machen (nicht abhängig von Einzelspielen)
-- queries.py aufräumen. Viele Methoden werden nicht verwendet.
+- queries.py aufräumen. Viele Methoden werden nicht verwendet. Außerdem: Rückgabewerte glattziehen. Geht None oder 
+  nicht?
  
  Hilfreiche Websites beim Projekt:
  - Schema definition with alchemy: https://overiq.com/sqlalchemy-101/defining-schema-in-sqlalchemy-orm/
@@ -18,8 +19,8 @@ Code & Deployment todos (Keine Priorität):
 - Wenz/Geier: Ab zwei Laufenden -- Farbsolo: Ab drei Laufenden
 - Tout/Sie: Kein Schneider und kein Schwarz
 - Ramsch: 
-  - Hat ein Spieler am Ende des Spiels mindestens 91 Augen, ist ihm ein Durchmarsch gelungen und er bekommt von den 
-    anderen drei Spielern jeweils 50 Cent (im Tarif 10-20-50) (Leger bleiben, es gibt keine Jungfrauen)
+  - Hat ein Teilnehmer am Ende des Spiels mindestens 91 Augen, ist ihm ein Durchmarsch gelungen und er bekommt von den 
+    anderen drei Teilnehmern jeweils 50 Cent (im Tarif 10-20-50) (Leger bleiben, es gibt keine Jungfrauen)
 
 Sinnvolle Regeln für Spielablauf:
 - Kontra/Re: Bevor zweite Karte gefallen ist

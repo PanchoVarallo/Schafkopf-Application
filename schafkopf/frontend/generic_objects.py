@@ -218,7 +218,7 @@ def _wrap_stats_by_einzelspiele_ids(einzelspiel_ids: Union[None, List[int]],
                                     details: bool = False) -> Tuple[html.Div, html.Div]:
     if len(einzelspiel_ids) == 0:
         header = html.Div()
-        body = wrap_alert(['Keine Spiele gespielt'])
+        body = wrap_alert(['Bitte wählen Sie mindestens einen Teilnehmer'])
     else:
         body = _build_body(einzelspiel_ids, details)
         header = html.Div([f'Statistiken'])
@@ -644,25 +644,25 @@ def wrap_initial_layout():
                         ], width=3)
                     ]),
                 ]),
-                wrap_dbc_col([wrap_dash_dropdown_div(form_text='Gewählte Spieler', id='selected_teilnehmer_ids',
+                wrap_dbc_col([wrap_dash_dropdown_div(form_text='Teilnehmer wählen', id='selected_teilnehmer_ids',
                                                      options=teilnehmers_options,
                                                      value=list({geber_id, ausspieler_id, mittelhand_id, hinterhand_id,
                                                                  geberhand_id})),
                               html.Div(
                                   dbc.Row([
                                       dbc.Col([
-                                          dbc.Button('Statistiken gewählter Spieler anzeigen',
+                                          dbc.Button('Statistiken gewählter Teilnehmer anzeigen',
                                                      id='stats_teilnehmer_modal_open',
                                                      color='primary', block=True),
                                       ]),
                                       dbc.Col([
-                                          dbc.Button('Daten gewählter Spieler runterladen',
+                                          dbc.Button('Daten gewählter Teilnehmer runterladen',
                                                      id='stats_teilnehmer_download',
                                                      color='primary', block=True, disabled=True),
                                       ]),
                                   ])),
                               html.Br(),
-                              wrap_dash_dropdown_div(form_text='Gewählte Runden', id='selected_runden_ids',
+                              wrap_dash_dropdown_div(form_text='Runden wählen', id='selected_runden_ids',
                                                      options=[{'label': f'{r.datum.strftime("%d. %b %Y")} - {r.name} - '
                                                                         f'{r.ort}',
                                                                'value': f'{r.id}'} for r in get_runden()],

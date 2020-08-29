@@ -191,7 +191,12 @@ def get_einzelspiele_by_einzelspiel_ids(einzelspiel_ids: List[int],
 def get_einzelspiele_by_teilnehmer_ids(teilnehmer_ids: List[int],
                                        active: bool = True,
                                        dataframe: bool = False,
-                                       session: sessionmaker() = None) -> Union[None, List[Einzelspiel], pd.DataFrame]:
+                                       session: sessionmaker() = None) -> Union[List[Einzelspiel], pd.DataFrame]:
+    if len(teilnehmer_ids) == 0:
+        if dataframe:
+            return pd.DataFrame()
+        else:
+            return []
     actual_session = Sessions.get_session() if session is None else session
     query = actual_session.query(Einzelspiel)
     positionen = [Einzelspiel.geberhand_id, Einzelspiel.ausspieler_id,
