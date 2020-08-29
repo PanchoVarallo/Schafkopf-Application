@@ -1,12 +1,11 @@
 Code & Deployment todos (Keine Priorität):
 - Buttons für Download der Daten
+- Dashboard: Teilnehmer einrichten/bearbeiten, Runde einrichten/bearbeiten, Einzelspiele bearbeiten (d.h. deaktivieren)
 - session.py. 
     How can I adjust it such that it works correct locally and on server without commenting/uncommenting?
     The same problem with DATABASE_URL in pycharm
 - Make design more mobile phone friendly with grids
-- Dashboard: Teilnehmer einrichten/bearbeiten, Runde einrichten/bearbeiten, Einzelspiele bearbeiten
 - Extra Tab für 'Falsch ausgeteilt'
-- Statistik Kontriert und Re abhängig von der Möglichkeit an Kontras und Res machen (nicht abhängig von Einzelspielen)
 - queries.py aufräumen. Viele Methoden werden nicht verwendet. Außerdem: Rückgabewerte glattziehen. Geht None oder 
   nicht?
  

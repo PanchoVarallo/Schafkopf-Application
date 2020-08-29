@@ -655,11 +655,11 @@ def wrap_initial_layout():
                                                      id='stats_teilnehmer_modal_open',
                                                      color='primary', block=True),
                                       ]),
-                                      dbc.Col([
-                                          dbc.Button('Daten gewählter Teilnehmer runterladen',
-                                                     id='stats_teilnehmer_download',
-                                                     color='primary', block=True, disabled=True),
-                                      ]),
+                                      # dbc.Col([
+                                      #     dbc.Button('Daten gewählter Teilnehmer runterladen',
+                                      #                id='stats_teilnehmer_download',
+                                      #                color='primary', block=True, disabled=True),
+                                      # ]),
                                   ])),
                               html.Br(),
                               wrap_dash_dropdown_div(form_text='Runden wählen', id='selected_runden_ids',
@@ -674,10 +674,10 @@ def wrap_initial_layout():
                                                      id='stats_runden_modal_open',
                                                      color='primary', block=True),
                                       ]),
-                                      dbc.Col([
-                                          dbc.Button('Daten gewählter Runden runterladen', id='stats_runden_download',
-                                                     color='primary', block=True, disabled=True),
-                                      ]),
+                                      # dbc.Col([
+                                      #     dbc.Button('Daten gewählter Runden runterladen', id='stats_runden_download',
+                                      #                color='primary', block=True, disabled=True),
+                                      # ]),
                                   ])),
                               html.Br(),
                               html.Br(),
@@ -688,10 +688,10 @@ def wrap_initial_layout():
                                                      id='stats_all_modal_open',
                                                      color='primary', block=True),
                                       ]),
-                                      dbc.Col([
-                                          dbc.Button('Alle Daten runterladen', id='stats_all_download',
-                                                     color='primary', block=True, disabled=True),
-                                      ]),
+                                      # dbc.Col([
+                                      #     dbc.Button('Alle Daten runterladen', id='stats_all_download',
+                                      #                color='primary', block=True, disabled=True),
+                                      # ]),
                                   ])),
                               ]),
             ]),
