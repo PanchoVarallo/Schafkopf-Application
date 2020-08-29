@@ -10,7 +10,8 @@ from schafkopf.database.analyzer import get_ranking_dataframe_by_runde_ids, get_
     get_stats_by_einzelspiel_ids
 from schafkopf.database.data_model import Farbgebung, Spielart
 from schafkopf.database.queries import get_einzelspiel_ids_by_runde_ids, get_teilnehmers_by_ids, get_teilnehmer, \
-    get_latest_einzelspiel_id, get_runde_id_by_einzelspiel_id, get_einzelspiele_by_einzelspiel_ids, get_runden
+    get_latest_einzelspiel_id, get_runde_id_by_einzelspiel_id, get_einzelspiele_by_einzelspiel_ids, get_runden, \
+    get_einzelspiele_by_teilnehmer_ids
 
 
 def wrap_empty_dbc_row() -> dbc.Row:
@@ -206,9 +207,15 @@ def wrap_alert(messages: List[str]) -> html.Div:
     ])
 
 
-def wrap_stats_by_einzelspiele_ids(einzelspiel_ids: Union[None, List[str]],
-                                   details: bool = False) -> Tuple[html.Div, html.Div]:
-    einzelspiel_ids = [int(r) for r in einzelspiel_ids if r is not None]
+def wrap_stats_by_teilnehmer_ids(teilnehmer_ids: Union[None, List[str]],
+                                 details: bool = False) -> Tuple[html.Div, html.Div]:
+    teilnehmer_ids = [int(t) for t in teilnehmer_ids if t is not None]
+    einzelspiel_ids = [e.id for e in get_einzelspiele_by_teilnehmer_ids(teilnehmer_ids)]
+    return _wrap_stats_by_einzelspiele_ids(einzelspiel_ids, details)
+
+
+def _wrap_stats_by_einzelspiele_ids(einzelspiel_ids: Union[None, List[int]],
+                                    details: bool = False) -> Tuple[html.Div, html.Div]:
     if len(einzelspiel_ids) == 0:
         header = html.Div()
         body = wrap_alert(['Keine Spiele gespielt'])
@@ -512,6 +519,8 @@ def wrap_initial_layout():
         geberhand_id = None
     return html.Div([
         html.Div([
+            dcc.Store(id='stats_teilnehmer_modal_open_n_clicks', data={'n_clicks': 0}),
+            dcc.Store(id='stats_teilnehmer_modal_close_n_clicks', data={'n_clicks': 0}),
             dcc.Store(id='stats_runden_modal_open_n_clicks', data={'n_clicks': 0}),
             dcc.Store(id='stats_runden_modal_close_n_clicks', data={'n_clicks': 0}),
             dcc.Store(id='stats_all_modal_open_n_clicks', data={'n_clicks': 0}),
@@ -540,6 +549,12 @@ def wrap_initial_layout():
                 dbc.ModalFooter(
                     html.Div(id='ramsch_stats_modal_close_button')
                 ), ], id='ramsch_spielstand_modal', size="xl", scrollable=True),
+            dbc.Modal([
+                dbc.ModalHeader(id='stats_teilnehmer_modal_header'),
+                dbc.ModalBody(html.Div(id='stats_teilnehmer_modal_body')),
+                dbc.ModalFooter(
+                    dbc.Button('Schließen', id='stats_teilnehmer_modal_close', color='primary', block=True)
+                ), ], id='stats_teilnehmer_modal', size="xl", scrollable=True),
             dbc.Modal([
                 dbc.ModalHeader(id='stats_runden_modal_header'),
                 dbc.ModalBody(html.Div(id='stats_runden_modal_body')),
@@ -629,7 +644,7 @@ def wrap_initial_layout():
                         ], width=3)
                     ]),
                 ]),
-                wrap_dbc_col([wrap_dash_dropdown_div(form_text='Gewählte Spieler', id='selected_players_ids',
+                wrap_dbc_col([wrap_dash_dropdown_div(form_text='Gewählte Spieler', id='selected_teilnehmer_ids',
                                                      options=teilnehmers_options,
                                                      value=list({geber_id, ausspieler_id, mittelhand_id, hinterhand_id,
                                                                  geberhand_id})),
@@ -637,11 +652,12 @@ def wrap_initial_layout():
                                   dbc.Row([
                                       dbc.Col([
                                           dbc.Button('Statistiken gewählter Spieler anzeigen',
-                                                     id='stats_players_modal_open',
-                                                     color='primary', block=True, disabled=True),
+                                                     id='stats_teilnehmer_modal_open',
+                                                     color='primary', block=True),
                                       ]),
                                       dbc.Col([
-                                          dbc.Button('Daten gewählter Spieler runterladen', id='stats_players_download',
+                                          dbc.Button('Daten gewählter Spieler runterladen',
+                                                     id='stats_teilnehmer_download',
                                                      color='primary', block=True, disabled=True),
                                       ]),
                                   ])),

@@ -2,6 +2,7 @@ import datetime
 from typing import Union, List
 
 import pandas as pd
+from sqlalchemy import literal
 from sqlalchemy.orm import sessionmaker
 
 from schafkopf.database.data_model import Teilnehmer, Runde, Punkteconfig, Einzelspiel, Resultat, Verdopplung
@@ -81,6 +82,16 @@ def get_resultate_by_einzelspiele_ids(einzelspiel_ids: List[int],
                                       session: sessionmaker() = None) -> Union[None, List[Resultat], pd.DataFrame]:
     actual_session = Sessions.get_session() if session is None else session
     query = actual_session.query(Resultat).filter(Resultat.einzelspiel_id.in_(einzelspiel_ids))
+    resultate = query.all() if not dataframe else pd.read_sql(query.statement, actual_session.bind)
+    _close_session(actual_session, session)
+    return resultate
+
+
+def get_resultate_by_teilnehmer_ids(teilnehmer_ids: List[int],
+                                    dataframe: bool = False,
+                                    session: sessionmaker() = None) -> Union[None, List[Resultat], pd.DataFrame]:
+    actual_session = Sessions.get_session() if session is None else session
+    query = actual_session.query(Resultat).filter(Resultat.teilnehmer_id.in_(teilnehmer_ids))
     resultate = query.all() if not dataframe else pd.read_sql(query.statement, actual_session.bind)
     _close_session(actual_session, session)
     return resultate
@@ -172,6 +183,29 @@ def get_einzelspiele_by_einzelspiel_ids(einzelspiel_ids: List[int],
             .filter(Einzelspiel.id.in_(einzelspiel_ids))
     else:
         query = actual_session.query(Einzelspiel).filter(Einzelspiel.id.in_(einzelspiel_ids))
+    einzelspiele = query.all() if not dataframe else pd.read_sql(query.statement, actual_session.bind)
+    _close_session(actual_session, session)
+    return einzelspiele
+
+
+def get_einzelspiele_by_teilnehmer_ids(teilnehmer_ids: List[int],
+                                       active: bool = True,
+                                       dataframe: bool = False,
+                                       session: sessionmaker() = None) -> Union[None, List[Einzelspiel], pd.DataFrame]:
+    actual_session = Sessions.get_session() if session is None else session
+    query = actual_session.query(Einzelspiel)
+    positionen = [Einzelspiel.geberhand_id, Einzelspiel.ausspieler_id,
+                  Einzelspiel.mittelhand_id, Einzelspiel.hinterhand_id]
+    if active:
+        query = query.filter(Einzelspiel.is_active == active)
+    if len(teilnehmer_ids) <= 4:
+        for t in teilnehmer_ids:
+            query = query.filter(literal(t).in_(positionen))
+    else:
+        query = query.filter(Einzelspiel.geberhand_id.in_(teilnehmer_ids)) \
+            .filter(Einzelspiel.ausspieler_id.in_(teilnehmer_ids)) \
+            .filter(Einzelspiel.mittelhand_id.in_(teilnehmer_ids)) \
+            .filter(Einzelspiel.hinterhand_id.in_(teilnehmer_ids))
     einzelspiele = query.all() if not dataframe else pd.read_sql(query.statement, actual_session.bind)
     _close_session(actual_session, session)
     return einzelspiele

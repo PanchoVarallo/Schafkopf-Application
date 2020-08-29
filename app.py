@@ -16,7 +16,7 @@ from schafkopf.database.queries import get_runden
 from schafkopf.database.writer import RufspielWriter, SoloWriter, HochzeitWriter, RamschWriter
 from schafkopf.frontend.generic_objects import wrap_alert, wrap_stats_by_runde_ids, wrap_rufspiel_card, \
     wrap_next_game_button, wrap_solo_card, wrap_hochzeit_card, \
-    wrap_ramsch_card, wrap_initial_layout
+    wrap_ramsch_card, wrap_initial_layout, wrap_stats_by_teilnehmer_ids
 from schafkopf.frontend.presenter import RufspielPresenter, SoloPresenter, HochzeitPresenter, RamschPresenter
 
 with open('schafkopf/auth.json') as json_file:
@@ -409,6 +409,42 @@ def _get_gelegt_ids(ausspieler_id: Union[None, str], mittelhand_id: Union[None, 
 
 
 @app.callback(
+    [Output('stats_teilnehmer_modal_header', 'children'),
+     Output('stats_teilnehmer_modal_body', 'children'),
+     Output('stats_teilnehmer_modal', 'is_open'),
+     Output('stats_teilnehmer_modal_open_n_clicks', 'data'),
+     Output('stats_teilnehmer_modal_close_n_clicks', 'data')],
+    [Input('stats_teilnehmer_modal_open', 'n_clicks'),
+     Input('stats_teilnehmer_modal_close', 'n_clicks')],
+    [State('stats_teilnehmer_modal_open_n_clicks', 'data'),
+     State('stats_teilnehmer_modal_close_n_clicks', 'data'),
+     State('stats_teilnehmer_modal', 'is_open'),
+     State('selected_teilnehmer_ids', 'value')],
+)
+def show_stats_teilnehmer(stats_teilnehmer_modal_open: Union[None, int],
+                          stats_teilnehmer_modal_close: Union[None, int],
+                          stats_teilnehmer_modal_open_n_clicks: Dict,
+                          stats_teilnehmer_modal_close_n_clicks: Dict,
+                          stats_teilnehmer_modal: bool,
+                          selected_teilnehmer_ids: Union[None, List[str]]) -> Tuple[html.Div, html.Div, bool, Dict,
+                                                                                    Dict]:
+    selected_teilnehmer_ids = [] if selected_teilnehmer_ids is None else selected_teilnehmer_ids
+    stats_teilnehmer_modal_open = 0 if stats_teilnehmer_modal_open is None else stats_teilnehmer_modal_open
+    stats_teilnehmer_modal_close = 0 if stats_teilnehmer_modal_close is None else stats_teilnehmer_modal_close
+    if stats_teilnehmer_modal_open == 0 and stats_teilnehmer_modal_close == 0:
+        return html.Div(), html.Div(), stats_teilnehmer_modal, {'clicks': stats_teilnehmer_modal_open}, \
+               {'clicks': stats_teilnehmer_modal_close}
+    if stats_teilnehmer_modal_open > stats_teilnehmer_modal_open_n_clicks['clicks']:
+        header, body = wrap_stats_by_teilnehmer_ids(selected_teilnehmer_ids, True)
+    elif stats_teilnehmer_modal_close > stats_teilnehmer_modal_close_n_clicks['clicks']:
+        header, body = html.Div(), html.Div()
+    else:
+        header, body = html.Div(), html.Div()
+    return header, body, not stats_teilnehmer_modal, {'clicks': stats_teilnehmer_modal_open}, \
+           {'clicks': stats_teilnehmer_modal_close}
+
+
+@app.callback(
     [Output('stats_runden_modal_header', 'children'),
      Output('stats_runden_modal_body', 'children'),
      Output('stats_runden_modal', 'is_open'),
@@ -421,12 +457,12 @@ def _get_gelegt_ids(ausspieler_id: Union[None, str], mittelhand_id: Union[None, 
      State('stats_runden_modal', 'is_open'),
      State('selected_runden_ids', 'value')],
 )
-def show_stats(stats_runden_modal_open: Union[None, int],
-               stats_runden_modal_close: Union[None, int],
-               stats_runden_modal_open_n_clicks: Dict,
-               stats_runden_modal_close_n_clicks: Dict,
-               stats_runden_modal: bool,
-               selected_runden_ids: Union[None, List[str]]) -> Tuple[html.Div, html.Div, bool, Dict, Dict]:
+def show_stats_runden(stats_runden_modal_open: Union[None, int],
+                      stats_runden_modal_close: Union[None, int],
+                      stats_runden_modal_open_n_clicks: Dict,
+                      stats_runden_modal_close_n_clicks: Dict,
+                      stats_runden_modal: bool,
+                      selected_runden_ids: Union[None, List[str]]) -> Tuple[html.Div, html.Div, bool, Dict, Dict]:
     selected_runden_ids = [] if selected_runden_ids is None else selected_runden_ids
     stats_runden_modal_open = 0 if stats_runden_modal_open is None else stats_runden_modal_open
     stats_runden_modal_close = 0 if stats_runden_modal_close is None else stats_runden_modal_close
