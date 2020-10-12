@@ -1,4 +1,5 @@
 Code & Deployment todos (Keine Priorität):
+- Sechs Spieler Erkennung einrichten -> Test dazu schreiben
 - Buttons für Download der Daten
 - Dashboard: Teilnehmer einrichten/bearbeiten, Runde einrichten/bearbeiten, Einzelspiele bearbeiten (d.h. deaktivieren)
 - session.py. 
@@ -8,6 +9,7 @@ Code & Deployment todos (Keine Priorität):
 - Extra Tab für 'Falsch ausgeteilt'
 - queries.py aufräumen. Viele Methoden werden nicht verwendet. Außerdem: Rückgabewerte glattziehen. Geht None oder 
   nicht?
+- Tests für Front-End
  
  Hilfreiche Websites beim Projekt:
  - Schema definition with alchemy: https://overiq.com/sqlalchemy-101/defining-schema-in-sqlalchemy-orm/
