@@ -9,6 +9,7 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
+from schafkopf.frontend.start import wrap_start_layout
 
 from schafkopf.backend.calculator import RufspielCalculator, SoloCalculator, HochzeitCalculator, RamschCalculator
 from schafkopf.backend.configs import RufspielRawConfig, SoloRawConfig, HochzeitRawConfig, RamschRawConfig
@@ -21,7 +22,6 @@ from schafkopf.frontend.generic_objects import wrap_alert, wrap_stats_by_runde_i
     wrap_ramsch_card, wrap_stats_by_teilnehmer_ids
 from schafkopf.frontend.presenter import RufspielPresenter, SoloPresenter, HochzeitPresenter, RamschPresenter
 from schafkopf.frontend.spielen import wrap_spielen_layout
-from schafkopf.frontend.start import wrap_start_layout
 from schafkopf.frontend.statistiken import wrap_statistiken_layout
 
 with open('schafkopf/auth.json') as json_file:
@@ -71,7 +71,7 @@ def display_page(pathname: str):
     elif pathname == "/daten_anlegen":
         return wrap_daten_layout()
     else:
-        return wrap_start_layout()
+        return wrap_spielen_layout()
 
 
 @app.callback([Output('tab_content', 'children'),
