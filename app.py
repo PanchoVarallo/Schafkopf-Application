@@ -6,6 +6,7 @@ from typing import List, Union, Dict, Tuple
 import dash
 import dash_auth
 import dash_bootstrap_components as dbc
+import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
 
@@ -14,10 +15,14 @@ from schafkopf.backend.configs import RufspielRawConfig, SoloRawConfig, Hochzeit
 from schafkopf.backend.validator import RufspielValidator, SoloValidator, HochzeitValidator, RamschValidator
 from schafkopf.database.queries import get_runden
 from schafkopf.database.writer import RufspielWriter, SoloWriter, HochzeitWriter, RamschWriter
+from schafkopf.frontend.daten_anlegen import wrap_daten_layout
 from schafkopf.frontend.generic_objects import wrap_alert, wrap_stats_by_runde_ids, wrap_rufspiel_card, \
     wrap_next_game_button, wrap_solo_card, wrap_hochzeit_card, \
-    wrap_ramsch_card, wrap_initial_layout, wrap_stats_by_teilnehmer_ids
+    wrap_ramsch_card, wrap_stats_by_teilnehmer_ids
 from schafkopf.frontend.presenter import RufspielPresenter, SoloPresenter, HochzeitPresenter, RamschPresenter
+from schafkopf.frontend.spielen import wrap_spielen_layout
+from schafkopf.frontend.start import wrap_start_layout
+from schafkopf.frontend.statistiken import wrap_statistiken_layout
 
 with open('schafkopf/auth.json') as json_file:
     data = json.load(json_file)
@@ -33,7 +38,40 @@ auth = dash_auth.BasicAuth(
 )
 app.config.suppress_callback_exceptions = True
 app.title = 'Digitale Schafkopfliste'
-app.layout = wrap_initial_layout
+
+app.layout = html.Div([
+    # represents the URL bar, doesn't render anything
+    dcc.Location(id='url', refresh=False),
+
+    dbc.NavbarSimple(
+        children=[
+            dbc.NavItem(dbc.NavLink("Spielen", href="/spielen")),
+            dbc.NavItem(dbc.NavLink("Statistiken", href="/statistiken")),
+            dbc.NavItem(dbc.NavLink("Daten anlegen", href="/daten_anlegen")),
+        ],
+        brand="Digitale Schafkopfliste",
+        brand_href="/start",
+        color="primary",
+        dark=True,
+    ),
+
+    # content will be rendered in this element
+    html.Div(id='page-content')
+])
+
+
+@app.callback(Output('page-content', 'children'), [Input('url', 'pathname')])
+def display_page(pathname: str):
+    if pathname == "/start":
+        return wrap_start_layout()
+    elif pathname == "/spielen":
+        return wrap_spielen_layout()
+    elif pathname == "/statistiken":
+        return wrap_statistiken_layout()
+    elif pathname == "/daten_anlegen":
+        return wrap_daten_layout()
+    else:
+        return wrap_start_layout()
 
 
 @app.callback([Output('tab_content', 'children'),
@@ -129,7 +167,7 @@ def calculate_rufspiel(
         gelegt_ausspieler_id: List[int],
         gelegt_mittelhand_id: List[int],
         gelegt_hinterhand_id: List[int],
-        gelegt_geberhand_id: List[int]) -> Tuple[Union[None, List[html.Div]], Dict, html.Div, html.Div, bool]:
+        gelegt_geberhand_id: List[int]) -> Tuple[Union[None, dbc.Row], Dict, html.Div, html.Div, bool]:
     teilnehmer_ids = [ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id]
     if _validate_teilnehmer(runde_id, geber_id, teilnehmer_ids) is not None:
         return None, dict(), html.Div(), html.Div(), False
@@ -211,7 +249,7 @@ def calculate_solo(
         gelegt_ausspieler_id: List[int],
         gelegt_mittelhand_id: List[int],
         gelegt_hinterhand_id: List[int],
-        gelegt_geberhand_id: List[int]) -> Tuple[Union[None, List[html.Div]], Dict, html.Div, html.Div, bool]:
+        gelegt_geberhand_id: List[int]) -> Tuple[Union[None, dbc.Row], Dict, html.Div, html.Div, bool]:
     teilnehmer_ids = [ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id]
     if _validate_teilnehmer(runde_id, geber_id, teilnehmer_ids) is not None:
         return None, dict(), html.Div(), html.Div(), False
@@ -290,7 +328,7 @@ def calculate_rufspiel(
         gelegt_ausspieler_id: List[int],
         gelegt_mittelhand_id: List[int],
         gelegt_hinterhand_id: List[int],
-        gelegt_geberhand_id: List[int]) -> Tuple[Union[None, List[html.Div]], Dict, html.Div, html.Div, bool]:
+        gelegt_geberhand_id: List[int]) -> Tuple[Union[None, dbc.Row], Dict, html.Div, html.Div, bool]:
     teilnehmer_ids = [ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id]
     if _validate_teilnehmer(runde_id, geber_id, teilnehmer_ids) is not None:
         return None, dict(), html.Div(), html.Div(), False
@@ -363,7 +401,7 @@ def calculate_ramsch(
         gelegt_ausspieler_id: List[int],
         gelegt_mittelhand_id: List[int],
         gelegt_hinterhand_id: List[int],
-        gelegt_geberhand_id: List[int]) -> Tuple[Union[None, List[html.Div]], Dict, html.Div, html.Div, bool]:
+        gelegt_geberhand_id: List[int]) -> Tuple[Union[None, dbc.Row], Dict, html.Div, html.Div, bool]:
     teilnehmer_ids = [ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id]
     if _validate_teilnehmer(runde_id, geber_id, teilnehmer_ids) is not None:
         return None, dict(), html.Div(), html.Div(), False

@@ -7,7 +7,7 @@ import dash_html_components as html
 from schafkopf.backend.calculator import RufspielCalculator, SoloCalculator, Calculator, RufspielHochzeitCalculator, \
     NormalspielCalculator, HochzeitCalculator, RamschCalculator
 from schafkopf.backend.configs import Config, NormalspielConfig, RamschConfig
-from schafkopf.database.queries import get_teilnehmer_name_by_id
+from schafkopf.database.queries import get_teilnehmer_name_by_id, get_teilnehmer_vorname_by_id
 from schafkopf.frontend.generic_objects import wrap_html_tr, wrap_html_tbody
 
 
@@ -15,26 +15,26 @@ class Presenter:
     def __init__(self, calculator: Calculator):
         self._calculator = calculator
 
-    def get_result(self) -> List[html.Div]:
+    def get_result(self) -> dbc.Row:
         result_div = []
-        result_div.extend([html.Div(dbc.Table(self._get_result_body(), bordered=False, striped=True, hover=True))])
-        result_div.extend(self._get_result_message(self._calculator.get_teilnehmer_id_to_punkte()))
-        return result_div
+        result_div.extend(
+            [dbc.Col([dbc.Table(self._get_result_body(), bordered=False, striped=True, hover=True)], xl=6, xs=12)])
+        result_div.extend(
+            [dbc.Col(self._get_result_message(self._calculator.get_teilnehmer_id_to_punkte()), xl=6, xs=12)])
+        return dbc.Row(result_div)
 
     @staticmethod
-    def _get_result_message(teilnehmer_id_to_punkte: Dict) -> List[html.Div]:
+    def _get_result_message(teilnehmer_id_to_punkte: Dict) -> dbc.Row:
         gewinner = {key: value for key, value in teilnehmer_id_to_punkte.items() if value > 0}
         verlierer = {key: value for key, value in teilnehmer_id_to_punkte.items() if value < 0}
         result_div = []
         for key, value in gewinner.items():
-            msg = [html.B(f'{get_teilnehmer_name_by_id(key)}'), f' gewinnt ', html.B(f'{int(value)}'),
-                   ' Punkte.']
-            result_div.append(html.Div(dbc.Alert(msg, color='success')))
+            msg = [html.B(f'{get_teilnehmer_vorname_by_id(key)}'), f' +', html.B(f'{int(value)}')]
+            result_div.append(dbc.Col([dbc.Alert(msg, color='success')], xl=6, xs=12))
         for key, value in verlierer.items():
-            msg = [html.B(f'{get_teilnehmer_name_by_id(key)}'), f' verliert ', html.B(f'{-int(value)}'),
-                   ' Punkte.']
-            result_div.append(html.Div(dbc.Alert(msg, color='danger')))
-        return result_div
+            msg = [html.B(f'{get_teilnehmer_vorname_by_id(key)}'), f' -', html.B(f'{-int(value)}')]
+            result_div.append(dbc.Col([dbc.Alert(msg, color='danger')], xl=6, xs=12))
+        return dbc.Row(result_div)
 
     @staticmethod
     @abstractmethod

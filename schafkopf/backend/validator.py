@@ -4,7 +4,7 @@ from typing import List, Union
 from schafkopf.backend.configs import RufspielRawConfig, RufspielConfig, SoloRawConfig, SoloConfig, HochzeitRawConfig, \
     HochzeitConfig, RufspielHochzeitRawConfig, NormalspielRawConfig, RawConfig, RamschRawConfig, RamschConfig
 from schafkopf.database.data_model import Farbgebung, Spielart
-from schafkopf.database.queries import get_teilnehmer_name_by_id, get_punkteconfig_by_runde_id
+from schafkopf.database.queries import get_teilnehmer_vorname_by_id, get_punkteconfig_by_runde_id
 
 
 class Validator:
@@ -53,7 +53,7 @@ class NormalspielValidator(Validator):
         if len(kontriert_id) == 0 and len(re_id) == 1:
             teilnehmer_re = re_id[0]
             m.append(
-                f'Re darf nicht ohne Kontra geben werden. Momentan Re: {get_teilnehmer_name_by_id(teilnehmer_re)}')
+                f'Re darf nicht ohne Kontra geben werden. Momentan Re: {get_teilnehmer_vorname_by_id(teilnehmer_re)}')
 
 
 class RufspielHochzeitValidator(NormalspielValidator):
@@ -74,20 +74,20 @@ class RufspielHochzeitValidator(NormalspielValidator):
                 if len(kontriert_id) == 1 and ansager_id is not None and partner_id is not None:
                     if kontriert_id[0] == ansager_id:
                         m.append(
-                            f'Spieler darf nicht Kontra geben. Momentan: {get_teilnehmer_name_by_id(ansager_id)}.')
+                            f'Spieler darf nicht Kontra geben. Momentan: {get_teilnehmer_vorname_by_id(ansager_id)}.')
                     if kontriert_id[0] == partner_id:
                         m.append(
-                            f'Spieler darf nicht Kontra geben. Momentan: {get_teilnehmer_name_by_id(partner_id)}.')
+                            f'Spieler darf nicht Kontra geben. Momentan: {get_teilnehmer_vorname_by_id(partner_id)}.')
                 if len(re_id) == 1 and ansager_id is not None and partner_id is not None:
                     nicht_spieler = [t for t in teilnehmer_ids if t not in [ansager_id, partner_id]]
                     if re_id[0] == nicht_spieler[0]:
                         m.append(f'Nicht-Spieler darf nicht Re geben. '
-                                 f'Momentan: {get_teilnehmer_name_by_id(nicht_spieler[0])}.')
+                                 f'Momentan: {get_teilnehmer_vorname_by_id(nicht_spieler[0])}.')
                     if re_id[0] == nicht_spieler[1]:
                         m.append(f'Nicht-Spieler darf nicht Re geben. '
-                                 f'Momentan: {get_teilnehmer_name_by_id(nicht_spieler[1])}.')
+                                 f'Momentan: {get_teilnehmer_vorname_by_id(nicht_spieler[1])}.')
             else:
-                m.append(f'Ansager und Partner identisch: {get_teilnehmer_name_by_id(ansager_id)}.')
+                m.append(f'Ansager und Partner identisch: {get_teilnehmer_vorname_by_id(ansager_id)}.')
         if laufende not in [0, 3, 4, 5, 6, 7, 8] or laufende is None:
             m.append(f'Ungültige Anzahl an Laufenden. Bitte 0, 3, 4, 5, 6, 7 oder 8 wählen.')
         if augen is None:
@@ -200,13 +200,13 @@ class SoloValidator(NormalspielValidator):
             m.append(f'Ungültige Anzahl an Laufenden für {spielart.name.lower().capitalize()}. '
                      f'Bitte 0, 2, 3 oder 4 wählen.')
         if ansager_id is not None and len(kontriert_id) == 1 and kontriert_id[0] == ansager_id:
-            m.append(f'Spieler darf nicht Kontra geben. Momentan: {get_teilnehmer_name_by_id(ansager_id)}.')
+            m.append(f'Spieler darf nicht Kontra geben. Momentan: {get_teilnehmer_vorname_by_id(ansager_id)}.')
         if len(re_id) == 1 and ansager_id is not None:
             nicht_spieler = [t for t in teilnehmer_ids if t not in [ansager_id]]
             for single_re_id in re_id:
                 if single_re_id in nicht_spieler:
                     m.append(f'Nicht-Spieler darf nicht Re geben. Momentan: '
-                             f'{get_teilnehmer_name_by_id(nicht_spieler[0])}.')
+                             f'{get_teilnehmer_vorname_by_id(nicht_spieler[0])}.')
         if tout_gespielt_gewonnen and tout_gespielt_verloren:
             m.append("Ein Tout kann nur gewonnen oder verloren werden. Bitte maximal einen Ausgang des Touts auswählen")
 
@@ -341,7 +341,7 @@ class RamschValidator(Validator):
         augen_valid = True
         for augen_teilnehmer in augen_teilnehmers:
             if augen_teilnehmer[0] is None:
-                m.append(f'Ungültige Augen für {get_teilnehmer_name_by_id(augen_teilnehmer[1])} angegeben. Bitte '
+                m.append(f'Ungültige Augen für {get_teilnehmer_vorname_by_id(augen_teilnehmer[1])} angegeben. Bitte '
                          f'eine Zahl von 0 - 120 angeben.')
                 augen_valid = False
         if augen_valid:
@@ -359,20 +359,20 @@ class RamschValidator(Validator):
                     falsche_jungfrauen = [augen_teilnehmer[1] for augen_teilnehmer in augen_teilnehmers if
                                           augen_teilnehmer[0] > 0 and augen_teilnehmer[1] in jungfrau_ids]
                     if len(falsche_jungfrauen) > 0:
-                        falsche_jungfrauen = "; ".join([get_teilnehmer_name_by_id(falsche_jungfrau) for
+                        falsche_jungfrauen = "; ".join([get_teilnehmer_vorname_by_id(falsche_jungfrau) for
                                                         falsche_jungfrau in falsche_jungfrauen])
                         m.append(f'Jungfrau darf nicht mehr als 0 Augen haben. Momentan: {falsche_jungfrauen}')
                 else:
                     durchmarsch_id = augen_teilnehmers_mit_max_augen[0][1]
                     if len(jungfrau_ids) > 0:
-                        falsche_jungfrauen = "; ".join([get_teilnehmer_name_by_id(jungfrau_id) for
+                        falsche_jungfrauen = "; ".join([get_teilnehmer_vorname_by_id(jungfrau_id) for
                                                         jungfrau_id in jungfrau_ids])
                         m.append(
                             f'Bei einem Durchmarsch darf es keine Jungfrauen geben. Momentan: {falsche_jungfrauen}')
                 if len(augen_teilnehmers_mit_max_augen) == 1:
                     if not durchmarsch:
                         verlierer_id = augen_teilnehmers_mit_max_augen[0][1]
-                    max_augen_teilnehmer = get_teilnehmer_name_by_id(augen_teilnehmers_mit_max_augen[0][1])
+                    max_augen_teilnehmer = get_teilnehmer_vorname_by_id(augen_teilnehmers_mit_max_augen[0][1])
                     if len(manuelle_verlierer_ids) != 0:
                         if durchmarsch:
                             m.append(f'{max_augen_teilnehmer} hat mit {max_augen} Augen einen erfolgreichen Durchmarsch'
@@ -381,9 +381,9 @@ class RamschValidator(Validator):
                             m.append(f'{max_augen_teilnehmer} hat mit {max_augen} Augen eindeutig verloren. Verlierer '
                                      f'darf nicht manuell angegeben werden.')
                 elif len(augen_teilnehmers_mit_max_augen) > 1:
-                    reale_verlierer = "; ".join([get_teilnehmer_name_by_id(augen_teilnehmer[1]) for
+                    reale_verlierer = "; ".join([get_teilnehmer_vorname_by_id(augen_teilnehmer[1]) for
                                                  augen_teilnehmer in augen_teilnehmers_mit_max_augen])
-                    manuelle_verlierer = "; ".join([get_teilnehmer_name_by_id(v) for v in manuelle_verlierer_ids])
+                    manuelle_verlierer = "; ".join([get_teilnehmer_vorname_by_id(v) for v in manuelle_verlierer_ids])
                     if len(manuelle_verlierer_ids) == 0:
                         m.append(f'Bei Augengleichheit muss ein manueller Verlierer gewählt werden. Manuellen '
                                  f'Verlierer aus folgenden Teilnehmern wählen: {reale_verlierer}')

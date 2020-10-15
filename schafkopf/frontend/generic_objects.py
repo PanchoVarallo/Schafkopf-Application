@@ -9,8 +9,7 @@ import plotly.express as px
 from schafkopf.database.analyzer import get_ranking_dataframe_by_runde_ids, get_list_dataframe_by_einzelspiele_ids, \
     get_stats_by_einzelspiel_ids
 from schafkopf.database.data_model import Farbgebung, Spielart
-from schafkopf.database.queries import get_einzelspiel_ids_by_runde_ids, get_teilnehmers_by_ids, get_teilnehmer, \
-    get_latest_einzelspiel_id, get_runde_id_by_einzelspiel_id, get_einzelspiele_by_einzelspiel_ids, get_runden, \
+from schafkopf.database.queries import get_einzelspiel_ids_by_runde_ids, get_teilnehmers_by_ids, \
     get_einzelspiele_by_teilnehmer_ids
 
 
@@ -200,11 +199,8 @@ def wrap_dataframe_table_div(dataframe: pd.DataFrame) -> html.Div:
     return html.Div([dbc.Table.from_dataframe(dataframe, striped=True, bordered=True, hover=True)])
 
 
-def wrap_alert(messages: List[str]) -> html.Div:
-    return html.Div([dbc.Card(
-        dbc.CardBody([dbc.Row([dbc.Col([html.Div(dbc.Alert(m, color='info'))])]) for m in messages]),
-        className='mt-3')
-    ])
+def wrap_alert(messages: List[str]) -> dbc.Row:
+    return dbc.Row([dbc.Col([html.Div(dbc.Alert(m, color='info'))], xl=6, xs=12) for m in messages])
 
 
 def wrap_stats_by_teilnehmer_ids(teilnehmer_ids: Union[None, List[str]],
@@ -245,7 +241,7 @@ def wrap_stats_by_runde_ids(runde_ids: Union[None, List[str]], details: bool = F
 def wrap_rufspiel_card(ausspieler_id: str, mittelhand_id: str, hinterhand_id: str, geberhand_id: str) -> dbc.Card:
     teilnehmer_ids = [int(ausspieler_id), int(mittelhand_id), int(hinterhand_id), int(geberhand_id)]
     teilnehmers = [get_teilnehmers_by_ids([teilnehmer_id])[0] for teilnehmer_id in teilnehmer_ids]
-    teilnehmers_options = [{'label': f'{t.name}', 'value': t.id} for t in teilnehmers]
+    teilnehmers_options = [{'label': f'{t.vorname}', 'value': t.id} for t in teilnehmers]
     farb_options = []
     for f in Farbgebung:
         if f == Farbgebung.HERZ:
@@ -254,114 +250,102 @@ def wrap_rufspiel_card(ausspieler_id: str, mittelhand_id: str, hinterhand_id: st
             farb_options.append({'label': f'{f.name.lower().capitalize()}', 'value': f'{f.name}'})
     card = dbc.Card(dbc.CardBody([
         dbc.Row([
-            wrap_dbc_col([
+            dbc.Col([
                 wrap_radioitem_div(form_text='Ansager', id='rufspiel_ansager_id', options=teilnehmers_options)
-            ]),
-            wrap_dbc_col([
+            ], xl=3, xs=6),
+            dbc.Col([
                 wrap_radioitem_div(form_text='Rufsau', id='rufspiel_rufsau', options=farb_options)
-            ]),
-            wrap_dbc_col([
+            ], xl=3, xs=6),
+            dbc.Col([
                 wrap_checklist_div(form_text='Kontriert', id='rufspiel_kontriert_id', options=teilnehmers_options)
-            ]),
-            wrap_dbc_col([
+            ], xl=3, xs=6),
+            dbc.Col([
                 wrap_checklist_div(form_text='Re', id='rufspiel_re_id', options=teilnehmers_options)
-            ]),
-            wrap_dbc_col([
+            ], xl=3, xs=6),
+            dbc.Col([
                 wrap_radioitem_div(form_text='Partner', id='rufspiel_partner_id', options=teilnehmers_options)
-            ]),
-        ]),
-        wrap_empty_dbc_row(),
-        dbc.Row([
+            ], xl=3, xs=6),
             dbc.Col([
                 wrap_laufende_div(form_text='Laufende', laufende_id='rufspiel_laufende')],
-                width={'size': 6, 'offset': 3})
-        ]),
-        wrap_empty_dbc_row(),
-        dbc.Row([
+                xl=3, xs=6),
             dbc.Col([
                 wrap_augen_div(spieler_nichtspieler_id='rufspiel_spieler_nichtspieler_augen',
                                augen_id='rufspiel_augen', schwarz_id='rufspiel_schwarz')],
-                width={'size': 6, 'offset': 3}),
+                xl=6, xs=12),
         ]),
-        wrap_empty_dbc_row(),
         dbc.Row([
             dbc.Col([
-                html.Div(id='rufspiel_validierung_content'), ], width={'size': 6, 'offset': 3}),
+                html.Div(id='rufspiel_validierung_content')
+            ], xl=12, xs=12)
         ]),
         dbc.Row([
             dbc.Col([
                 html.Div(
                     dbc.Button('Spiel eintragen', id='rufspiel_spielstand_eintragen_button',
                                color='primary', block=True)),
-            ], width={'size': 6, 'offset': 3}),
+            ], xl=12, xs=12),
         ])
-    ]), className='mt-3')
+    ]))
     return card
 
 
 def wrap_solo_card(ausspieler_id: str, mittelhand_id: str, hinterhand_id: str, geberhand_id: str) -> dbc.Card:
     teilnehmer_ids = [int(ausspieler_id), int(mittelhand_id), int(hinterhand_id), int(geberhand_id)]
     teilnehmers = [get_teilnehmers_by_ids([teilnehmer_id])[0] for teilnehmer_id in teilnehmer_ids]
-    teilnehmers_options = [{'label': f'{t.name}', 'value': t.id} for t in teilnehmers]
+    teilnehmers_options = [{'label': f'{t.vorname}', 'value': t.id} for t in teilnehmers]
     farb_options = [{'label': f'{f.name.lower().capitalize()}', 'value': f'{f.name}'} for f in Farbgebung]
     soli_options = [{'label': f'{f.name.lower().capitalize()}', 'value': f'{f.name}'} for f in Spielart if
                     f.value in [2, 3, 4]]
     card = dbc.Card(dbc.CardBody([
         dbc.Row([
-            wrap_dbc_col([
+            dbc.Col([
                 wrap_radioitem_div(form_text='Ansager', id='solo_ansager_id', options=teilnehmers_options)
-            ]),
-            wrap_dbc_col([
+            ], xl=3, xs=6),
+            dbc.Col([
                 wrap_radioitem_div(form_text='Solo', id='solo_spielart', options=soli_options)
-            ]),
-            wrap_dbc_col([
+            ], xl=3, xs=6),
+            dbc.Col([
                 wrap_checklist_div(form_text='Farbe', id='solo_farbe', options=farb_options)
-            ]),
-            wrap_dbc_col([
+            ], xl=3, xs=6),
+            dbc.Col([
                 wrap_checklist_div(form_text='Kontriert', id='solo_kontriert_id', options=teilnehmers_options)
-            ]),
-            wrap_dbc_col([
+            ], xl=3, xs=6),
+            dbc.Col([
                 wrap_checklist_div(form_text='Re', id='solo_re_id', options=teilnehmers_options)
-            ]),
-        ]),
-        wrap_empty_dbc_row(),
-        dbc.Row([
+            ], xl=3, xs=6),
             dbc.Col([
-                wrap_tout(tout_id='solo_tout')], width={'size': 6, 'offset': 3})
-        ]),
-        wrap_empty_dbc_row(),
-        dbc.Row([
+                wrap_laufende_div(form_text='Laufende', laufende_id='solo_laufende')
+            ], xl=3, xs=12),
             dbc.Col([
-                wrap_laufende_div(form_text='Laufende', laufende_id='solo_laufende')],
-                width={'size': 6, 'offset': 3})
-        ]),
-        wrap_empty_dbc_row(),
-        dbc.Row([
+                wrap_tout(tout_id='solo_tout')
+            ], xl=6, xs=6),
+            dbc.Col([], xl=3, xs=0),
             dbc.Col([
                 wrap_augen_div(spieler_nichtspieler_id='solo_spieler_nichtspieler_augen',
                                augen_id='solo_augen', schwarz_id='solo_schwarz')],
-                width={'size': 6, 'offset': 3}),
+                xl=6, xs=12),
+            dbc.Col([], xl=3, xs=0),
         ]),
-        wrap_empty_dbc_row(),
         dbc.Row([
             dbc.Col([
-                html.Div(id='solo_validierung_content'), ], width={'size': 6, 'offset': 3}),
+                html.Div(id='solo_validierung_content')
+            ], xl=12, xs=12)
         ]),
         dbc.Row([
             dbc.Col([
                 html.Div(
                     dbc.Button('Spiel eintragen', id='solo_spielstand_eintragen_button',
                                color='primary', block=True)),
-            ], width={'size': 6, 'offset': 3}),
+            ], xl=12, xs=12),
         ])
-    ]), className='mt-3')
+    ]))
     return card
 
 
 def wrap_hochzeit_card(ausspieler_id: str, mittelhand_id: str, hinterhand_id: str, geberhand_id: str) -> dbc.Card:
     teilnehmer_ids = [int(ausspieler_id), int(mittelhand_id), int(hinterhand_id), int(geberhand_id)]
     teilnehmers = [get_teilnehmers_by_ids([teilnehmer_id])[0] for teilnehmer_id in teilnehmer_ids]
-    teilnehmers_options = [{'label': f'{t.name}', 'value': t.id} for t in teilnehmers]
+    teilnehmers_options = [{'label': f'{t.vorname}', 'value': t.id} for t in teilnehmers]
     farb_options = []
     for f in Farbgebung:
         if f == Farbgebung.HERZ:
@@ -370,94 +354,94 @@ def wrap_hochzeit_card(ausspieler_id: str, mittelhand_id: str, hinterhand_id: st
             farb_options.append({'label': f'{f.name.lower().capitalize()}', 'value': f'{f.name}'})
     card = dbc.Card(dbc.CardBody([
         dbc.Row([
-            wrap_dbc_col([
+            dbc.Col([
                 wrap_radioitem_div(form_text='Hochzeitsanbieter', id='hochzeit_partner_id',
                                    options=teilnehmers_options)
-            ]),
-            wrap_dbc_col([
+            ], xl=3, xs=6),
+            dbc.Col([
                 wrap_radioitem_div(form_text='Hochzeitsannehmer', id='hochzeit_ansager_id',
                                    options=teilnehmers_options)
-            ]),
-            wrap_dbc_col([
-                wrap_checklist_div(form_text='Kontriert', id='hochzeit_kontriert_id', options=teilnehmers_options)
-            ]),
-            wrap_dbc_col([
-                wrap_checklist_div(form_text='Re', id='hochzeit_re_id', options=teilnehmers_options)
-            ]),
-        ]),
-        wrap_empty_dbc_row(),
-        dbc.Row([
+            ], xl=3, xs=6),
             dbc.Col([
-                wrap_laufende_div(form_text='Laufende', laufende_id='hochzeit_laufende')],
-                width={'size': 6, 'offset': 3})
-        ]),
-        wrap_empty_dbc_row(),
-        dbc.Row([
+                wrap_checklist_div(form_text='Kontriert', id='hochzeit_kontriert_id', options=teilnehmers_options)
+            ], xl=3, xs=6),
+            dbc.Col([
+                wrap_checklist_div(form_text='Re', id='hochzeit_re_id', options=teilnehmers_options)
+            ], xl=3, xs=6),
+            dbc.Col([
+                wrap_laufende_div(form_text='Laufende', laufende_id='hochzeit_laufende')
+            ], xl=3, xs=12),
             dbc.Col([
                 wrap_augen_div(spieler_nichtspieler_id='hochzeit_spieler_nichtspieler_augen',
-                               augen_id='hochzeit_augen', schwarz_id='hochzeit_schwarz')],
-                width={'size': 6, 'offset': 3}),
+                               augen_id='hochzeit_augen', schwarz_id='hochzeit_schwarz')
+            ], xl=6, xs=12),
         ]),
-        wrap_empty_dbc_row(),
         dbc.Row([
             dbc.Col([
-                html.Div(id='hochzeit_validierung_content'), ], width={'size': 6, 'offset': 3}),
+                html.Div(id='hochzeit_validierung_content')
+            ], xl=12, xs=12)
         ]),
         dbc.Row([
             dbc.Col([
                 html.Div(
                     dbc.Button('Spiel eintragen', id='hochzeit_spielstand_eintragen_button',
                                color='primary', block=True)),
-            ], width={'size': 6, 'offset': 3}),
+            ], xl=12, xs=12),
         ])
-    ]), className='mt-3')
+    ]))
     return card
 
 
 def wrap_ramsch_card(ausspieler_id: str, mittelhand_id: str, hinterhand_id: str, geberhand_id: str) -> dbc.Card:
     teilnehmer_ids = [int(ausspieler_id), int(mittelhand_id), int(hinterhand_id), int(geberhand_id)]
     teilnehmers = [get_teilnehmers_by_ids([teilnehmer_id])[0] for teilnehmer_id in teilnehmer_ids]
-    teilnehmers_options = [{'label': f'{t.name}', 'value': t.id} for t in teilnehmers]
+    teilnehmers_options = [{'label': f'{t.vorname}', 'value': t.id} for t in teilnehmers]
     card = dbc.Card(dbc.CardBody([
         dbc.Row([
-            wrap_dbc_col([
-                wrap_checklist_div(form_text='Jungfrau', id='ramsch_jungfrau_ids', options=teilnehmers_options)
-            ]),
-            wrap_dbc_col([
-                wrap_checklist_div(form_text='Bei Punktgleichheit Verlierer manuell angeben.',
-                                   id='ramsch_manuelle_verlierer_ids', options=teilnehmers_options)
-            ])
+            dbc.Col([
+                dbc.Row([
+                    dbc.Col([
+                        wrap_checklist_div(form_text='Jungfrau', id='ramsch_jungfrau_ids', options=teilnehmers_options)
+                    ], xl=6, xs=6),
+                    dbc.Col([
+                        wrap_checklist_div(form_text='Verlierer manuell angeben',
+                                           id='ramsch_manuelle_verlierer_ids', options=teilnehmers_options)
+                    ], xl=6, xs=6),
+                ])], xl=6, xs=12),
+            dbc.Col([
+                dbc.Row([
+                    dbc.Col(
+                        [wrap_ramsch_augen_div(augen_id='ramsch_ausspieler_augen',
+                                               teilnehmer_name=teilnehmers[0].vorname)
+                         ], xl=6, xs=12),
+                    dbc.Col(
+                        [wrap_ramsch_augen_div(augen_id='ramsch_mittelhand_augen',
+                                               teilnehmer_name=teilnehmers[1].vorname)
+                         ], xl=6, xs=12),
+                    dbc.Col(
+                        [wrap_ramsch_augen_div(augen_id='ramsch_hinterhand_augen',
+                                               teilnehmer_name=teilnehmers[2].vorname)
+                         ], xl=6, xs=12),
+                    dbc.Col(
+                        [wrap_ramsch_augen_div(augen_id='ramsch_geberhand_augen',
+                                               teilnehmer_name=teilnehmers[3].vorname)
+                         ], xl=6, xs=12)
+                ])
+            ], xl=6, xs=12)
         ]),
-        wrap_empty_dbc_row(),
-        dbc.Row([
-            dbc.Col([wrap_ramsch_augen_div(augen_id='ramsch_ausspieler_augen', teilnehmer_name=teilnehmers[0].name)],
-                    width={'size': 6, 'offset': 3}),
-        ]),
-        dbc.Row([
-            dbc.Col([wrap_ramsch_augen_div(augen_id='ramsch_mittelhand_augen', teilnehmer_name=teilnehmers[1].name)],
-                    width={'size': 6, 'offset': 3}),
-        ]),
-        dbc.Row([
-            dbc.Col([wrap_ramsch_augen_div(augen_id='ramsch_hinterhand_augen', teilnehmer_name=teilnehmers[2].name)],
-                    width={'size': 6, 'offset': 3}),
-        ]),
-        dbc.Row([
-            dbc.Col([wrap_ramsch_augen_div(augen_id='ramsch_geberhand_augen', teilnehmer_name=teilnehmers[3].name)],
-                    width={'size': 6, 'offset': 3}),
-        ]),
-        wrap_empty_dbc_row(),
         dbc.Row([
             dbc.Col([
-                html.Div(id='ramsch_validierung_content'), ], width={'size': 6, 'offset': 3}),
+                html.Div(id='ramsch_validierung_content')
+            ], xl=12, xs=12)
         ]),
         dbc.Row([
             dbc.Col([
                 html.Div(
                     dbc.Button('Spiel eintragen', id='ramsch_spielstand_eintragen_button',
                                color='primary', block=True)),
-            ], width={'size': 6, 'offset': 3}),
+            ], xl=12, xs=12),
         ])
-    ]), className='mt-3')
+    ]))
     return card
 
 
@@ -502,214 +486,11 @@ def _build_body(einzelspiele_ids: List[int], details: bool):
     return html.Div([ranking_div])
 
 
-def wrap_initial_layout():
-    teilnehmers_options = [{'label': f'{s.name}', 'value': f'{s.id}'} for s in get_teilnehmer()]
-    einzelspiel_id = get_latest_einzelspiel_id()
-    runde_id = get_runde_id_by_einzelspiel_id(einzelspiel_id)
-    einzelspiel = get_einzelspiele_by_einzelspiel_ids([einzelspiel_id])
-    geber_id = einzelspiel[0].ausspieler_id if len(einzelspiel) == 1 else None
-    ausspieler_id = einzelspiel[0].mittelhand_id if len(einzelspiel) == 1 else None
-    mittelhand_id = einzelspiel[0].hinterhand_id if len(einzelspiel) == 1 else None
-    hinterhand_id = einzelspiel[0].geberhand_id if len(einzelspiel) == 1 else None
-    if len(einzelspiel) == 1 and einzelspiel[0].geber_id != einzelspiel[0].geberhand_id:
-        geberhand_id = einzelspiel[0].geber_id
-    elif len(einzelspiel) == 1 and einzelspiel[0].geber_id == einzelspiel[0].geberhand_id:
-        geberhand_id = einzelspiel[0].ausspieler_id
-    else:
-        geberhand_id = None
-    return html.Div([
-        html.Div([
-            dcc.Store(id='stats_teilnehmer_modal_open_n_clicks', data={'n_clicks': 0}),
-            dcc.Store(id='stats_teilnehmer_modal_close_n_clicks', data={'n_clicks': 0}),
-            dcc.Store(id='stats_runden_modal_open_n_clicks', data={'n_clicks': 0}),
-            dcc.Store(id='stats_runden_modal_close_n_clicks', data={'n_clicks': 0}),
-            dcc.Store(id='stats_all_modal_open_n_clicks', data={'n_clicks': 0}),
-            dcc.Store(id='stats_all_modal_close_n_clicks', data={'n_clicks': 0}),
-            dbc.Modal([
-                dbc.ModalHeader(id='rufspiel_stats_modal_header'),
-                dbc.ModalBody(html.Div(id='rufspiel_stats_modal_body')),
-                dbc.ModalFooter(
-                    html.Div(id='rufspiel_stats_modal_close_button')
-                ), ], id='rufspiel_spielstand_modal', size="xl", scrollable=True),
-            dbc.Modal([
-                dbc.ModalHeader(id='solo_stats_modal_header'),
-                dbc.ModalBody(html.Div(id='solo_stats_modal_body')),
-                dbc.ModalFooter(
-                    html.Div(id='solo_stats_modal_close_button')
-                ), ], id='solo_spielstand_modal', size="xl", scrollable=True),
-            dbc.Modal([
-                dbc.ModalHeader(id='hochzeit_stats_modal_header'),
-                dbc.ModalBody(html.Div(id='hochzeit_stats_modal_body')),
-                dbc.ModalFooter(
-                    html.Div(id='hochzeit_stats_modal_close_button')
-                ), ], id='hochzeit_spielstand_modal', size="xl", scrollable=True),
-            dbc.Modal([
-                dbc.ModalHeader(id='ramsch_stats_modal_header'),
-                dbc.ModalBody(html.Div(id='ramsch_stats_modal_body')),
-                dbc.ModalFooter(
-                    html.Div(id='ramsch_stats_modal_close_button')
-                ), ], id='ramsch_spielstand_modal', size="xl", scrollable=True),
-            dbc.Modal([
-                dbc.ModalHeader(id='stats_teilnehmer_modal_header'),
-                dbc.ModalBody(html.Div(id='stats_teilnehmer_modal_body')),
-                dbc.ModalFooter(
-                    dbc.Button('Schließen', id='stats_teilnehmer_modal_close', color='primary', block=True)
-                ), ], id='stats_teilnehmer_modal', size="xl", scrollable=True),
-            dbc.Modal([
-                dbc.ModalHeader(id='stats_runden_modal_header'),
-                dbc.ModalBody(html.Div(id='stats_runden_modal_body')),
-                dbc.ModalFooter(
-                    dbc.Button('Schließen', id='stats_runden_modal_close', color='primary', block=True)
-                ), ], id='stats_runden_modal', size="xl", scrollable=True),
-            dbc.Modal([
-                dbc.ModalHeader(id='stats_all_modal_header'),
-                dbc.ModalBody(html.Div(id='stats_all_modal_body')),
-                dbc.ModalFooter(
-                    dbc.Button('Schließen', id='stats_all_modal_close', color='primary', block=True)
-                ), ], id='stats_all_modal', size="xl", scrollable=True),
-        ]),
-        dbc.Container([
+def wrap_footer_row():
+    return dbc.Row([
+        wrap_dbc_col([
             wrap_empty_dbc_row(),
-            dbc.Row([html.Div(html.H1('Digitale Schafkopfliste'))], justify='center'),
-
-            dbc.Row([
-                wrap_dbc_col([
-                    dbc.Row([
-                        dbc.Col([
-                            wrap_select_div(form_text='Runde', id='runde_id',
-                                            options=[{'label': f'{r.datum.strftime("%d. %b %Y")} - {r.name} - '
-                                                               f'{r.ort}',
-                                                      'value': f'{r.id}'} for r in get_runden()],
-                                            value=runde_id),
-                        ], width=9)]),
-                    wrap_empty_dbc_row(),
-                    dbc.Row([
-                        dbc.Col([
-                            wrap_select_div(form_text='Geber', id='geber_id',
-                                            options=teilnehmers_options,
-                                            value=geber_id
-                                            ),
-                        ], width=9)]),
-                    wrap_empty_dbc_row(),
-                    dbc.Row([
-                        dbc.Col([
-                            wrap_select_div(form_text='Ausspieler', id='ausspieler_id',
-                                            options=teilnehmers_options,
-                                            value=ausspieler_id
-                                            ),
-                        ], width=9),
-                        dbc.Col([
-                            wrap_checklist_div(form_text='Gelegt', id='gelegt_ausspieler_id',
-                                               options=[{'label': '', 'value': 1}],
-                                               value=[]),
-                        ], width=3)
-                    ]),
-                    dbc.Row([
-                        dbc.Col([
-                            wrap_select_div(form_text='Mittelhand', id='mittelhand_id',
-                                            options=teilnehmers_options,
-                                            value=mittelhand_id
-                                            ),
-                        ], width=9),
-                        dbc.Col([
-                            wrap_checklist_div(form_text='Gelegt', id='gelegt_mittelhand_id',
-                                               options=[{'label': '', 'value': 1}],
-                                               value=[]),
-                        ], width=3)
-                    ]),
-                    dbc.Row([
-                        dbc.Col([
-                            wrap_select_div(form_text='Hinterhand', id='hinterhand_id',
-                                            options=teilnehmers_options,
-                                            value=hinterhand_id
-                                            ),
-                        ], width=9),
-                        dbc.Col([
-                            wrap_checklist_div(form_text='Gelegt', id='gelegt_hinterhand_id',
-                                               options=[{'label': '', 'value': 1}],
-                                               value=[]),
-                        ], width=3)
-                    ]),
-                    dbc.Row([
-                        dbc.Col([
-                            wrap_select_div(form_text='Geberhand', id='geberhand_id',
-                                            options=teilnehmers_options,
-                                            value=geberhand_id
-                                            ),
-                        ], width=9),
-                        dbc.Col([
-                            wrap_checklist_div(form_text='Gelegt', id='gelegt_geberhand_id',
-                                               options=[{'label': '', 'value': 1}],
-                                               value=[]),
-                        ], width=3)
-                    ]),
-                ]),
-                wrap_dbc_col([wrap_dash_dropdown_div(form_text='Teilnehmer wählen', id='selected_teilnehmer_ids',
-                                                     options=teilnehmers_options,
-                                                     value=list({geber_id, ausspieler_id, mittelhand_id, hinterhand_id,
-                                                                 geberhand_id})),
-                              html.Div(
-                                  dbc.Row([
-                                      dbc.Col([
-                                          dbc.Button('Statistiken gewählter Teilnehmer anzeigen',
-                                                     id='stats_teilnehmer_modal_open',
-                                                     color='primary', block=True),
-                                      ]),
-                                      # dbc.Col([
-                                      #     dbc.Button('Daten gewählter Teilnehmer runterladen',
-                                      #                id='stats_teilnehmer_download',
-                                      #                color='primary', block=True, disabled=True),
-                                      # ]),
-                                  ])),
-                              html.Br(),
-                              wrap_dash_dropdown_div(form_text='Runden wählen', id='selected_runden_ids',
-                                                     options=[{'label': f'{r.datum.strftime("%d. %b %Y")} - {r.name} - '
-                                                                        f'{r.ort}',
-                                                               'value': f'{r.id}'} for r in get_runden()],
-                                                     value=[runde_id]),
-                              html.Div(
-                                  dbc.Row([
-                                      dbc.Col([
-                                          dbc.Button('Statistiken gewählter Runden anzeigen',
-                                                     id='stats_runden_modal_open',
-                                                     color='primary', block=True),
-                                      ]),
-                                      # dbc.Col([
-                                      #     dbc.Button('Daten gewählter Runden runterladen', id='stats_runden_download',
-                                      #                color='primary', block=True, disabled=True),
-                                      # ]),
-                                  ])),
-                              html.Br(),
-                              html.Br(),
-                              html.Div(
-                                  dbc.Row([
-                                      dbc.Col([
-                                          dbc.Button('Alle Statistiken anzeigen',
-                                                     id='stats_all_modal_open',
-                                                     color='primary', block=True),
-                                      ]),
-                                      # dbc.Col([
-                                      #     dbc.Button('Alle Daten runterladen', id='stats_all_download',
-                                      #                color='primary', block=True, disabled=True),
-                                      # ]),
-                                  ])),
-                              ]),
-            ]),
-            wrap_empty_dbc_row(),
-            dbc.Row([
-                wrap_dbc_col([html.Div([dbc.Tabs([
-                    dbc.Tab(tab_id='rufspiel_tab', label='Rufspiel'),
-                    dbc.Tab(tab_id='solo_tab', label='Solo'),
-                    dbc.Tab(tab_id='hochzeit_tab', label='Hochzeit'),
-                    dbc.Tab(tab_id='ramsch_tab', label='Ramsch')],
-                    id='tabs', active_tab='rufspiel_tab'),
-                    html.Div(id='tab_content')])])
-            ]),
-            dbc.Row([
-                wrap_dbc_col([
-                    html.Div(
-                        html.Footer('\u00a9 2020 - Mathias Sirvent', style={'textAlign': 'center'})
-                    )])
-            ])
-        ]),
+            html.Div(
+                html.Footer('\u00a9 2020 - Mathias Sirvent', style={'textAlign': 'center'})
+            )])
     ])

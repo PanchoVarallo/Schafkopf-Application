@@ -1,10 +1,11 @@
 Code & Deployment todos (Keine Priorität):
+- session.py
+    Lokal auf Heroku postgres geht nicht
+    Sicherheit einbauen bei init.py mit Heroku Datenbank
+- Go to Github (make a nice documentation and requirements file)
 - Sechs Spieler Erkennung einrichten -> Test dazu schreiben
 - Buttons für Download der Daten
 - Dashboard: Teilnehmer einrichten/bearbeiten, Runde einrichten/bearbeiten, Einzelspiele bearbeiten (d.h. deaktivieren)
-- session.py. 
-    How can I adjust it such that it works correct locally and on server without commenting/uncommenting?
-    The same problem with DATABASE_URL in pycharm
 - Make design more mobile phone friendly with grids
 - Extra Tab für 'Falsch ausgeteilt'
 - queries.py aufräumen. Viele Methoden werden nicht verwendet. Außerdem: Rückgabewerte glattziehen. Geht None oder 

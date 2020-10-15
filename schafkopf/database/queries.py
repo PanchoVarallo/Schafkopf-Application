@@ -44,6 +44,15 @@ def get_teilnehmer_name_by_id(teilnehmer_id: Union[None, int], session: sessionm
     return teilnehmer.name
 
 
+def get_teilnehmer_vorname_by_id(teilnehmer_id: Union[None, int], session: sessionmaker() = None) -> Union[None, str]:
+    actual_session = _build_session(session)
+    teilnehmer = get_teilnehmer_by_id(teilnehmer_id, actual_session)
+    _close_session(actual_session, session)
+    if teilnehmer is None:
+        return None
+    return teilnehmer.vorname
+
+
 def get_runden(active: bool = True, dataframe: bool = False,
                session: sessionmaker() = None) -> Union[List[Runde], pd.DataFrame]:
     actual_session = _build_session(session)

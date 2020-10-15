@@ -10,7 +10,7 @@ class Sessions:
     if os.environ['ENVIRONMENT'] == 'PRODUCTION':
         # On Heroku Server
         engine = create_engine(os.environ['DATABASE_URL'], poolclass=QueuePool, pool_size=15, max_overflow=0)
-    if os.environ['ENVIRONMENT'] == 'SQLITE_DATABASE':
+    if os.environ['ENVIRONMENT'] == 'LOCAL':
         # Using sqlite
         engine = create_engine(os.environ['DATABASE_URL'], poolclass=NullPool)
     elif os.environ['ENVIRONMENT'] == 'HEROKU_DATABASE':
