@@ -9,7 +9,6 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
-from schafkopf.frontend.start import wrap_start_layout
 
 from schafkopf.backend.calculator import RufspielCalculator, SoloCalculator, HochzeitCalculator, RamschCalculator
 from schafkopf.backend.configs import RufspielRawConfig, SoloRawConfig, HochzeitRawConfig, RamschRawConfig
@@ -50,7 +49,7 @@ app.layout = html.Div([
             dbc.NavItem(dbc.NavLink("Daten anlegen", href="/daten_anlegen")),
         ],
         brand="Digitale Schafkopfliste",
-        brand_href="/start",
+        brand_href="/spielen",
         color="primary",
         dark=True,
     ),
