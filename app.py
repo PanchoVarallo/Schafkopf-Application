@@ -61,9 +61,7 @@ app.layout = html.Div([
 
 @app.callback(Output('page-content', 'children'), [Input('url', 'pathname')])
 def display_page(pathname: str):
-    if pathname == "/start":
-        return wrap_start_layout()
-    elif pathname == "/spielen":
+    if pathname == "/spielen":
         return wrap_spielen_layout()
     elif pathname == "/statistiken":
         return wrap_statistiken_layout()

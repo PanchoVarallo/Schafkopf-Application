@@ -1,16 +1,15 @@
-Code & Deployment todos (Keine Priorität):
-- session.py
-    Lokal auf Heroku postgres geht nicht
-    Sicherheit einbauen bei init.py mit Heroku Datenbank
-- Go to Github (make a nice documentation and requirements file)
-- Sechs Spieler Erkennung einrichten -> Test dazu schreiben
-- Buttons für Download der Daten
-- Dashboard: Teilnehmer einrichten/bearbeiten, Runde einrichten/bearbeiten, Einzelspiele bearbeiten (d.h. deaktivieren)
-- Make design more mobile phone friendly with grids
-- Extra Tab für 'Falsch ausgeteilt'
-- queries.py aufräumen. Viele Methoden werden nicht verwendet. Außerdem: Rückgabewerte glattziehen. Geht None oder 
-  nicht?
-- Tests für Front-End
+ToDos:
+- add settings.ini to configure databases. The current solution with a lot of environment variables is not nice.
+- finish "Daten eintragen". Add database connection.
+- build recognizion of six players in the last two games.
+- clean up queries.py. Many methods are not used and can be removed. Check return values.
+- refactor code. Simplify, improve, ...
+- publish on github with short docu, automatic tests (travis) and default sqlite (remove password protection)
+- improve code structure in app.py. Generalize Input/Output/State in callbacks. 
+- add "Spitzname" to Teilnehmer using alembic (migration). Adjust database on Heroku. Use "Spitzname" everywhere.
+- add extra tab "Falsch ausgeteilt".
+- add extra page with list of games to "deactivate" games.
+- add tests for the front end.
  
  Hilfreiche Websites beim Projekt:
  - Schema definition with alchemy: https://overiq.com/sqlalchemy-101/defining-schema-in-sqlalchemy-orm/
