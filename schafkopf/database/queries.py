@@ -5,7 +5,7 @@ import pandas as pd
 from sqlalchemy import literal
 from sqlalchemy.orm import sessionmaker
 
-from schafkopf.database.data_model import Teilnehmer, Runde, Punkteconfig, Einzelspiel, Resultat, Verdopplung
+from schafkopf.database.data_model import Teilnehmer, Runde, Punkteconfig, Einzelspiel, Resultat, Verdopplung, User
 from schafkopf.database.session import Sessions
 
 
@@ -280,6 +280,13 @@ def get_latest_einzelspiel_id(session: sessionmaker() = None) -> Union[None, int
     return einzelspiel_id
 
 
+def get_users(session: sessionmaker() = None) -> Union[None, List[User]]:
+    actual_session = _build_session(session)
+    users = actual_session.query(User).all()
+    _close_session(actual_session, session)
+    return users
+
+
 def insert_einzelspiel(runde_id: int, ansager_id: Union[None, int], geber_id: int, ausspieler_id: int,
                        mittelhand_id: int, hinterhand_id: int, geberhand_id: int, spielpunkte: float,
                        spielart: str, farbe: Union[None, str] = None, laufende: Union[None, int] = None,
@@ -309,6 +316,28 @@ def insert_teilnehmer(vorname: str, nachname: str, session: sessionmaker() = Non
         actual_session.commit()
         actual_session.close()
     return teilnehmer
+
+
+def insert_default_punkteconfig(session: sessionmaker() = None) -> Punkteconfig:
+    actual_session = _build_session(session)
+    punkteconfig = Punkteconfig()
+    actual_session.add(punkteconfig)
+    actual_session.flush()
+    if session is None:
+        actual_session.commit()
+        actual_session.close()
+    return punkteconfig
+
+
+def insert_user(username: str, password: str, session: sessionmaker() = None) -> User:
+    actual_session = _build_session(session)
+    user = User(username=username, password=password)
+    actual_session.add(user)
+    actual_session.flush()
+    if session is None:
+        actual_session.commit()
+        actual_session.close()
+    return user
 
 
 def insert_runde(datum: datetime, name: str, ort: str, punkteconfig_id: int, session: sessionmaker() = None) -> Runde:

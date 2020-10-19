@@ -32,6 +32,17 @@ class Spielart(enum.Enum):
     HOCHZEIT = 6
 
 
+class User(Base):
+    __tablename__ = 'user'
+    id = Column(Integer)
+    username = Column(String(100), nullable=False)
+    password = Column(String(100), nullable=False)
+    created_on = Column(DateTime(), default=datetime.now)
+    updated_on = Column(DateTime(), default=datetime.now, onupdate=datetime.now)
+    __table_args__ = (PrimaryKeyConstraint('id', name='user_pk'),
+                      UniqueConstraint('username'))
+
+
 class Teilnehmer(Base):
     __tablename__ = 'teilnehmer'
     id = Column(Integer)

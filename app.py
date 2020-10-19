@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import json
 import locale
 from typing import List, Union, Dict, Tuple
 
@@ -13,7 +12,7 @@ from dash.dependencies import Input, Output, State
 from schafkopf.backend.calculator import RufspielCalculator, SoloCalculator, HochzeitCalculator, RamschCalculator
 from schafkopf.backend.configs import RufspielRawConfig, SoloRawConfig, HochzeitRawConfig, RamschRawConfig
 from schafkopf.backend.validator import RufspielValidator, SoloValidator, HochzeitValidator, RamschValidator
-from schafkopf.database.queries import get_runden
+from schafkopf.database.queries import get_runden, get_users
 from schafkopf.database.writer import RufspielWriter, SoloWriter, HochzeitWriter, RamschWriter
 from schafkopf.frontend.daten_anlegen import wrap_daten_layout
 from schafkopf.frontend.generic_objects import wrap_alert, wrap_stats_by_runde_ids, wrap_rufspiel_card, \
@@ -23,11 +22,7 @@ from schafkopf.frontend.presenter import RufspielPresenter, SoloPresenter, Hochz
 from schafkopf.frontend.spielen import wrap_spielen_layout
 from schafkopf.frontend.statistiken import wrap_statistiken_layout
 
-with open('schafkopf/auth.json') as json_file:
-    data = json.load(json_file)
-    users = data['USER']
-VALID_USERNAME_PASSWORD_PAIRS = {user['username']: user['password'] for user in users}
-
+VALID_USERNAME_PASSWORD_PAIRS = {user.username: user.password for user in get_users()}
 external_stylesheets = [dbc.themes.DARKLY]
 locale.setlocale(locale.LC_TIME, 'de_DE.utf8')
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
