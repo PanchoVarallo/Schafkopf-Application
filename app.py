@@ -17,7 +17,7 @@ from schafkopf.database.writer import RufspielWriter, SoloWriter, HochzeitWriter
 from schafkopf.frontend.daten_anlegen import wrap_daten_layout
 from schafkopf.frontend.generic_objects import wrap_alert, wrap_stats_by_runde_ids, wrap_rufspiel_card, \
     wrap_next_game_button, wrap_solo_card, wrap_hochzeit_card, \
-    wrap_ramsch_card, wrap_stats_by_teilnehmer_ids
+    wrap_ramsch_card, wrap_stats_by_teilnehmer_ids, wrap_empty_dbc_row
 from schafkopf.frontend.presenter import RufspielPresenter, SoloPresenter, HochzeitPresenter, RamschPresenter
 from schafkopf.frontend.spielen import wrap_spielen_layout
 from schafkopf.frontend.statistiken import wrap_statistiken_layout
@@ -92,7 +92,7 @@ def switch_tab(active_tab: str,
                gelegt_ausspieler_id: List[int],
                gelegt_mittelhand_id: List[int],
                gelegt_hinterhand_id: List[int],
-               gelegt_geberhand_id: List[int]) -> Tuple[dbc.Card, html.Div, html.Div, html.Div, html.Div]:
+               gelegt_geberhand_id: List[int]) -> Tuple[html.Div, html.Div, html.Div, html.Div, html.Div]:
     validation_result = _validate_teilnehmer(runde_id, geber_id,
                                              [ausspieler_id, mittelhand_id, hinterhand_id, geberhand_id])
     if validation_result is not None:
@@ -557,7 +557,7 @@ def _validate_teilnehmer(runde_id: Union[None, str], geber_id: Union[None, str],
         m.append(f'Bitte positionieren Sie den Geber eindeutig auf die Geberhand.')
     if len(m) == 0:
         return None
-    return wrap_alert(m)
+    return html.Div([wrap_empty_dbc_row(), wrap_alert(m)])
 
 
 if __name__ == '__main__':

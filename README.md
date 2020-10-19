@@ -1,12 +1,11 @@
 ToDos:
-- improve appearance with empty database ... it does not look nice at certain places
 - finish "Daten eintragen". Add database connection.
-- build recognizion of six players in the last two games (or even seven in the last 3 games)
+- build recognizion of six players in the last two games (or even seven in the last three games)
 - clean up queries.py. Many methods are not used and can be removed. Check return values.
 - refactor code. Simplify, improve, ...
 - publish on github with short docu, automatic tests (travis) and default sqlite (remove password protection)
+--------------------------------------
 - improve code structure in app.py. Generalize Input/Output/State in callbacks. 
-- add "Spitzname" to Teilnehmer. Adjust database on Heroku. Use "Spitzname" everywhere.
 - add extra tab "Falsch ausgeteilt".
 - add extra page with list of games to "deactivate" games.
 - add tests for the front end.
