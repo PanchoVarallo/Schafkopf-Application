@@ -71,7 +71,7 @@ class Runde(Base):
 class Punkteconfig(Base):
     __tablename__ = 'punkteconfig'
     id = Column(Integer, primary_key=True)
-    name = Column(String, default="sauspiel_config_plus_hochzeit", nullable=False)
+    name = Column(String, default='sauspiel_config_plus_hochzeit', nullable=False)
     ramsch = Column(Integer, default=20, nullable=False)
     rufspiel = Column(Integer, default=20, nullable=False)
     hochzeit = Column(Integer, default=30, nullable=False)

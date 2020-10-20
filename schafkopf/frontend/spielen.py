@@ -29,25 +29,25 @@ def wrap_spielen_layout():
                 dbc.ModalBody(html.Div(id='rufspiel_stats_modal_body')),
                 dbc.ModalFooter(
                     html.Div(id='rufspiel_stats_modal_close_button')
-                ), ], id='rufspiel_spielstand_modal', size="xl", scrollable=True),
+                ), ], id='rufspiel_spielstand_modal', size='xl', scrollable=True),
             dbc.Modal([
                 dbc.ModalHeader(id='solo_stats_modal_header'),
                 dbc.ModalBody(html.Div(id='solo_stats_modal_body')),
                 dbc.ModalFooter(
                     html.Div(id='solo_stats_modal_close_button')
-                ), ], id='solo_spielstand_modal', size="xl", scrollable=True),
+                ), ], id='solo_spielstand_modal', size='xl', scrollable=True),
             dbc.Modal([
                 dbc.ModalHeader(id='hochzeit_stats_modal_header'),
                 dbc.ModalBody(html.Div(id='hochzeit_stats_modal_body')),
                 dbc.ModalFooter(
                     html.Div(id='hochzeit_stats_modal_close_button')
-                ), ], id='hochzeit_spielstand_modal', size="xl", scrollable=True),
+                ), ], id='hochzeit_spielstand_modal', size='xl', scrollable=True),
             dbc.Modal([
                 dbc.ModalHeader(id='ramsch_stats_modal_header'),
                 dbc.ModalBody(html.Div(id='ramsch_stats_modal_body')),
                 dbc.ModalFooter(
                     html.Div(id='ramsch_stats_modal_close_button')
-                ), ], id='ramsch_spielstand_modal', size="xl", scrollable=True),
+                ), ], id='ramsch_spielstand_modal', size='xl', scrollable=True),
         ]),
         dbc.Container([
             wrap_empty_dbc_row(),

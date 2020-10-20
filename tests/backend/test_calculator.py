@@ -270,7 +270,7 @@ def transform_dc_teilnehmer_id_to_teilnehmer_name(inputs: Dict[int, Any], teilne
 
 
 def init_in_memory_database() -> Tuple[Runde, Teilnehmer, Teilnehmer, Teilnehmer, Teilnehmer]:
-    engine = create_engine("sqlite://")
+    engine = create_engine('sqlite://')
     Base.metadata.create_all(engine)
     my_session = sessionmaker(bind=engine)
     session = my_session()
@@ -279,7 +279,7 @@ def init_in_memory_database() -> Tuple[Runde, Teilnehmer, Teilnehmer, Teilnehmer
     punkteconfig = Punkteconfig(hochzeit=20.0)
     session.add(punkteconfig)
     session.commit()
-    runde = Runde(name="Sonntagsspiel", punkteconfig_id=punkteconfig.id, ort='Nürnberg')
+    runde = Runde(name='Sonntagsspiel', punkteconfig_id=punkteconfig.id, ort='Nürnberg')
 
     spieler_1 = Teilnehmer(vorname='ansager_vorname', nachname='ansager_nachname', name=S1)
     spieler_2 = Teilnehmer(vorname='partner_vorname', nachname='partner_nachname', name=S2)

@@ -8,7 +8,7 @@ from schafkopf.utils.settings_utils import get_db, get_database_url, Database
 
 
 class Sessions:
-    if "DATABASE_URL" in os.environ:
+    if 'DATABASE_URL' in os.environ:
         # On Heroku Server for production environment
         engine = create_engine(os.environ['DATABASE_URL'], poolclass=QueuePool, pool_size=15, max_overflow=0)
     else:

@@ -29,21 +29,21 @@ def get_list_dataframe_by_einzelspiele_ids(einzelspiele_ids: List[int]) -> pd.Da
     append = pd.DataFrame({'Einzelspiele': [0] * len(unique_teilnehmer), 'Punkte': [0.0] * len(unique_teilnehmer),
                            'Teilnehmer': unique_teilnehmer})
     resultate = resultate.append(append, ignore_index=True)
-    resultate.sort_values("Einzelspiele", inplace=True)
+    resultate.sort_values('Einzelspiele', inplace=True)
     return resultate
 
 
 def get_ranking_dataframe_by_runde_ids(einzelspiele_ids: List[int]) -> pd.DataFrame:
     resultate = get_resultate_by_einzelspiele_ids(einzelspiel_ids=einzelspiele_ids, dataframe=True)
-    grouped_einzelspiele = resultate.groupby('teilnehmer_id')["einzelspiel_id"].count().to_frame()
-    grouped_resultate = resultate.groupby(["teilnehmer_id"])["punkte"].sum().to_frame()
+    grouped_einzelspiele = resultate.groupby('teilnehmer_id')['einzelspiel_id'].count().to_frame()
+    grouped_resultate = resultate.groupby(['teilnehmer_id'])['punkte'].sum().to_frame()
     grouped = pd.concat([grouped_einzelspiele, grouped_resultate], axis=1, join='inner')
     teilnehmer = get_teilnehmer(dataframe=True)
-    teilnehmer.set_index(["id"], inplace=True)
+    teilnehmer.set_index(['id'], inplace=True)
     result_df = pd.concat([teilnehmer, grouped], axis=1, join='inner')
-    result_df.sort_values(["punkte"], ascending=False, inplace=True)
-    result_df = result_df[["name", "einzelspiel_id", "punkte"]]
-    result_df.rename(inplace=True, columns={"name": "Name", "punkte": "Punktestand", "einzelspiel_id": "Einzelspiele"})
+    result_df.sort_values(['punkte'], ascending=False, inplace=True)
+    result_df = result_df[['name', 'einzelspiel_id', 'punkte']]
+    result_df.rename(inplace=True, columns={'name': 'Name', 'punkte': 'Punktestand', 'einzelspiel_id': 'Einzelspiele'})
     return result_df
 
 
@@ -128,7 +128,7 @@ def get_stats_by_einzelspiel_ids(
     ramschspieler_verloren.rename(columns={'verloren': 'Ramsch verl.'}, inplace=True)
 
     verdopplungen = get_verdopplungen_by_einzelspiel_ids(einzelspiel_ids=einzelspiel_ids, dataframe=True)
-    verdopplungen = verdopplungen.groupby(["teilnehmer_id", "doppler"])["doppler"].count().to_frame()
+    verdopplungen = verdopplungen.groupby(['teilnehmer_id', 'doppler'])['doppler'].count().to_frame()
     verdopplungen = verdopplungen.unstack()
     verdopplungen.columns = verdopplungen.columns.droplevel()
 

@@ -12,7 +12,8 @@ from dash.dependencies import Input, Output, State
 from schafkopf.backend.calculator import RufspielCalculator, SoloCalculator, HochzeitCalculator, RamschCalculator
 from schafkopf.backend.configs import RufspielRawConfig, SoloRawConfig, HochzeitRawConfig, RamschRawConfig
 from schafkopf.backend.validator import RufspielValidator, SoloValidator, HochzeitValidator, RamschValidator
-from schafkopf.database.queries import get_runden, get_users, insert_teilnehmer
+from schafkopf.database.queries import get_runden, get_users, insert_teilnehmer, insert_runde, get_teilnehmer_by_id, \
+    get_runde_by_id
 from schafkopf.database.writer import RufspielWriter, SoloWriter, HochzeitWriter, RamschWriter
 from schafkopf.frontend.generic_objects import wrap_alert, wrap_stats_by_runde_ids, wrap_rufspiel_card, \
     wrap_next_game_button, wrap_solo_card, wrap_hochzeit_card, \
@@ -37,7 +38,7 @@ app.title = 'Digitale Schafkopfliste'
 
 app.layout = html.Div([
     # represents the URL bar, doesn't render anything
-    dcc.Location(id='url', refresh=False),
+    dcc.Location(id='url', refresh=True),
 
     dbc.NavbarSimple(
         children=[
@@ -445,7 +446,9 @@ def calculate_ramsch(
      Output('create_teilnehmer_modal_body', 'children'),
      Output('create_teilnehmer_modal', 'is_open'),
      Output('create_teilnehmer_modal_open_n_clicks', 'data'),
-     Output('create_teilnehmer_modal_close_n_clicks', 'data')],
+     Output('create_teilnehmer_modal_close_n_clicks', 'data'),
+     Output('create_teilnehmer_modal_close', 'style'),
+     Output('create_teilnehmer_modal_close_reload', 'style')],
     [Input('create_teilnehmer_modal_open', 'n_clicks'),
      Input('create_teilnehmer_modal_close', 'n_clicks')],
     [State('create_teilnehmer_modal_open_n_clicks', 'data'),
@@ -461,27 +464,86 @@ def create_teilnehmer(
         create_teilnehmer_modal_close_n_clicks: Dict,
         create_teilnehmer_modal: bool,
         teilnehmer_vorname: Union[None, str],
-        teilnehmer_nachname: Union[None, str]) -> Tuple[html.Div, html.Div, bool, Dict, Dict]:
+        teilnehmer_nachname: Union[None, str]) -> Tuple[html.Div, html.Div, bool, Dict, Dict, Dict, Dict]:
     create_teilnehmer_modal_open = 0 if create_teilnehmer_modal_open is None else create_teilnehmer_modal_open
     create_teilnehmer_modal_close = 0 if create_teilnehmer_modal_close is None else create_teilnehmer_modal_close
     if create_teilnehmer_modal_open == 0 and create_teilnehmer_modal_close == 0:
         return html.Div(), html.Div(), create_teilnehmer_modal, {'clicks': create_teilnehmer_modal_open}, \
-               {'clicks': create_teilnehmer_modal_close}
+               {'clicks': create_teilnehmer_modal_close}, dict(), dict()
     if create_teilnehmer_modal_open > create_teilnehmer_modal_open_n_clicks['clicks']:
-        teilnehmer, msgs = insert_teilnehmer(vorname=teilnehmer_vorname, nachname=teilnehmer_nachname)
-        if teilnehmer is not None:
+        teilnehmer_id, msgs = insert_teilnehmer(vorname=teilnehmer_vorname, nachname=teilnehmer_nachname)
+        if teilnehmer_id is not None:
+            teilnehmer = get_teilnehmer_by_id(teilnehmer_id)
             header, body = html.Div('Teilnehmer wurde erfolgreich angelegt'), \
-                           html.Div(wrap_alert([f'{teilnehmer_nachname}, {teilnehmer_vorname} erfolgreich angelegt.'],
+                           html.Div(wrap_alert([f'{teilnehmer.nachname}, {teilnehmer.vorname} erfolgreich angelegt.'],
                                                color='success', xl=12))
+            close_button, close_button_reload = dict(display='none'), dict()
         else:
             header, body = html.Div('Teilnehmer wurde nicht angelegt'), html.Div(
                 wrap_alert(msgs, color='danger', xl=12))
+            close_button, close_button_reload = dict(), dict(display='none')
     elif create_teilnehmer_modal_close > create_teilnehmer_modal_close_n_clicks['clicks']:
         header, body = html.Div(), html.Div()
+        close_button, close_button_reload = dict(), dict()
     else:
         header, body = html.Div(), html.Div()
+        close_button, close_button_reload = dict(), dict()
     return header, body, not create_teilnehmer_modal, {'clicks': create_teilnehmer_modal_open}, \
-           {'clicks': create_teilnehmer_modal_close}
+           {'clicks': create_teilnehmer_modal_close}, close_button, close_button_reload
+
+
+@app.callback(
+    [Output('create_runde_modal_header', 'children'),
+     Output('create_runde_modal_body', 'children'),
+     Output('create_runde_modal', 'is_open'),
+     Output('create_runde_modal_open_n_clicks', 'data'),
+     Output('create_runde_modal_close_n_clicks', 'data'),
+     Output('create_runde_modal_close', 'style'),
+     Output('create_runde_modal_close_reload', 'style')],
+    [Input('create_runde_modal_open', 'n_clicks'),
+     Input('create_runde_modal_close', 'n_clicks')],
+    [State('create_runde_modal_open_n_clicks', 'data'),
+     State('create_runde_modal_close_n_clicks', 'data'),
+     State('create_runde_modal', 'is_open'),
+     State('runde_new_name', 'value'),
+     State('runde_new_ort', 'value'),
+     State('runde_new_date', 'value'),
+     ])
+def create_runde(
+        create_runde_modal_open: Union[None, int],
+        create_runde_modal_close: Union[None, int],
+        create_runde_modal_open_n_clicks: Dict,
+        create_runde_modal_close_n_clicks: Dict,
+        create_runde_modal: bool,
+        runde_new_name: Union[None, str],
+        runde_new_ort: Union[None, str],
+        runde_new_date: Union[None, str]) -> Tuple[html.Div, html.Div, bool, Dict, Dict, Dict, Dict]:
+    create_runde_modal_open = 0 if create_runde_modal_open is None else create_runde_modal_open
+    create_runde_modal_close = 0 if create_runde_modal_close is None else create_runde_modal_close
+    if create_runde_modal_open == 0 and create_runde_modal_close == 0:
+        return html.Div(), html.Div(), create_runde_modal, {'clicks': create_runde_modal_open}, \
+               {'clicks': create_runde_modal_close}, dict(), dict()
+    if create_runde_modal_open > create_runde_modal_open_n_clicks['clicks']:
+        runde_id, msgs = insert_runde(datum=runde_new_date, name=runde_new_name, ort=runde_new_ort)
+        if runde_id is not None:
+            runde = get_runde_by_id(runde_id)
+            runde_string = f'{runde.datum.strftime("%d. %b %Y")} - {runde.name} - {runde.ort}'
+            header, body = html.Div(f'Runde wurde erfolgreich angelegt'), \
+                           html.Div(wrap_alert([f'Runde "{runde_string}" erfolgreich angelegt.'],
+                                               color='success', xl=12))
+            close_button, close_button_reload = dict(display='none'), dict()
+        else:
+            header, body = html.Div('Runde wurde nicht angelegt'), html.Div(
+                wrap_alert(msgs, color='danger', xl=12))
+            close_button, close_button_reload = dict(), dict(display='none'),
+    elif create_runde_modal_close > create_runde_modal_close_n_clicks['clicks']:
+        header, body = html.Div(), html.Div()
+        close_button, close_button_reload = dict(), dict()
+    else:
+        header, body = html.Div(), html.Div()
+        close_button, close_button_reload = dict(), dict()
+    return header, body, not create_runde_modal, {'clicks': create_runde_modal_open}, \
+           {'clicks': create_runde_modal_close}, close_button, close_button_reload
 
 
 @app.callback(

@@ -66,6 +66,16 @@ def get_teilnehmer_vorname_by_id(teilnehmer_id: Union[None, int], session: sessi
     return teilnehmer.vorname
 
 
+def get_runde_by_id(runde_id: Union[None, int], session: sessionmaker() = None) -> Union[None, Runde]:
+    actual_session = _build_session(session)
+    if runde_id is None:
+        _close_session(actual_session, session)
+        return None
+    runde = actual_session.query(Runde).filter(Runde.id == runde_id).all()
+    _close_session(actual_session, session)
+    return runde[0]
+
+
 def get_runden(active: bool = True, dataframe: bool = False,
                session: sessionmaker() = None) -> Union[List[Runde], pd.DataFrame]:
     actual_session = _build_session(session)
@@ -135,11 +145,10 @@ def insert_resultat(teilnehmer_id: int,
     return resultat
 
 
-def get_punkteconfigs(dataframe: bool = False,
-                      session: sessionmaker() = None) -> Union[List[Punkteconfig], pd.DataFrame]:
+def get_default_punkteconfig(session: sessionmaker() = None) -> Punkteconfig:
     actual_session = Sessions.get_session() if session is None else session
-    query = actual_session.query(Punkteconfig)
-    punkteconfig = query.all() if not dataframe else pd.read_sql(query.statement, actual_session.bind)
+    query = actual_session.query(Punkteconfig).filter(Punkteconfig.name == 'sauspiel_config_plus_hochzeit')
+    punkteconfig = query.all()[0]
     _close_session(actual_session, session)
     return punkteconfig
 
@@ -321,7 +330,7 @@ def insert_einzelspiel(runde_id: int, ansager_id: Union[None, int], geber_id: in
 
 
 def insert_teilnehmer(vorname: str, nachname: str,
-                      session: sessionmaker() = None) -> Tuple[Optional[Teilnehmer], List[str]]:
+                      session: sessionmaker() = None) -> Tuple[Optional[int], List[str]]:
     actual_session = _build_session(session)
     vorname = '' if vorname is None else vorname.strip()
     nachname = '' if nachname is None else nachname.strip()
@@ -333,14 +342,16 @@ def insert_teilnehmer(vorname: str, nachname: str,
     if nachname == '':
         validation_messages.append(f'Ein leerer Nachname ist nicht erlaubt.')
     if len(validation_messages) > 0:
+        _close_session(actual_session, session)
         return None, validation_messages
     teilnehmer = Teilnehmer(name=f'{nachname}, {vorname}', vorname=vorname, nachname=nachname)
     actual_session.add(teilnehmer)
     actual_session.flush()
+    teilnehmer_id = teilnehmer.id
     if session is None:
         actual_session.commit()
         actual_session.close()
-    return teilnehmer, []
+    return teilnehmer_id, []
 
 
 def insert_default_punkteconfig(session: sessionmaker() = None) -> Punkteconfig:
@@ -365,15 +376,30 @@ def insert_user(username: str, password: str, session: sessionmaker() = None) ->
     return user
 
 
-def insert_runde(datum: datetime, name: str, ort: str, punkteconfig_id: int, session: sessionmaker() = None) -> Runde:
+def insert_runde(datum: str, name: str, ort: str, session: sessionmaker() = None) -> Tuple[Optional[int], List[str]]:
     actual_session = _build_session(session)
-    runde = Runde(datum=datum, name=name, ort=ort, punkteconfig_id=punkteconfig_id)
+    punkteconfig = get_default_punkteconfig(actual_session)
+    name = '' if name is None else name.strip()
+    ort = '' if ort is None else ort.strip()
+    validation_messages = []
+    if name == '':
+        validation_messages.append(f'Ein leerer Name ist nicht erlaubt.')
+    if ort == '':
+        validation_messages.append(f'Ein leerer Ort ist nicht erlaubt.')
+    if datum == '':
+        validation_messages.append('Bitte gültiges Datum angeben.')
+    if len(validation_messages) > 0:
+        _close_session(actual_session, session)
+        return None, validation_messages
+    datum = datetime.datetime.strptime(datum, '%Y-%m-%d')
+    runde = Runde(datum=datum, name=name, ort=ort, punkteconfig_id=punkteconfig.id)
     actual_session.add(runde)
     actual_session.flush()
+    runde_id = runde.id
     if session is None:
         actual_session.commit()
         actual_session.close()
-    return runde
+    return runde_id, []
 
 
 def insert_verdopplung(teilnehmer_id: int, einzelspiel_id: int, doppler: str,

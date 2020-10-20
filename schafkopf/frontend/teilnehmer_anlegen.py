@@ -1,3 +1,5 @@
+import pathlib
+
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
@@ -6,15 +8,18 @@ from schafkopf.frontend.generic_objects import wrap_empty_dbc_row, wrap_footer_r
 
 
 def wrap_teilnehmer_anlegen_layout():
+    current = pathlib.Path(__file__).name.split('.')[0]
     return html.Div([
         dcc.Store(id='create_teilnehmer_modal_open_n_clicks', data={'n_clicks': 0}),
         dcc.Store(id='create_teilnehmer_modal_close_n_clicks', data={'n_clicks': 0}),
         dbc.Modal([
             dbc.ModalHeader(id='create_teilnehmer_modal_header'),
             dbc.ModalBody(html.Div(id='create_teilnehmer_modal_body')),
-            dbc.ModalFooter(
-                dbc.Button('Schließen', id='create_teilnehmer_modal_close', color='primary', block=True)
-            ), ], id='create_teilnehmer_modal', size="xl", scrollable=True),
+            dbc.ModalFooter([
+                dbc.Button('Schließen', id='create_teilnehmer_modal_close', color='primary', block=True),
+                dbc.Button('Schließen', id='create_teilnehmer_modal_close_reload', color='primary', block=True,
+                           href=f'/{current}', external_link=True)]
+            ), ], id='create_teilnehmer_modal', size='xl', scrollable=True),
         dbc.Container([
             wrap_empty_dbc_row(),
             dbc.Row([

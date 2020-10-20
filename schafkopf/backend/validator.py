@@ -208,12 +208,12 @@ class SoloValidator(NormalspielValidator):
                     m.append(f'Nicht-Spieler darf nicht Re geben. Momentan: '
                              f'{get_teilnehmer_vorname_by_id(nicht_spieler[0])}.')
         if tout_gespielt_gewonnen and tout_gespielt_verloren:
-            m.append("Ein Tout kann nur gewonnen oder verloren werden. Bitte maximal einen Ausgang des Touts auswählen")
+            m.append('Ein Tout kann nur gewonnen oder verloren werden. Bitte maximal einen Ausgang des Touts auswählen')
 
         tout_gespielt = True if ((tout_gespielt_gewonnen is True and tout_gespielt_verloren is False) or (
                 tout_gespielt_gewonnen is False and tout_gespielt_verloren is True)) else False
         if tout_gespielt and schwarz:
-            m.append("Ein Tout Spiel kann nicht mit Schwarz gekennzeichnet werden.")
+            m.append('Ein Tout Spiel kann nicht mit Schwarz gekennzeichnet werden.')
 
         if augen is None:
             m.append(f'Ungültige Augen angegeben. Bitte eine Zahl von 0 - 120 angeben.')
@@ -359,13 +359,13 @@ class RamschValidator(Validator):
                     falsche_jungfrauen = [augen_teilnehmer[1] for augen_teilnehmer in augen_teilnehmers if
                                           augen_teilnehmer[0] > 0 and augen_teilnehmer[1] in jungfrau_ids]
                     if len(falsche_jungfrauen) > 0:
-                        falsche_jungfrauen = "; ".join([get_teilnehmer_vorname_by_id(falsche_jungfrau) for
+                        falsche_jungfrauen = '; '.join([get_teilnehmer_vorname_by_id(falsche_jungfrau) for
                                                         falsche_jungfrau in falsche_jungfrauen])
                         m.append(f'Jungfrau darf nicht mehr als 0 Augen haben. Momentan: {falsche_jungfrauen}')
                 else:
                     durchmarsch_id = augen_teilnehmers_mit_max_augen[0][1]
                     if len(jungfrau_ids) > 0:
-                        falsche_jungfrauen = "; ".join([get_teilnehmer_vorname_by_id(jungfrau_id) for
+                        falsche_jungfrauen = '; '.join([get_teilnehmer_vorname_by_id(jungfrau_id) for
                                                         jungfrau_id in jungfrau_ids])
                         m.append(
                             f'Bei einem Durchmarsch darf es keine Jungfrauen geben. Momentan: {falsche_jungfrauen}')
@@ -381,9 +381,9 @@ class RamschValidator(Validator):
                             m.append(f'{max_augen_teilnehmer} hat mit {max_augen} Augen eindeutig verloren. Verlierer '
                                      f'darf nicht manuell angegeben werden.')
                 elif len(augen_teilnehmers_mit_max_augen) > 1:
-                    reale_verlierer = "; ".join([get_teilnehmer_vorname_by_id(augen_teilnehmer[1]) for
+                    reale_verlierer = '; '.join([get_teilnehmer_vorname_by_id(augen_teilnehmer[1]) for
                                                  augen_teilnehmer in augen_teilnehmers_mit_max_augen])
-                    manuelle_verlierer = "; ".join([get_teilnehmer_vorname_by_id(v) for v in manuelle_verlierer_ids])
+                    manuelle_verlierer = '; '.join([get_teilnehmer_vorname_by_id(v) for v in manuelle_verlierer_ids])
                     if len(manuelle_verlierer_ids) == 0:
                         m.append(f'Bei Augengleichheit muss ein manueller Verlierer gewählt werden. Manuellen '
                                  f'Verlierer aus folgenden Teilnehmern wählen: {reale_verlierer}')

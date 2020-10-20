@@ -35,19 +35,19 @@ def wrap_statistiken_layout():
                 dbc.ModalBody(html.Div(id='stats_teilnehmer_modal_body')),
                 dbc.ModalFooter(
                     dbc.Button('Schließen', id='stats_teilnehmer_modal_close', color='primary', block=True)
-                ), ], id='stats_teilnehmer_modal', size="xl", scrollable=True),
+                ), ], id='stats_teilnehmer_modal', size='xl', scrollable=True),
             dbc.Modal([
                 dbc.ModalHeader(id='stats_runden_modal_header'),
                 dbc.ModalBody(html.Div(id='stats_runden_modal_body')),
                 dbc.ModalFooter(
                     dbc.Button('Schließen', id='stats_runden_modal_close', color='primary', block=True)
-                ), ], id='stats_runden_modal', size="xl", scrollable=True),
+                ), ], id='stats_runden_modal', size='xl', scrollable=True),
             dbc.Modal([
                 dbc.ModalHeader(id='stats_all_modal_header'),
                 dbc.ModalBody(html.Div(id='stats_all_modal_body')),
                 dbc.ModalFooter(
                     dbc.Button('Schließen', id='stats_all_modal_close', color='primary', block=True)
-                ), ], id='stats_all_modal', size="xl", scrollable=True),
+                ), ], id='stats_all_modal', size='xl', scrollable=True),
         ]),
         dbc.Container([
             wrap_empty_dbc_row(),

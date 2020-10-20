@@ -1,5 +1,4 @@
 ToDos:
-- finish "Daten eintragen". Add database connection.
 - build recognizion of six players in the last two games (or even seven in the last three games)
 - clean up queries.py. Many methods are not used and can be removed. Check return values.
 - refactor code. Simplify, improve, ...

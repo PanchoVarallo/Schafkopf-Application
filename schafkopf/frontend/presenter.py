@@ -66,7 +66,7 @@ class NormalspielPresenter(Presenter):
             r.append(wrap_html_tr(['Kontriert', get_teilnehmer_name_by_id(config.kontriert_id), f'x2']))
         if config.re_id is not None and config.re_id > 0:
             r.append(wrap_html_tr(['Re', get_teilnehmer_name_by_id(config.re_id), f'x2']))
-        r.append(wrap_html_tr(["Summe", '', html.B(f'{int(calculator.get_spielpunkte())}')]))
+        r.append(wrap_html_tr(['Summe', '', html.B(f'{int(calculator.get_spielpunkte())}')]))
 
     @abstractmethod
     def _get_result_body(self) -> html.Tbody:
@@ -81,7 +81,7 @@ class RufspielHochzeitPresenter(NormalspielPresenter):
     def _get_result_body(self) -> html.Tbody:
         calculator = self._calculator
         config = calculator.config
-        result_points = [wrap_html_tr(["Grundpunkte", "", f'{self._get_punkte_from_punkteconfig()}'])]
+        result_points = [wrap_html_tr(['Grundpunkte', '', f'{self._get_punkte_from_punkteconfig()}'])]
         self._add_result_points_details(calculator, config, result_points)
         return wrap_html_tbody(result_points)
 
@@ -108,7 +108,7 @@ class SoloPresenter(NormalspielPresenter):
     def _get_result_body(self) -> html.Tbody:
         calculator = self._calculator
         config = calculator.config
-        result_points = [wrap_html_tr(["Grundpunkte", "", f'{config.punkteconfig.solo}'])]
+        result_points = [wrap_html_tr(['Grundpunkte', '', f'{config.punkteconfig.solo}'])]
         self._add_result_points_details(calculator, config, result_points)
         # Add Tout Line
         if config.tout_gespielt_gewonnen or config.tout_gespielt_verloren:
@@ -140,12 +140,12 @@ class RamschPresenter(Presenter):
         if len(config.jungfrau_ids) > 0:
             teilnehmer_jungfrau_ids = [get_teilnehmer_name_by_id(s) for s in config.jungfrau_ids]
             r.append(wrap_html_tr(['Gelegt', '; '.join(teilnehmer_jungfrau_ids), f'x{2 ** len(config.jungfrau_ids)}']))
-        r.append(wrap_html_tr(["Summe", '', html.B(f'{int(calculator.get_spielpunkte())}')]))
+        r.append(wrap_html_tr(['Summe', '', html.B(f'{int(calculator.get_spielpunkte())}')]))
 
     def _get_result_body(self) -> html.Tbody:
         calculator = self._calculator
         config = calculator.config
-        result_points = [wrap_html_tr(["Grundpunkte", "", f'{self._get_punkte_from_punkteconfig()}'])]
+        result_points = [wrap_html_tr(['Grundpunkte', '', f'{self._get_punkte_from_punkteconfig()}'])]
         self._add_result_points_details(calculator, config, result_points)
         return wrap_html_tbody(result_points)
 
