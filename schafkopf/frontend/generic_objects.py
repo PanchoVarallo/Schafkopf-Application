@@ -199,8 +199,8 @@ def wrap_dataframe_table_div(dataframe: pd.DataFrame) -> html.Div:
     return html.Div([dbc.Table.from_dataframe(dataframe, striped=True, bordered=True, hover=True)])
 
 
-def wrap_alert(messages: List[str]) -> dbc.Row:
-    return dbc.Row([dbc.Col([html.Div(dbc.Alert(m, color='info'))], xl=6, xs=12) for m in messages])
+def wrap_alert(messages: List[str], color: str = 'info', xl: int = 6, xs: int = 12) -> dbc.Row:
+    return dbc.Row([dbc.Col([html.Div(dbc.Alert(m, color=color))], xl=xl, xs=xs) for m in messages])
 
 
 def wrap_stats_by_teilnehmer_ids(teilnehmer_ids: Union[None, List[str]],

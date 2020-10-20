@@ -12,15 +12,17 @@ from dash.dependencies import Input, Output, State
 from schafkopf.backend.calculator import RufspielCalculator, SoloCalculator, HochzeitCalculator, RamschCalculator
 from schafkopf.backend.configs import RufspielRawConfig, SoloRawConfig, HochzeitRawConfig, RamschRawConfig
 from schafkopf.backend.validator import RufspielValidator, SoloValidator, HochzeitValidator, RamschValidator
-from schafkopf.database.queries import get_runden, get_users
+from schafkopf.database.queries import get_runden, get_users, insert_teilnehmer
 from schafkopf.database.writer import RufspielWriter, SoloWriter, HochzeitWriter, RamschWriter
-from schafkopf.frontend.daten_anlegen import wrap_daten_layout
 from schafkopf.frontend.generic_objects import wrap_alert, wrap_stats_by_runde_ids, wrap_rufspiel_card, \
     wrap_next_game_button, wrap_solo_card, wrap_hochzeit_card, \
     wrap_ramsch_card, wrap_stats_by_teilnehmer_ids, wrap_empty_dbc_row
 from schafkopf.frontend.presenter import RufspielPresenter, SoloPresenter, HochzeitPresenter, RamschPresenter
+from schafkopf.frontend.runde_anlegen import wrap_runde_anlegen_layout
+from schafkopf.frontend.spiele_loeschen import wrap_spiele_loeschen_layout
 from schafkopf.frontend.spielen import wrap_spielen_layout
 from schafkopf.frontend.statistiken import wrap_statistiken_layout
+from schafkopf.frontend.teilnehmer_anlegen import wrap_teilnehmer_anlegen_layout
 
 VALID_USERNAME_PASSWORD_PAIRS = {user.username: user.password for user in get_users()}
 external_stylesheets = [dbc.themes.DARKLY]
@@ -39,13 +41,24 @@ app.layout = html.Div([
 
     dbc.NavbarSimple(
         children=[
-            dbc.NavItem(dbc.NavLink("Spielen", href="/spielen")),
-            dbc.NavItem(dbc.NavLink("Statistiken", href="/statistiken")),
-            dbc.NavItem(dbc.NavLink("Daten anlegen", href="/daten_anlegen")),
+            dbc.NavItem(dbc.NavLink('Spielen', href='/spielen', external_link=True)),
+            dbc.NavItem(dbc.NavLink('Statistiken', href='/statistiken', external_link=True)),
+            dbc.DropdownMenu(
+                children=[
+                    dbc.DropdownMenuItem('Konfiguration', header=True),
+                    dbc.DropdownMenuItem('Runde anlegen', href='runde_anlegen', external_link=True),
+                    dbc.DropdownMenuItem('Teilnehmer anlegen', href='teilnehmer_anlegen', external_link=True),
+                    dbc.DropdownMenuItem('Spiele löschen', href='spiele_loeschen', disabled=True, external_link=True),
+                ],
+                nav=True,
+                in_navbar=True,
+                label='Konfiguration',
+            ),
         ],
-        brand="Digitale Schafkopfliste",
-        brand_href="/spielen",
-        color="primary",
+        brand='Digitale Schafkopfliste',
+        brand_external_link=True,
+        brand_href='/spielen',
+        color='primary',
         dark=True,
     ),
 
@@ -56,12 +69,16 @@ app.layout = html.Div([
 
 @app.callback(Output('page-content', 'children'), [Input('url', 'pathname')])
 def display_page(pathname: str):
-    if pathname == "/spielen":
+    if pathname == '/spielen':
         return wrap_spielen_layout()
-    elif pathname == "/statistiken":
+    elif pathname == '/statistiken':
         return wrap_statistiken_layout()
-    elif pathname == "/daten_anlegen":
-        return wrap_daten_layout()
+    elif pathname == '/runde_anlegen':
+        return wrap_runde_anlegen_layout()
+    elif pathname == '/teilnehmer_anlegen':
+        return wrap_teilnehmer_anlegen_layout()
+    elif pathname == '/spiele_loeschen':
+        return wrap_spiele_loeschen_layout()
     else:
         return wrap_spielen_layout()
 
@@ -423,19 +440,48 @@ def calculate_ramsch(
         return result, dict(), html.Div(), html.Div(), False
 
 
-def _get_gelegt_ids(ausspieler_id: Union[None, str], mittelhand_id: Union[None, str], hinterhand_id: Union[None, str],
-                    geberhand_id: Union[None, str], gelegt_ausspieler_id: List[int], gelegt_mittelhand_id: List[int],
-                    gelegt_hinterhand_id: List[int], gelegt_geberhand_id: List[int]) -> List[int]:
-    gelegt_ids = []
-    if len(gelegt_ausspieler_id) == 1:
-        gelegt_ids.append(int(ausspieler_id))
-    if len(gelegt_mittelhand_id) == 1:
-        gelegt_ids.append(int(mittelhand_id))
-    if len(gelegt_hinterhand_id) == 1:
-        gelegt_ids.append(int(hinterhand_id))
-    if len(gelegt_geberhand_id) == 1:
-        gelegt_ids.append(int(geberhand_id))
-    return gelegt_ids
+@app.callback(
+    [Output('create_teilnehmer_modal_header', 'children'),
+     Output('create_teilnehmer_modal_body', 'children'),
+     Output('create_teilnehmer_modal', 'is_open'),
+     Output('create_teilnehmer_modal_open_n_clicks', 'data'),
+     Output('create_teilnehmer_modal_close_n_clicks', 'data')],
+    [Input('create_teilnehmer_modal_open', 'n_clicks'),
+     Input('create_teilnehmer_modal_close', 'n_clicks')],
+    [State('create_teilnehmer_modal_open_n_clicks', 'data'),
+     State('create_teilnehmer_modal_close_n_clicks', 'data'),
+     State('create_teilnehmer_modal', 'is_open'),
+     State('teilnehmer_new_vorname', 'value'),
+     State('teilnehmer_new_nachname', 'value'),
+     ])
+def create_teilnehmer(
+        create_teilnehmer_modal_open: Union[None, int],
+        create_teilnehmer_modal_close: Union[None, int],
+        create_teilnehmer_modal_open_n_clicks: Dict,
+        create_teilnehmer_modal_close_n_clicks: Dict,
+        create_teilnehmer_modal: bool,
+        teilnehmer_vorname: Union[None, str],
+        teilnehmer_nachname: Union[None, str]) -> Tuple[html.Div, html.Div, bool, Dict, Dict]:
+    create_teilnehmer_modal_open = 0 if create_teilnehmer_modal_open is None else create_teilnehmer_modal_open
+    create_teilnehmer_modal_close = 0 if create_teilnehmer_modal_close is None else create_teilnehmer_modal_close
+    if create_teilnehmer_modal_open == 0 and create_teilnehmer_modal_close == 0:
+        return html.Div(), html.Div(), create_teilnehmer_modal, {'clicks': create_teilnehmer_modal_open}, \
+               {'clicks': create_teilnehmer_modal_close}
+    if create_teilnehmer_modal_open > create_teilnehmer_modal_open_n_clicks['clicks']:
+        teilnehmer, msgs = insert_teilnehmer(vorname=teilnehmer_vorname, nachname=teilnehmer_nachname)
+        if teilnehmer is not None:
+            header, body = html.Div('Teilnehmer wurde erfolgreich angelegt'), \
+                           html.Div(wrap_alert([f'{teilnehmer_nachname}, {teilnehmer_vorname} erfolgreich angelegt.'],
+                                               color='success', xl=12))
+        else:
+            header, body = html.Div('Teilnehmer wurde nicht angelegt'), html.Div(
+                wrap_alert(msgs, color='danger', xl=12))
+    elif create_teilnehmer_modal_close > create_teilnehmer_modal_close_n_clicks['clicks']:
+        header, body = html.Div(), html.Div()
+    else:
+        header, body = html.Div(), html.Div()
+    return header, body, not create_teilnehmer_modal, {'clicks': create_teilnehmer_modal_open}, \
+           {'clicks': create_teilnehmer_modal_close}
 
 
 @app.callback(
@@ -538,6 +584,21 @@ def show_stats_all(stats_all_modal_open: Union[None, int],
     else:
         header, body = html.Div(), html.Div()
     return header, body, not stats_all_modal, {'clicks': stats_all_modal_open}, {'clicks': stats_all_modal_close}
+
+
+def _get_gelegt_ids(ausspieler_id: Union[None, str], mittelhand_id: Union[None, str], hinterhand_id: Union[None, str],
+                    geberhand_id: Union[None, str], gelegt_ausspieler_id: List[int], gelegt_mittelhand_id: List[int],
+                    gelegt_hinterhand_id: List[int], gelegt_geberhand_id: List[int]) -> List[int]:
+    gelegt_ids = []
+    if len(gelegt_ausspieler_id) == 1:
+        gelegt_ids.append(int(ausspieler_id))
+    if len(gelegt_mittelhand_id) == 1:
+        gelegt_ids.append(int(mittelhand_id))
+    if len(gelegt_hinterhand_id) == 1:
+        gelegt_ids.append(int(hinterhand_id))
+    if len(gelegt_geberhand_id) == 1:
+        gelegt_ids.append(int(geberhand_id))
+    return gelegt_ids
 
 
 def _validate_teilnehmer(runde_id: Union[None, str], geber_id: Union[None, str],

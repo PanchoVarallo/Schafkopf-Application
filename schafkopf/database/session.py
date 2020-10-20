@@ -4,7 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool, QueuePool
 
-from schafkopf.utils.utils import get_db, get_database_url, Database
+from schafkopf.utils.settings_utils import get_db, get_database_url, Database
 
 
 class Sessions:

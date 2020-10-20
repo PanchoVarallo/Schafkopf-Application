@@ -1,5 +1,6 @@
 import datetime
-from typing import Union, List
+import logging
+from typing import Union, List, Optional, Tuple
 
 import pandas as pd
 from sqlalchemy import literal
@@ -7,6 +8,18 @@ from sqlalchemy.orm import sessionmaker
 
 from schafkopf.database.data_model import Teilnehmer, Runde, Punkteconfig, Einzelspiel, Resultat, Verdopplung, User
 from schafkopf.database.session import Sessions
+
+logging.getLogger().setLevel(logging.INFO)
+
+
+def get_teilnehmer_by_nachname_vorname(nachname: str, vorname: str, dataframe: bool = False,
+                                       session: sessionmaker() = None) -> Union[List[Teilnehmer], pd.DataFrame]:
+    actual_session = Sessions.get_session() if session is None else session
+    query = actual_session.query(Teilnehmer).filter(Teilnehmer.vorname == vorname) \
+        .filter(Teilnehmer.nachname == nachname)
+    teilnehmer = query.all() if not dataframe else pd.read_sql(query.statement, actual_session.bind)
+    _close_session(actual_session, session)
+    return teilnehmer
 
 
 def get_teilnehmer(dataframe: bool = False, session: sessionmaker() = None) -> Union[List[Teilnehmer], pd.DataFrame]:
@@ -307,15 +320,27 @@ def insert_einzelspiel(runde_id: int, ansager_id: Union[None, int], geber_id: in
     return einzelspiel
 
 
-def insert_teilnehmer(vorname: str, nachname: str, session: sessionmaker() = None) -> Teilnehmer:
+def insert_teilnehmer(vorname: str, nachname: str,
+                      session: sessionmaker() = None) -> Tuple[Optional[Teilnehmer], List[str]]:
     actual_session = _build_session(session)
+    vorname = '' if vorname is None else vorname.strip()
+    nachname = '' if nachname is None else nachname.strip()
+    validation_messages = []
+    if len(get_teilnehmer_by_nachname_vorname(nachname=nachname, vorname=vorname, session=actual_session)) > 0:
+        validation_messages.append(f'{nachname}, {vorname} existiert bereits.')
+    if vorname == '':
+        validation_messages.append(f'Ein leerer Vorname ist nicht erlaubt.')
+    if nachname == '':
+        validation_messages.append(f'Ein leerer Nachname ist nicht erlaubt.')
+    if len(validation_messages) > 0:
+        return None, validation_messages
     teilnehmer = Teilnehmer(name=f'{nachname}, {vorname}', vorname=vorname, nachname=nachname)
     actual_session.add(teilnehmer)
     actual_session.flush()
     if session is None:
         actual_session.commit()
         actual_session.close()
-    return teilnehmer
+    return teilnehmer, []
 
 
 def insert_default_punkteconfig(session: sessionmaker() = None) -> Punkteconfig:
