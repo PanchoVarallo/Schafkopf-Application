@@ -11,6 +11,8 @@ from schafkopf.frontend.generic_objects import wrap_empty_dbc_row, wrap_footer_r
 
 def wrap_runde_anlegen_layout():
     current = pathlib.Path(__file__).name.split('.')[0]
+    namen = get_runden(dataframe=True).sort_values("name")["name"].unique().tolist()
+    orte = get_runden(dataframe=True).sort_values("ort")["ort"].unique().tolist()
     return html.Div([
         dcc.Store(id='create_runde_modal_open_n_clicks', data={'n_clicks': 0}),
         dcc.Store(id='create_runde_modal_close_n_clicks', data={'n_clicks': 0}),
@@ -28,8 +30,7 @@ def wrap_runde_anlegen_layout():
                 dbc.Col([
                     html.Div(html.H5('Runde anlegen'))
                 ])], justify='start'),
-            html.Datalist(id='name_list', children=[html.Option(value=name)
-                                                    for name in get_runden(dataframe=True)['name'].unique().tolist()]),
+            html.Datalist(id='name_list', children=[html.Option(value=name) for name in namen]),
             dbc.Row([
                 dbc.Col([
                     dbc.FormGroup(
@@ -40,8 +41,7 @@ def wrap_runde_anlegen_layout():
                     )
                 ], xl=6, xs=12),
             ]),
-            html.Datalist(id='ort_list', children=[html.Option(value=ort)
-                                                   for ort in get_runden(dataframe=True)['ort'].unique().tolist()]),
+            html.Datalist(id='ort_list', children=[html.Option(value=ort) for ort in orte]),
             dbc.Row([
                 dbc.Col([
                     dbc.FormGroup(
