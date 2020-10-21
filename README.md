@@ -1,13 +1,12 @@
 ToDos:
+- add a Dashboard where we select "Runde" and get "Einzelspiele" with time tag. Now we can see the details of the game
+  and delete Einzelspiele (exact desgin has to be invented)
+- "Punkteconfig" bei insert_runde(...) einbauen. Namen des default "Punkteconfig" auf "default" ändern.
 - build recognizion of six players in the last two games (or even seven in the last three games)
-- clean up queries.py. Many methods are not used and can be removed. Check return values.
-- refactor code. Simplify, improve, ...
 - publish on github with short docu, automatic tests (travis) and default sqlite (remove password protection)
---------------------------------------
-- improve code structure in app.py. Generalize Input/Output/State in callbacks. 
-- add extra tab "Falsch ausgeteilt".
-- add extra page with list of games to "deactivate" games.
-- add tests for the front end.
+ 
+ 
+ In die Dokumentation:
  
  Hilfreiche Websites beim Projekt:
  - Schema definition with alchemy: https://overiq.com/sqlalchemy-101/defining-schema-in-sqlalchemy-orm/
