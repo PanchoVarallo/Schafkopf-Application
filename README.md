@@ -1,5 +1,5 @@
 # Schafkopf-Application
-[![Build Status](https://travis-ci.com/PanchoVarallo/Schafkopf-Application.svg?branch=master)](https://travis-ci.org/PanchoVarallo/Schafkopf-Application)
+[![Build Status](https://travis-ci.com/PanchoVarallo/Schafkopf-Application.svg?branch=master)](https://travis-ci.com/github/PanchoVarallo/Schafkopf-Application)
 [![codecov](https://codecov.io/gh/PanchoVarallo/Schafkopf-Application/branch/master/graph/badge.svg)](https://codecov.io/gh/PanchoVarallo/Schafkopf-Application)
 
 [Schafkopf](https://en.wikipedia.org/wiki/Schafkopf) is the most popular card game in Bavaria. With this application, 
@@ -54,6 +54,6 @@ We play `Rufspiel`, `Solo`, `Ramsch`, and `Hochzeit`, which is basically the use
 in the north-eastern region of Nuremberg. The calculation is based on the rules 
 of [Sauspiel - Spielabrechnung](https://www.sauspiel.de/schafkopf-lernen/spielabrechnung).
 
-## Contributing
+## Remarks
 
 PRs accepted! Feel free to add `Farbwenz`, `Farbgeyer`, `Bettel`, or whatever you want ...
