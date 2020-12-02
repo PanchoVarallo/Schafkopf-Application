@@ -18,10 +18,13 @@ Going through these `gif` animations covers all the features of the `Schafkopf-A
 
 #### Creating a "Runde"
 MISSING
+
 #### Creating a "Teilnehmer"
 MISSING
+
 #### Playing a game
 MISSING
+
 #### Seeing graphs and stats
 MISSING
 
