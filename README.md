@@ -1,5 +1,6 @@
 # Schafkopf-Application
 [![Build Status](https://travis-ci.org/PanchoVarallo/Schafkopf-Application.svg?branch=master)](https://travis-ci.org/PanchoVarallo/Schafkopf-Application)
+[![codecov](https://codecov.io/gh/PanchoVarallo/Schafkopf-Application/branch/master/graph/badge.svg)](https://codecov.io/gh/PanchoVarallo/Schafkopf-Application)
 
 [Schafkopf](https://en.wikipedia.org/wiki/Schafkopf) is the most popular card game in Bavaria. With this application, 
 you can record results of your physical [Schafkopf](https://en.wikipedia.org/wiki/Schafkopf) round in an 
