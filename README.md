@@ -1,32 +1,60 @@
-ToDos:
-- add a Dashboard where we select "Runde" and get "Einzelspiele" with time tag. Now we can see the details of the game
-  and delete Einzelspiele (exact desgin has to be invented)
-- "Punkteconfig" bei insert_runde(...) einbauen. Namen des default "Punkteconfig" auf "default" ändern.
-- build recognizion of six players in the last two games (or even seven in the last three games)
-- publish on github with short docu, automatic tests (travis) and default sqlite (remove password protection)
- 
- 
- In die Dokumentation:
- 
- Hilfreiche Websites beim Projekt:
- - Schema definition with alchemy: https://overiq.com/sqlalchemy-101/defining-schema-in-sqlalchemy-orm/
- - Create SQLite from command line: https://stackoverflow.com/questions/20155693/create-empty-sqlite-db-from-command-line
-  
- Erklärungen zu implementierten Regeln:
-- Laufende/Schneider/Schwarz:10, Rufspiel: 20, Hochzeit:30, Solo: 50 -> Kann über Punkteconfig konfiguriert werden
-- Wenz/Geier: Ab zwei Laufenden -- Farbsolo: Ab drei Laufenden
-- Tout/Sie: Kein Schneider und kein Schwarz
-- Ramsch: 
-  - Hat ein Teilnehmer am Ende des Spiels mindestens 91 Augen, ist ihm ein Durchmarsch gelungen und er bekommt von den 
-    anderen drei Teilnehmern jeweils 50 Cent (im Tarif 10-20-50) (Leger bleiben, es gibt keine Jungfrauen)
+# Schafkopf-Application
 
-Sinnvolle Regeln für Spielablauf:
-- Kontra/Re: Bevor zweite Karte gefallen ist
-- Sechs Nixer: Es wird trotzdem gespielt
-- Unterspielen bei mindestens 4 von der Ruffarbe -> Nur beim Rauskommen. Danach frei.
-- Reihenfolge der Soli: Geyer, Wenz, Farbsolo. Bei Farbsolo: Wer früher sitzt, außer Herz Solo
-- Ramsch Punktgleichheit: 
-    Bei Punktgleichheit zählt die Anzahl der Stiche. Ist die Anzahl der Stiche ebenfalls gleich, 
-    entscheidet die Anzahl der Trümpfe in den eigenen Stichen. Und wenn auch diese noch identisch sind, verliert 
-    derjenige, der den höchsten Trumpf in seinen Stichen hat. Danach entscheidet, wer das höchste Ass hat (in der 
-    Reihenfolge Eichel, Gras, Herz, Schellen)
+[Schafkopf](https://en.wikipedia.org/wiki/Schafkopf) is the most popular card game in Bavaria. With this application, 
+you can record results of your physical [Schafkopf](https://en.wikipedia.org/wiki/Schafkopf) round in an 
+[SQLite](https://www.sqlite.org/index.html) database.  
+
+Why should I do this instead of using pen and paper? 
+- The `Schafkopf-Application` calculates the results immediately.
+- You can access wonderful graphs illustrating the results.
+- You can access comprehensive stats analyzing gaming behavior of the players.
+- You have a database with all the results for doing further analysis.
+
+## Manual
+
+Going through these `gif` animations covers all the features of the `Schafkopf-Application`.
+
+#### Creating a "Runde"
+MISSING
+#### Creating a "Teilnehmer"
+MISSING
+#### Playing a game
+MISSING
+#### Seeing graphs and stats
+MISSING
+
+## Installation
+
+The `Schafkopf-Application` was created with Python and the [Dash](https://dash.plotly.com/) framework. 
+
+### Running it locally
+
+You can run the application locally and access it via your browser:
+
+1. Clone `Schafkopf-Application` and go to the `schafkopf` directory.
+2. Create a `conda` environment and install the requirements via `sudo` and `pip`.
+```
+conda create --name schafkopf
+conda activate schafkopf
+conda install pip
+sudo apt-get install libpq-dev
+pip install -r requirements.txt
+```
+3. Define database setting in `settings.ini`. Do not change `[Database]` but adjust `username` and `password` 
+for authentication. Run `python init.py` to init the schema in the [SQLite](https://www.sqlite.org/index.html) 
+database called `schafkopf.db`.
+4. Start the application with 
+```
+python -m app
+```
+5. Go to a browser and type in `http://127.0.0.1:8050/`. You will be asked for `username` and `password` and that's it.
+
+### Implemented rules
+
+We play `Rufspiel`, `Solo`, `Ramsch`, and `Hochzeit`, which is basically the used configuration in the small villages 
+in the north-eastern region of Nuremberg. The calculation is based on the rules 
+of [Sauspiel - Spielabrechnung](https://www.sauspiel.de/schafkopf-lernen/spielabrechnung).
+
+### Contributing
+
+PRs accepted! Feel free to add `Farbwenz`, `Farbgeyer`, `Bettel`, or whatever you want ...
