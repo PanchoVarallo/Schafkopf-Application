@@ -28,9 +28,6 @@ MISSING
 ## Installation
 
 The `Schafkopf-Application` was created with Python and the [Dash](https://dash.plotly.com/) framework. 
-
-### Running it locally
-
 You can run the application locally and access it via your browser:
 
 1. Clone `Schafkopf-Application` and go to the `schafkopf` directory.
@@ -49,14 +46,14 @@ database called `schafkopf.db`.
 ```
 python -m app
 ```
-5. Go to a browser and type in `http://127.0.0.1:8050/`. You will be asked for `username` and `password` and that's it.
+5. Go to a browser and type in `http://127.0.0.1:8050/`. You will be asked for `username` and `password`.
 
-### Implemented rules
+## Implemented rules
 
 We play `Rufspiel`, `Solo`, `Ramsch`, and `Hochzeit`, which is basically the used configuration in the small villages 
 in the north-eastern region of Nuremberg. The calculation is based on the rules 
 of [Sauspiel - Spielabrechnung](https://www.sauspiel.de/schafkopf-lernen/spielabrechnung).
 
-### Contributing
+## Contributing
 
 PRs accepted! Feel free to add `Farbwenz`, `Farbgeyer`, `Bettel`, or whatever you want ...
