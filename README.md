@@ -17,16 +17,16 @@ Why should I do this instead of using pen and paper?
 Going through these `gif` animations covers all the features of the `Schafkopf-Application`.
 
 #### Creating a "Runde"
-MISSING
+MISSING. See Issue!
 
 #### Creating a "Teilnehmer"
-MISSING
+MISSING. See Issue!
 
 #### Playing a game
-MISSING
+MISSING. See Issue!
 
 #### Seeing graphs and stats
-MISSING
+MISSING. See Issue!
 
 ## Installation
 
