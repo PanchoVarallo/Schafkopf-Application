@@ -1,6 +1,7 @@
 # Schafkopf-Application
 [![Build Status](https://travis-ci.com/PanchoVarallo/Schafkopf-Application.svg?branch=master)](https://travis-ci.com/github/PanchoVarallo/Schafkopf-Application)
 [![codecov](https://codecov.io/gh/PanchoVarallo/Schafkopf-Application/branch/master/graph/badge.svg)](https://codecov.io/gh/PanchoVarallo/Schafkopf-Application)
+[![Heroku](https://heroku-badge.herokuapp.com/?app=heroku-badge)](https://schafkopf-app.herokuapp.com/)
 
 [Schafkopf](https://en.wikipedia.org/wiki/Schafkopf) is the most popular card game in Bavaria. With this application, 
 you can record results of your physical [Schafkopf](https://en.wikipedia.org/wiki/Schafkopf) round in an 
@@ -17,16 +18,16 @@ Why should I do this instead of using pen and paper?
 Going through these `gif` animations covers all the features of the `Schafkopf-Application`.
 
 #### Creating a "Runde"
-MISSING
+MISSING. See Issue!
 
 #### Creating a "Teilnehmer"
-MISSING
+MISSING. See Issue!
 
 #### Playing a game
-MISSING
+MISSING. See Issue!
 
 #### Seeing graphs and stats
-MISSING
+MISSING. See Issue!
 
 ## Installation
 
