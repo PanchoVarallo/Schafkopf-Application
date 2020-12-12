@@ -13,14 +13,14 @@ from schafkopf.backend.calculator import RufspielCalculator, SoloCalculator, Hoc
 from schafkopf.backend.configs import RufspielRawConfig, SoloRawConfig, HochzeitRawConfig, RamschRawConfig
 from schafkopf.backend.validator import RufspielValidator, SoloValidator, HochzeitValidator, RamschValidator
 from schafkopf.database.queries import get_runden, get_users, insert_teilnehmer, insert_runde, get_teilnehmer_by_id, \
-    get_runde_by_id
+    get_runde_by_id, inactivate_einzelspiel_by_einzelspiel_id
 from schafkopf.database.writer import RufspielWriter, SoloWriter, HochzeitWriter, RamschWriter
 from schafkopf.frontend.generic_objects import wrap_alert, wrap_stats_by_runde_ids, wrap_rufspiel_card, \
     wrap_next_game_button, wrap_solo_card, wrap_hochzeit_card, \
     wrap_ramsch_card, wrap_stats_by_teilnehmer_ids, wrap_empty_dbc_row
 from schafkopf.frontend.presenter import RufspielPresenter, SoloPresenter, HochzeitPresenter, RamschPresenter
 from schafkopf.frontend.runde_anlegen import wrap_runde_anlegen_layout
-from schafkopf.frontend.spiele_loeschen import wrap_spiele_loeschen_layout
+from schafkopf.frontend.spiele_loeschen import wrap_letztes_spiel_loeschen_layout
 from schafkopf.frontend.spielen import wrap_spielen_layout
 from schafkopf.frontend.statistiken import wrap_statistiken_layout
 from schafkopf.frontend.teilnehmer_anlegen import wrap_teilnehmer_anlegen_layout
@@ -49,7 +49,7 @@ app.layout = html.Div([
                     dbc.DropdownMenuItem('Konfiguration', header=True),
                     dbc.DropdownMenuItem('Runde anlegen', href='runde_anlegen', external_link=True),
                     dbc.DropdownMenuItem('Teilnehmer anlegen', href='teilnehmer_anlegen', external_link=True),
-                    dbc.DropdownMenuItem('Spiele löschen', href='spiele_loeschen', disabled=True, external_link=True),
+                    dbc.DropdownMenuItem('Letztes Spiel löschen', href='letztes_spiel_loeschen', external_link=True),
                 ],
                 nav=True,
                 in_navbar=True,
@@ -78,8 +78,8 @@ def display_page(pathname: str):
         return wrap_runde_anlegen_layout()
     elif pathname == '/teilnehmer_anlegen':
         return wrap_teilnehmer_anlegen_layout()
-    elif pathname == '/spiele_loeschen':
-        return wrap_spiele_loeschen_layout()
+    elif pathname == '/letztes_spiel_loeschen':
+        return wrap_letztes_spiel_loeschen_layout()
     else:
         return wrap_spielen_layout()
 
@@ -544,6 +544,55 @@ def create_runde(
         close_button, close_button_reload = dict(), dict()
     return header, body, not create_runde_modal, {'clicks': create_runde_modal_open}, \
            {'clicks': create_runde_modal_close}, close_button, close_button_reload
+
+
+@app.callback(
+    [Output('delete_einzelspiel_modal_header', 'children'),
+     Output('delete_einzelspiel_modal_body', 'children'),
+     Output('delete_einzelspiel_modal', 'is_open'),
+     Output('delete_einzelspiel_modal_open_n_clicks', 'data'),
+     Output('delete_einzelspiel_modal_close_n_clicks', 'data'),
+     Output('delete_einzelspiel_modal_close', 'style'),
+     Output('delete_einzelspiel_modal_close_reload', 'style')],
+    [Input('delete_einzelspiel_modal_open', 'n_clicks'),
+     Input('delete_einzelspiel_modal_close', 'n_clicks')],
+    [State('delete_einzelspiel_modal_open_n_clicks', 'data'),
+     State('delete_einzelspiel_modal_close_n_clicks', 'data'),
+     State('delete_einzelspiel_modal', 'is_open'),
+     State('delete_einzelspiel_einzelspiel_id', 'data'),
+     ])
+def delete_einzelspiel(
+        delete_einzelspiel_modal_open: Union[None, int],
+        delete_einzelspiel_modal_close: Union[None, int],
+        delete_einzelspiel_modal_open_n_clicks: Dict,
+        delete_einzelspiel_modal_close_n_clicks: Dict,
+        delete_einzelspiel_modal: bool,
+        delete_einzelspiel_einzelspiel_id: Dict) -> Tuple[html.Div, html.Div, bool, Dict, Dict, Dict, Dict]:
+    delete_einzelspiel_modal_open = 0 if delete_einzelspiel_modal_open is None else delete_einzelspiel_modal_open
+    delete_einzelspiel_modal_close = 0 if delete_einzelspiel_modal_close is None else delete_einzelspiel_modal_close
+    if delete_einzelspiel_modal_open == 0 and delete_einzelspiel_modal_close == 0:
+        return html.Div(), html.Div(), delete_einzelspiel_modal, {'clicks': delete_einzelspiel_modal_open}, \
+               {'clicks': delete_einzelspiel_modal_close}, dict(), dict()
+    if delete_einzelspiel_modal_open > delete_einzelspiel_modal_open_n_clicks['clicks']:
+        einzelspiel_id = delete_einzelspiel_einzelspiel_id['id']
+        success = inactivate_einzelspiel_by_einzelspiel_id(einzelspiel_id)
+        if success:
+            header, body = html.Div(f'Spiel erfolgreich gelöscht.'), \
+                           html.Div(wrap_alert([f'Spiel erfolgreich gelöscht.'], color='success', xl=12))
+        else:
+            header, body = html.Div(f'Spiel konnte nicht gelöscht werden.'), \
+                           html.Div(wrap_alert([f'Spiel konnte nicht gelöscht werden. Bitte wenden Sie sich an den '
+                                                f'Administrator.'],
+                                               color='danger', xl=12))
+        close_button, close_button_reload = dict(display='none'), dict()
+    elif delete_einzelspiel_modal_close > delete_einzelspiel_modal_close_n_clicks['clicks']:
+        header, body = html.Div(), html.Div()
+        close_button, close_button_reload = dict(), dict()
+    else:
+        header, body = html.Div(), html.Div()
+        close_button, close_button_reload = dict(), dict()
+    return header, body, not delete_einzelspiel_modal, {'clicks': delete_einzelspiel_modal_open}, \
+           {'clicks': delete_einzelspiel_modal_close}, close_button, close_button_reload
 
 
 @app.callback(

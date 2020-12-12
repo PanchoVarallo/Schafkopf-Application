@@ -41,9 +41,11 @@ def get_teilnehmer_by_id(teilnehmer_id: Union[None, int], session: sessionmaker(
 
 
 def get_teilnehmers_by_ids(teilnehmer_ids: List[Union[None, int]],
-                           session: sessionmaker() = None) -> List[Union[None, Teilnehmer]]:
+                           dataframe: bool = False,
+                           session: sessionmaker() = None) -> Union[List[Union[None, Teilnehmer]], pd.DataFrame]:
     actual_session = _build_session(session)
-    teilnehmers = actual_session.query(Teilnehmer).filter(Teilnehmer.id.in_(teilnehmer_ids)).all()
+    query = actual_session.query(Teilnehmer).filter(Teilnehmer.id.in_(teilnehmer_ids))
+    teilnehmers = query.all() if not dataframe else pd.read_sql(query.statement, actual_session.bind)
     _close_session(actual_session, session)
     return teilnehmers
 
@@ -149,6 +151,19 @@ def get_einzelspiele_by_einzelspiel_ids(einzelspiel_ids: List[int],
     return einzelspiele
 
 
+def inactivate_einzelspiel_by_einzelspiel_id(einzelspiel_id: int, session: sessionmaker() = None) -> bool:
+    actual_session = Sessions.get_session() if session is None else session
+    try:
+        einzelspiel = actual_session.query(Einzelspiel).filter(Einzelspiel.id == einzelspiel_id).all()[0]
+        einzelspiel.is_active = False
+        actual_session.commit()
+    except Exception:
+        return False
+    finally:
+        _close_session(actual_session, session)
+    return True
+
+
 def get_einzelspiele_by_teilnehmer_ids(teilnehmer_ids: List[int],
                                        active: bool = True,
                                        dataframe: bool = False,
@@ -221,6 +236,18 @@ def get_latest_einzelspiel_id(session: sessionmaker() = None) -> Union[None, int
     einzelspiel_id = einzelspiel_id[0][0] if len(einzelspiel_id) == 1 else None
     _close_session(actual_session, session)
     return einzelspiel_id
+
+
+def get_latest_result(session: sessionmaker() = None) -> Union[None, pd.DataFrame]:
+    actual_session = _build_session(session)
+    einzelspiel_id = get_latest_einzelspiel_id()
+    if einzelspiel_id is None:
+        return None
+    resultate = get_resultate_by_einzelspiele_ids([einzelspiel_id], dataframe=True)
+    teilnehmer = get_teilnehmers_by_ids(resultate["teilnehmer_id"].to_list(), dataframe=True)
+    result = pd.merge(resultate, teilnehmer, left_on=["teilnehmer_id"], right_on=["id"])[["teilnehmer_id", "punkte"]]
+    _close_session(actual_session, session)
+    return result
 
 
 def get_users(session: sessionmaker() = None) -> Union[None, List[User]]:

@@ -20,11 +20,11 @@ class Presenter:
         result_div.extend(
             [dbc.Col([dbc.Table(self._get_result_body(), bordered=False, striped=True, hover=True)], xl=6, xs=12)])
         result_div.extend(
-            [dbc.Col(self._get_result_message(self._calculator.get_teilnehmer_id_to_punkte()), xl=6, xs=12)])
+            [dbc.Col(self.get_result_message(self._calculator.get_teilnehmer_id_to_punkte()), xl=6, xs=12)])
         return dbc.Row(result_div)
 
     @staticmethod
-    def _get_result_message(teilnehmer_id_to_punkte: Dict) -> dbc.Row:
+    def get_result_message(teilnehmer_id_to_punkte: Dict, row_wise: bool = False) -> dbc.Row:
         gewinner = {key: value for key, value in teilnehmer_id_to_punkte.items() if value > 0}
         verlierer = {key: value for key, value in teilnehmer_id_to_punkte.items() if value < 0}
         result_div = []
@@ -34,6 +34,11 @@ class Presenter:
         for key, value in verlierer.items():
             msg = [html.B(f'{get_teilnehmer_vorname_by_id(key)}'), f' -', html.B(f'{-int(value)}')]
             result_div.append(dbc.Col([dbc.Alert(msg, color='danger')], xl=6, xs=12))
+        if row_wise:
+            row_wise_rows = []
+            for col in result_div:
+                row_wise_rows.append(dbc.Row([col]))
+            return html.Div(row_wise_rows)
         return dbc.Row(result_div)
 
     @staticmethod
