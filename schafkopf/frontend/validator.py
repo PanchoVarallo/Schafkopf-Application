@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import List, Union
 
-from schafkopf.backend.configs import RufspielRawConfig, RufspielConfig, SoloRawConfig, SoloConfig, HochzeitRawConfig, \
+from schafkopf.database.configs import RufspielRawConfig, RufspielConfig, SoloRawConfig, SoloConfig, HochzeitRawConfig, \
     HochzeitConfig, RufspielHochzeitRawConfig, NormalspielRawConfig, RawConfig, RamschRawConfig, RamschConfig
 from schafkopf.database.data_model import Farbgebung, Spielart
 from schafkopf.database.queries import get_teilnehmer_vorname_by_id, get_punkteconfig_by_runde_id

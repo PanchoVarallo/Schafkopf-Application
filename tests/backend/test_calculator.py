@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from schafkopf.backend.calculator import RufspielCalculator, SoloCalculator, HochzeitCalculator, RamschCalculator
-from schafkopf.backend.configs import RufspielConfig, SoloConfig, HochzeitConfig, RamschConfig
+from schafkopf.database.configs import RufspielConfig, SoloConfig, HochzeitConfig, RamschConfig
 from schafkopf.database.data_model import Teilnehmer, Runde, Base, Punkteconfig, Farbgebung, Spielart
 
 S1 = 'Spieler_1'

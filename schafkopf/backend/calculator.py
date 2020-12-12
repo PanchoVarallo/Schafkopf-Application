@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import List, Dict
 
-from schafkopf.backend.configs import RufspielConfig, SoloConfig, Config, HochzeitConfig, RufspielHochzeitConfig, \
+from schafkopf.database.configs import RufspielConfig, SoloConfig, Config, HochzeitConfig, RufspielHochzeitConfig, \
     NormalspielConfig, RamschConfig
 
 

@@ -3,7 +3,7 @@ from typing import Union
 
 from schafkopf.backend.calculator import RufspielCalculator, SoloCalculator, NormalspielCalculator, \
     RufspielHochzeitCalculator, HochzeitCalculator, RamschCalculator
-from schafkopf.backend.configs import RamschConfig
+from schafkopf.database.configs import RamschConfig
 from schafkopf.database.data_model import Spielart, Doppler, Einzelspiel
 from schafkopf.database.queries import insert_einzelspiel, insert_resultat, insert_verdopplung
 from schafkopf.database.session import Sessions

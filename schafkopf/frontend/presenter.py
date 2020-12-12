@@ -6,7 +6,7 @@ import dash_html_components as html
 
 from schafkopf.backend.calculator import RufspielCalculator, SoloCalculator, Calculator, RufspielHochzeitCalculator, \
     NormalspielCalculator, HochzeitCalculator, RamschCalculator
-from schafkopf.backend.configs import Config, NormalspielConfig, RamschConfig
+from schafkopf.database.configs import Config, NormalspielConfig, RamschConfig
 from schafkopf.database.queries import get_teilnehmer_name_by_id, get_teilnehmer_vorname_by_id
 from schafkopf.frontend.generic_objects import wrap_html_tr, wrap_html_tbody
 

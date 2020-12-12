@@ -59,5 +59,16 @@ in the north-eastern region of Nuremberg. The calculation is based on the rules
 of [Sauspiel - Spielabrechnung](https://www.sauspiel.de/schafkopf-lernen/spielabrechnung).
 
 ## Remarks
+- Tests are only written for the backend. The test coverage above refers to the backend. 
+- You can deploy this dash application to [Heroku](https://dashboard.heroku.com/):
+  - Deploy the code: [https://dash.plotly.com/deployment](https://dash.plotly.com/deployment)
+  - You cannot use the [SQLite](https://www.sqlite.org/index.html) database on Heroku. 
+    Instead, you can use a [PostgreSQL for Heroku](https://www.heroku.com/postgres).
+  - After defining the PostgreSQL, you adjust the ``settings.ini`` (self-explainable) and run `python init.py`
+    to initialize the empty PostgreSQL on Heroku. See ``init.py`` for details.
+  - Finally, you define ``Config Vars`` on Heroku:
+    - DATABASE_URL - ``URL to Heroku PostgreSQL``. See ``session.py`` for details.
+    - LANG - ``de_DE.utf8``
+    - TZ - ``Europe/Berlin``
+    
 
-PRs accepted! Feel free to add `Farbwenz`, `Farbgeyer`, `Bettel`, or whatever you want ...

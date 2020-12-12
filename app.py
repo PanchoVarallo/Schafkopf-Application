@@ -10,8 +10,8 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State
 
 from schafkopf.backend.calculator import RufspielCalculator, SoloCalculator, HochzeitCalculator, RamschCalculator
-from schafkopf.backend.configs import RufspielRawConfig, SoloRawConfig, HochzeitRawConfig, RamschRawConfig
-from schafkopf.backend.validator import RufspielValidator, SoloValidator, HochzeitValidator, RamschValidator
+from schafkopf.database.configs import RufspielRawConfig, SoloRawConfig, HochzeitRawConfig, RamschRawConfig
+from schafkopf.frontend.validator import RufspielValidator, SoloValidator, HochzeitValidator, RamschValidator
 from schafkopf.database.queries import get_runden, get_users, insert_teilnehmer, insert_runde, get_teilnehmer_by_id, \
     get_runde_by_id, inactivate_einzelspiel_by_einzelspiel_id
 from schafkopf.database.writer import RufspielWriter, SoloWriter, HochzeitWriter, RamschWriter
