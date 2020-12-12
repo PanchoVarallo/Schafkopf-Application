@@ -30,9 +30,10 @@ external_stylesheets = [dbc.themes.DARKLY]
 locale.setlocale(locale.LC_TIME, 'de_DE.utf8')
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
-auth = dash_auth.BasicAuth(
-    app, VALID_USERNAME_PASSWORD_PAIRS
-)
+if VALID_USERNAME_PASSWORD_PAIRS:
+    auth = dash_auth.BasicAuth(
+        app, VALID_USERNAME_PASSWORD_PAIRS
+    )
 app.config.suppress_callback_exceptions = True
 app.title = 'Digitale Schafkopfliste'
 

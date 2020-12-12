@@ -491,6 +491,6 @@ def wrap_footer_row():
         wrap_dbc_col([
             wrap_empty_dbc_row(),
             html.Div(
-                html.Footer('\u00a9 2020 - Mathias Sirvent', style={'textAlign': 'center'})
+                html.Footer('\u00a9 2020 - Nürnberg', style={'textAlign': 'center'})
             )])
     ])
