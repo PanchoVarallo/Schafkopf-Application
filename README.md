@@ -15,6 +15,9 @@ Why should I do this instead of using pen and paper?
 - You can access comprehensive stats analyzing gaming behavior of the players.
 - You have a database with all the results for doing further analysis.
 
+## Preview
+![Preview](imgs/schafkopf.jpg)
+
 ## Installation
 
 The `Schafkopf-Application` was created with Python and the [Dash](https://dash.plotly.com/) framework. 
