@@ -1,6 +1,6 @@
 # Schafkopf-Application
-
 [![build](https://github.com/PanchoVarallo/Schafkopf-Application/actions/workflows/build.yml/badge.svg)](https://github.com/PanchoVarallo/Schafkopf-Application/actions/workflows/build.yml)
+
 [Schafkopf](https://en.wikipedia.org/wiki/Schafkopf) is the most popular card game in Bavaria. 
 
 With this application, 
