@@ -1,6 +1,5 @@
 # Schafkopf-Application
 [![Build Status](https://travis-ci.com/PanchoVarallo/Schafkopf-Application.svg?branch=master)](https://travis-ci.com/github/PanchoVarallo/Schafkopf-Application)
-[![codecov](https://codecov.io/gh/PanchoVarallo/Schafkopf-Application/branch/master/graph/badge.svg)](https://codecov.io/gh/PanchoVarallo/Schafkopf-Application)
 
 [Schafkopf](https://en.wikipedia.org/wiki/Schafkopf) is the most popular card game in Bavaria. 
 
@@ -23,9 +22,12 @@ The `Schafkopf-Application` was created with Python and the [Dash](https://dash.
 You can run the application locally and access it via your browser:
 
 1. Clone `Schafkopf-Application` and go to the `schafkopf` directory.
-2. Create a `conda` environment and install the requirements via `sudo` and `pip`.
+2. Create a `conda` environment with Python version `~=3.8.4`
 ```
-conda create --name schafkopf
+conda create -n "schafkopf" python~=3.8.4 ipython
+```
+and run
+```
 conda activate schafkopf
 conda install pip
 sudo apt-get install libpq-dev
