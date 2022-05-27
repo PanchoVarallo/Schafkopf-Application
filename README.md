@@ -29,8 +29,6 @@ conda create -n "schafkopf" python~=3.8.4 ipython
 and run
 ```
 conda activate schafkopf
-conda install pip
-sudo apt-get install libpq-dev
 pip install -r requirements.txt
 ```
 3. Run `python init.py` to init the schema in the [SQLite](https://www.sqlite.org/index.html) 
